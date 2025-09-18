@@ -1,6 +1,6 @@
 <script lang="ts">
     import "./page.css";
-    import "./obsidian-app.css";
+    import "./obsidian-variables.css";
     import Header from "./Header.svelte";
 
     let user = $state<{ name: string }>();
