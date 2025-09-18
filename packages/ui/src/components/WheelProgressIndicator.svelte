@@ -1,44 +1,31 @@
 <!-- src/components/WheelProgressIndicator.svelte -->
 <script lang="ts">
-    type Progress = {
-        count: number;
-        direction: "up" | "down" | null;
-        threshold: number;
-    };
+    import type { WheelState } from "../stores/useWheelRefresh.svelte.ts";
 
-    let {
-        progress,
-        isCoolingDown = false,
-        isRefreshing = false,
-        isShowingPostRefresh = false,
-        position = "top",
-    } = $props<{
-        progress: Progress;
-        isCoolingDown?: boolean;
-        isRefreshing?: boolean;
-        isShowingPostRefresh?: boolean;
+    let { wheelState, position = "top" } = $props<{
+        wheelState: WheelState;
         position?: "top" | "bottom";
     }>();
 </script>
 
-{#if (progress.count > 0 && !isCoolingDown && !isRefreshing) || isShowingPostRefresh}
+{#if (wheelState.count > 0 && !wheelState.isCoolingDown) || wheelState.isShowingPostRefresh}
     <div
         class="wheel-progress-indicator"
         class:bottom={position === "bottom"}
-        class:post-refresh={isShowingPostRefresh}
+        class:post-refresh={wheelState.isShowingPostRefresh}
     >
-        {#if isShowingPostRefresh}
+        {#if wheelState.isShowingPostRefresh}
             ✓
         {:else}
-            {progress.direction === "up" ? "↑" : "↓"}
+            {wheelState.direction === "up" ? "↑" : "↓"}
         {/if}
         <span class="progress-bar-wrapper">
             <div
                 class="progress-bar"
-                style="width: {isShowingPostRefresh
+                style="width: {wheelState.isShowingPostRefresh
                     ? 100
                     : Math.min(
-                          (progress.count / progress.threshold) * 100,
+                          (wheelState.count / wheelState.threshold) * 100,
                           100
                       )}%;"
             ></div>

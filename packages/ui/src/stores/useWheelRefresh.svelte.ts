@@ -16,7 +16,7 @@ interface WheelRefreshOptions {
 
 type WheelDirection = "up" | "down";
 
-interface WheelState {
+export interface WheelState {
     count: number;
     direction: WheelDirection | null;
     threshold: number;
