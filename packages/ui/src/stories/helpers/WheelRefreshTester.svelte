@@ -1,116 +1,124 @@
 <!-- src/stories/helpers/WheelRefreshTester.svelte -->
 <script lang="ts">
-  import { useWheelRefresh } from '../../stores/useWheelRefresh.svelte';
-  import WheelProgressIndicator from '../../components/WheelProgressIndicator.svelte';
+    import { useWheelRefresh } from "../../stores/useWheelRefresh.svelte";
+    import WheelProgressIndicator from "../../components/WheelProgressIndicator.svelte";
 
-  type Props = {
-    isEnabled?: boolean;
-    onUpRefresh?: () => Promise<void>;
-    onDownRefresh?: () => Promise<void>;
-    upThreshold?: number;
-    downThreshold?: number;
-    initialScrollTop?: number;
-    // 状態表示の位置を指定するプロパティを追加
-    statePosition?: 'top' | 'bottom';
-  };
+    let {
+        isEnabled = true,
+        onUpRefresh,
+        onDownRefresh,
+        upThreshold = 7,
+        downThreshold = 7,
+        initialScrollTop = 0,
+        // デフォルトは 'top'
+        statePosition = "top",
+    } = $props<{
+        isEnabled?: boolean;
+        onUpRefresh?: () => Promise<void>;
+        onDownRefresh?: () => Promise<void>;
+        upThreshold?: number;
+        downThreshold?: number;
+        initialScrollTop?: number;
+        // 状態表示の位置を指定するプロパティを追加
+        statePosition?: "top" | "bottom";
+    }>();
 
-  let {
-    isEnabled = true,
-    onUpRefresh,
-    onDownRefresh,
-    upThreshold = 7,
-    downThreshold = 7,
-    initialScrollTop = 0,
-    // デフォルトは 'top'
-    statePosition = 'top',
-  } = $props<Props>();
+    let scrollContainerEl: HTMLElement | undefined = $state();
+    let isRefreshing = $state(false);
 
-  let scrollContainerEl: HTMLElement | undefined = $state();
-  let isRefreshing = $state(false);
+    const createRefreshHandler = (callback?: () => Promise<void>) => {
+        if (!callback) return undefined;
 
-  const createRefreshHandler = (callback?: () => Promise<void>) => {
-    if (!callback) return undefined;
+        return {
+            onRefresh: async () => {
+                isRefreshing = true;
+                await callback();
+                setTimeout(() => {
+                    isRefreshing = false;
+                }, 1000);
+            },
+            threshold: onUpRefresh === callback ? upThreshold : downThreshold,
+        };
+    };
 
-    return {
-        onRefresh: async () => {
-            isRefreshing = true;
-            await callback();
-            setTimeout(() => {
-                isRefreshing = false;
-            }, 1000);
-        },
-        threshold: onUpRefresh === callback ? upThreshold : downThreshold,
-    }
-  };
+    const { wheelProgress, isCoolingDown } = useWheelRefresh({
+        getScrollElement: () => scrollContainerEl,
+        isEnabled: () => isEnabled && !isRefreshing,
+        up: createRefreshHandler(onUpRefresh),
+        down: createRefreshHandler(onDownRefresh),
+    });
 
-  const { wheelProgress, isCoolingDown } = useWheelRefresh({
-    getScrollElement: () => scrollContainerEl,
-    isEnabled: () => isEnabled && !isRefreshing,
-    up: createRefreshHandler(onUpRefresh),
-    down: createRefreshHandler(onDownRefresh),
-  });
-
-  $effect(() => {
-      if (scrollContainerEl) {
-          scrollContainerEl.scrollTop = initialScrollTop === -1
-            ? scrollContainerEl.scrollHeight
-            : initialScrollTop;
-      }
-  });
-
-  // 状態表示用のHTMLブロックをコンポーネントとして定義
-  const StateIndicator = ({ wheelProgress, isCoolingDown, isRefreshing }) => {
-    return `
-      <div class="indicator">
-          <h3>Current State</h3>
-          <p data-testid="state-direction">Direction: ${wheelProgress.direction ?? 'none'}</p>
-          <p data-testid="state-count">Count: ${wheelProgress.count}</p>
-          <p data-testid="state-cooldown">isCoolingDown: ${isCoolingDown}</p>
-          <p data-testid="state-refreshing">isRefreshing: ${isRefreshing}</p>
-      </div>
-    `;
-  };
+    $effect(() => {
+        if (scrollContainerEl) {
+            scrollContainerEl.scrollTop =
+                initialScrollTop === -1
+                    ? scrollContainerEl.scrollHeight
+                    : initialScrollTop;
+        }
+    });
 </script>
 
-<div class="test-container" data-testid="scroll-container" bind:this={scrollContainerEl}>
+<div
+    class="test-container"
+    data-testid="scroll-container"
+    bind:this={scrollContainerEl}
+>
     <WheelProgressIndicator
         progress={wheelProgress}
         {isCoolingDown}
-        isRefreshing={isRefreshing}
+        {isRefreshing}
         position="top"
     />
     <WheelProgressIndicator
         progress={wheelProgress}
         {isCoolingDown}
-        isRefreshing={isRefreshing}
+        {isRefreshing}
         position="bottom"
     />
 
     <div class="content">
         <!-- statePositionに応じて状態表示の位置を切り替え -->
-        {#if statePosition === 'top'}
+        {#if statePosition === "top"}
             <div class="indicator">
                 <h3>Current State</h3>
-                <p data-testid="state-direction">Direction: {wheelProgress.direction ?? 'none'}</p>
+                <p data-testid="state-direction">
+                    Direction: {wheelProgress.direction ?? "none"}
+                </p>
                 <p data-testid="state-count">Count: {wheelProgress.count}</p>
-                <p data-testid="state-cooldown">isCoolingDown: {isCoolingDown}</p>
-                <p data-testid="state-refreshing">isRefreshing: {isRefreshing}</p>
+                <p data-testid="state-cooldown">
+                    isCoolingDown: {isCoolingDown}
+                </p>
+                <p data-testid="state-refreshing">
+                    isRefreshing: {isRefreshing}
+                </p>
             </div>
         {/if}
 
         <p>Scroll up at the top to trigger refresh.</p>
-        <p class="filler">Content</p><p class="filler">Content</p><p class="filler">Content</p>
-        <p class="filler">Content</p><p class="filler">Content</p><p class="filler">Content</p>
-        <p class="filler">Content</p><p class="filler">Content</p><p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
+        <p class="filler">Content</p>
         <p>Scroll down at the bottom to trigger refresh.</p>
 
-        {#if statePosition === 'bottom'}
+        {#if statePosition === "bottom"}
             <div class="indicator">
                 <h3>Current State</h3>
-                <p data-testid="state-direction">Direction: {wheelProgress.direction ?? 'none'}</p>
+                <p data-testid="state-direction">
+                    Direction: {wheelProgress.direction ?? "none"}
+                </p>
                 <p data-testid="state-count">Count: {wheelProgress.count}</p>
-                <p data-testid="state-cooldown">isCoolingDown: {isCoolingDown}</p>
-                <p data-testid="state-refreshing">isRefreshing: {isRefreshing}</p>
+                <p data-testid="state-cooldown">
+                    isCoolingDown: {isCoolingDown}
+                </p>
+                <p data-testid="state-refreshing">
+                    isRefreshing: {isRefreshing}
+                </p>
             </div>
         {/if}
     </div>
@@ -138,6 +146,6 @@
         border-radius: 8px;
     }
     .filler {
-      padding: 1rem 0;
+        padding: 1rem 0;
     }
 </style>
