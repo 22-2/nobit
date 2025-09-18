@@ -24,6 +24,9 @@ importers:
         specifier: ^11.0.3
         version: 11.0.3
     devDependencies:
+      '@nobit/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       '@types/node':
         specifier: 24.2.0
         version: 24.2.0

@@ -1,0 +1,3 @@
+{
+  "extends": "@nobit/typescript-config/base.json"
+}
