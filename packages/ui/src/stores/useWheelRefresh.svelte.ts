@@ -38,11 +38,13 @@ export function useWheelRefresh({
   function resetWheelState() {
     wheelCount = 0;
     wheelDirection = null;
-    wheelProgress = {
-      count: 0,
-      direction: null,
-      threshold: DEFAULT_WHEEL_THRESHOLD,
-    };
+
+    // ★★★ 修正箇所 ★★★
+    // オブジェクトを再代入するのではなく、プロパティを直接更新する
+    wheelProgress.count = 0;
+    wheelProgress.direction = null;
+    wheelProgress.threshold = DEFAULT_WHEEL_THRESHOLD;
+
     if (resetTimer) {
       clearTimeout(resetTimer);
       resetTimer = null;
@@ -51,12 +53,10 @@ export function useWheelRefresh({
 
   const handleWheel = (e: WheelEvent) => {
     const scrollContainerEl = getScrollElement();
-    // Initial checks moved from effect to handler
     if (!scrollContainerEl || !isEnabled()) {
       return;
     }
 
-    // UX fix: allow scrolling during cooldown
     if (isCoolingDown) {
       return;
     }
@@ -91,11 +91,12 @@ export function useWheelRefresh({
         wheelCount += 1;
       }
       const threshold = config.threshold ?? DEFAULT_WHEEL_THRESHOLD;
-      wheelProgress = {
-        count: wheelCount,
-        direction: wheelDirection,
-        threshold: threshold,
-      };
+
+      // ★★★ 修正箇所 ★★★
+      // こちらも同様に、プロパティを直接更新する
+      wheelProgress.count = wheelCount;
+      wheelProgress.direction = wheelDirection;
+      wheelProgress.threshold = threshold;
 
       let isTriggered = false;
 
@@ -110,17 +111,15 @@ export function useWheelRefresh({
       }
 
       if (isTriggered) {
-        // Explicitly clear the reset timer to prevent race conditions
         if (resetTimer) {
           clearTimeout(resetTimer);
           resetTimer = null;
         }
 
-        isCoolingDown = true; // Set cooldown immediately
+        isCoolingDown = true;
         config.onRefresh();
         resetWheelState();
 
-        // Now just set the timer to turn it off
         if (cooldownTimer) clearTimeout(cooldownTimer);
         cooldownTimer = setTimeout(() => {
           isCoolingDown = false;
@@ -135,7 +134,6 @@ export function useWheelRefresh({
   $effect(() => {
     const scrollContainerEl = getScrollElement();
 
-    // Effect only adds/removes listener
     if (scrollContainerEl && isEnabled()) {
       scrollContainerEl.addEventListener("wheel", handleWheel, {
         passive: false,
@@ -144,7 +142,6 @@ export function useWheelRefresh({
         scrollContainerEl.removeEventListener("wheel", handleWheel);
       };
     } else {
-      // If disabled or element removed, reset state
       resetWheelState();
     }
   });
