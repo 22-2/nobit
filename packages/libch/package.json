@@ -1,0 +1,22 @@
+{
+  "name": "@nobit/libch",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+		"test": "vitest"
+  },
+  "devDependencies": {
+    "@types/he": "^1.2.3",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@nobit/typescript-config": "workspace:*",
+    "date-fns": "^4.1.0",
+    "he": "^1.2.0"
+  }
+}
