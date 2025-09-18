@@ -1,0 +1,19 @@
+{
+    "eslint.workingDirectories": [
+        {
+            "mode": "auto"
+        }
+    ],
+    "[svelte]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "svelte.svelte-vscode",
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    },
+    "kiroAgent.configureMCP": "Disabled",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "svelte.plugin.svelte.format.config.tabWidth": 4,
+    "svelte.plugin.svelte.format.config.useTabs": false
+}
