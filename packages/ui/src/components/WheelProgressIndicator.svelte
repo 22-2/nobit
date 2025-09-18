@@ -15,8 +15,6 @@
     );
 </script>
 
-//
-E:\Desktop\coding\my-projects-02\nobit\packages\ui\src\components\WheelProgressIndicator.svelte
 <!-- #if は残しておき、visibility は CSS で制御するようにします -->
 <!-- ただし、 visibility: hidden は opacity: 0 と同様に要素のスペースは確保される点に注意 -->
 <!-- もし完全にレイアウトから消したいなら、結局 #if を調整する必要があるかもしれません -->
