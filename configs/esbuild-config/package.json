@@ -1,0 +1,17 @@
+{
+  "name": "@nobit/esbuild-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./*": "./*.ts"
+  },
+  "devDependencies": {
+    "@types/node": "24.2.0",
+    "builtin-modules": "5.0.0",
+    "esbuild": "0.25.8"
+  },
+  "dependencies": {
+    "glob": "^11.0.3"
+  }
+}
