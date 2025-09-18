@@ -3,5 +3,11 @@ import { defineConfig } from "vite";
 import config from "./svelte.config.js";
 
 export default defineConfig({
-  plugins: [svelte(config)],
+    plugins: [svelte(config)],
+    build: {
+        sourcemap: true,
+    },
+    css: {
+        devSourcemap: true,
+    },
 });
