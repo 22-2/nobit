@@ -41,7 +41,7 @@
         };
     };
 
-    const { wheelProgress, isCoolingDown } = useWheelRefresh({
+    const { wheelState } = useWheelRefresh({
         getScrollElement: () => scrollContainerEl,
         isEnabled: () => isEnabled && !isRefreshing,
         up: createRefreshHandler(onUpRefresh),
@@ -64,17 +64,15 @@
     bind:this={scrollContainerEl}
 >
     <WheelProgressIndicator
-        progress={wheelProgress}
-        {isCoolingDown}
+        progress={wheelState}
         {isRefreshing}
-        isShowingPostRefresh={wheelProgress.isShowingPostRefresh}
+        isShowingPostRefresh={wheelState.isShowingPostRefresh}
         position="top"
     />
     <WheelProgressIndicator
-        progress={wheelProgress}
-        {isCoolingDown}
+        progress={wheelState}
         {isRefreshing}
-        isShowingPostRefresh={wheelProgress.isShowingPostRefresh}
+        isShowingPostRefresh={wheelState.isShowingPostRefresh}
         position="bottom"
     />
 
@@ -84,17 +82,17 @@
             <div class="indicator">
                 <h3>Current State</h3>
                 <p data-testid="state-direction">
-                    Direction: {wheelProgress.direction ?? "none"}
+                    Direction: {wheelState.direction ?? "none"}
                 </p>
-                <p data-testid="state-count">Count: {wheelProgress.count}</p>
+                <p data-testid="state-count">Count: {wheelState.count}</p>
                 <p data-testid="state-cooldown">
-                    isCoolingDown: {isCoolingDown}
+                    isCoolingDown: {wheelState.isCoolingDown}
                 </p>
                 <p data-testid="state-refreshing">
                     isRefreshing: {isRefreshing}
                 </p>
                 <p data-testid="state-post-refresh">
-                    isShowingPostRefresh: {wheelProgress.isShowingPostRefresh}
+                    isShowingPostRefresh: {wheelState.isShowingPostRefresh}
                 </p>
             </div>
         {/if}
@@ -115,17 +113,17 @@
             <div class="indicator">
                 <h3>Current State</h3>
                 <p data-testid="state-direction">
-                    Direction: {wheelProgress.direction ?? "none"}
+                    Direction: {wheelState.direction ?? "none"}
                 </p>
-                <p data-testid="state-count">Count: {wheelProgress.count}</p>
+                <p data-testid="state-count">Count: {wheelState.count}</p>
                 <p data-testid="state-cooldown">
-                    isCoolingDown: {isCoolingDown}
+                    isCoolingDown: {wheelState.isCoolingDown}
                 </p>
                 <p data-testid="state-refreshing">
                     isRefreshing: {isRefreshing}
                 </p>
                 <p data-testid="state-post-refresh">
-                    isShowingPostRefresh: {wheelProgress.isShowingPostRefresh}
+                    isShowingPostRefresh: {wheelState.isShowingPostRefresh}
                 </p>
             </div>
         {/if}

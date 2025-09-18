@@ -21,6 +21,7 @@ interface WheelState {
     direction: WheelDirection | null;
     threshold: number;
     isShowingPostRefresh: boolean;
+    isCoolingDown: boolean;
 }
 
 interface ScrollInfo {
@@ -48,8 +49,8 @@ export function useWheelRefresh({
         direction: null,
         threshold: DEFAULT_WHEEL_THRESHOLD,
         isShowingPostRefresh: false,
+        isCoolingDown: false,
     });
-    let isCoolingDown = $state(false);
     let resetTimer: number | null = null;
     let cooldownTimer: number | null = null;
     let postRefreshTimer: number | null = null;
@@ -151,10 +152,10 @@ export function useWheelRefresh({
     }
 
     function startCooldown(): void {
-        isCoolingDown = true;
+        wheelState.isCoolingDown = true;
         clearTimer(cooldownTimer);
         cooldownTimer = setTimeout(() => {
-            isCoolingDown = false;
+            wheelState.isCoolingDown = false;
             cooldownTimer = null;
         }, COOLDOWN_PERIOD);
     }
@@ -190,7 +191,7 @@ export function useWheelRefresh({
 
     const handleWheel = (e: WheelEvent) => {
         const scrollContainerEl = getScrollElement();
-        if (!scrollContainerEl || !isEnabled() || isCoolingDown) {
+        if (!scrollContainerEl || !isEnabled() || wheelState.isCoolingDown) {
             return;
         }
 
@@ -232,11 +233,8 @@ export function useWheelRefresh({
     });
 
     return {
-        get wheelProgress() {
+        get wheelState() {
             return wheelState;
-        },
-        get isCoolingDown() {
-            return isCoolingDown;
         },
         get isShowingPostRefresh() {
             console.log(
