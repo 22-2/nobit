@@ -1,8 +1,7 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
+import config from "./svelte.config.js";
 
 export default defineConfig({
-  plugins: [
-    svelte(), // ここに svelte プラグインが正しく設定されているか確認っす
-  ],
+  plugins: [svelte(config)],
 });
