@@ -236,13 +236,6 @@ export function useWheelRefresh({
         get wheelState() {
             return wheelState;
         },
-        get isShowingPostRefresh() {
-            console.log(
-                "Getter called: wheelState.isShowingPostRefresh =",
-                wheelState.isShowingPostRefresh
-            );
-            return wheelState.isShowingPostRefresh;
-        },
         bindRefreshTriggerLine: (el: HTMLElement) => {
             refreshTriggerLineEl = el;
         },

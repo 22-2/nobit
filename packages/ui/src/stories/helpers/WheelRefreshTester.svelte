@@ -41,7 +41,8 @@
         };
     };
 
-    const { wheelState } = useWheelRefresh({
+    // useWheelRefresh から wheelState と bindRefreshTriggerLine を取得
+    const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
         getScrollElement: () => scrollContainerEl,
         isEnabled: () => isEnabled && !isRefreshing,
         up: createRefreshHandler(onUpRefresh),
@@ -63,18 +64,9 @@
     data-testid="scroll-container"
     bind:this={scrollContainerEl}
 >
-    <WheelProgressIndicator
-        progress={wheelState}
-        {isRefreshing}
-        isShowingPostRefresh={wheelState.isShowingPostRefresh}
-        position="top"
-    />
-    <WheelProgressIndicator
-        progress={wheelState}
-        {isRefreshing}
-        isShowingPostRefresh={wheelState.isShowingPostRefresh}
-        position="bottom"
-    />
+    <!-- WheelProgressIndicator に wheelState オブジェクトを直接渡すように変更 -->
+    <WheelProgressIndicator {wheelState} position="top" />
+    <WheelProgressIndicator {wheelState} position="bottom" />
 
     <div class="content">
         <!-- statePositionに応じて状態表示の位置を切り替え -->

@@ -17,15 +17,9 @@
                 options: ["top", "bottom"],
                 description: "インジケーターの表示位置",
             },
-            isCoolingDown: {
-                control: "boolean",
-                description: "クールダウン中か (true の場合非表示)",
-            },
-            isRefreshing: {
-                control: "boolean",
-                description: "リフレッシュ中か (true の場合非表示)",
-            },
-            progress: {
+            // isRefreshing は WheelProgressIndicator の props から削除されたため、ここでも削除
+            // isCoolingDown も wheelState の一部なので、直接 progress.isCoolingDown を操作するように変更
+            wheelState: {
                 control: "object",
                 description: "進捗状況を管理するオブジェクト",
             },
@@ -62,10 +56,14 @@
 <Story
     name="Default"
     args={{
-        progress: { count: 4, threshold: 7, direction: "down" },
+        wheelState: {
+            count: 4,
+            threshold: 7,
+            direction: "down",
+            isCoolingDown: false,
+            isShowingPostRefresh: false,
+        },
         position: "top",
-        isCoolingDown: false,
-        isRefreshing: false,
     }}
 />
 
@@ -73,7 +71,13 @@
 <Story
     name="Progress Full"
     args={{
-        progress: { count: 7, threshold: 7, direction: "down" },
+        wheelState: {
+            count: 7,
+            threshold: 7,
+            direction: "down",
+            isCoolingDown: false,
+            isShowingPostRefresh: false,
+        },
         position: "top",
     }}
 />
@@ -84,7 +88,13 @@
     args={{
         // 'Default'ストーリーのargsを上書き
         ...{
-            progress: { count: 3, threshold: 7, direction: "up" },
+            wheelState: {
+                count: 3,
+                threshold: 7,
+                direction: "up",
+                isCoolingDown: false,
+                isShowingPostRefresh: false,
+            },
         },
     }}
 />
@@ -93,7 +103,13 @@
 <Story
     name="Position Bottom"
     args={{
-        progress: { count: 5, threshold: 7, direction: "down" },
+        wheelState: {
+            count: 5,
+            threshold: 7,
+            direction: "down",
+            isCoolingDown: false,
+            isShowingPostRefresh: false,
+        },
         position: "bottom",
     }}
 />
@@ -102,8 +118,28 @@
 <Story
     name="Hidden (Cooling Down)"
     args={{
-        progress: { count: 4, threshold: 7, direction: "down" },
+        wheelState: {
+            count: 4,
+            threshold: 7,
+            direction: "down",
+            isCoolingDown: true,
+            isShowingPostRefresh: false,
+        }, // isCoolingDown を wheelState 内に含める
         position: "top",
-        isCoolingDown: true, // このフラグによりコンポーネントは描画されません
+    }}
+/>
+
+<!-- 6. リフレッシュ後のインジケーター表示 (✓) -->
+<Story
+    name="Post Refresh (Checkmark)"
+    args={{
+        wheelState: {
+            count: 0,
+            threshold: 7,
+            direction: null,
+            isCoolingDown: false,
+            isShowingPostRefresh: true,
+        }, // isShowingPostRefresh を wheelState 内に含める
+        position: "top",
     }}
 />
