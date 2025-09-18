@@ -20,6 +20,7 @@ interface WheelState {
     count: number;
     direction: WheelDirection | null;
     threshold: number;
+    isShowingPostRefresh: boolean;
 }
 
 interface ScrollInfo {
@@ -46,9 +47,9 @@ export function useWheelRefresh({
         count: 0,
         direction: null,
         threshold: DEFAULT_WHEEL_THRESHOLD,
+        isShowingPostRefresh: false,
     });
     let isCoolingDown = $state(false);
-    let isShowingPostRefresh = $state(false); // リフレッシュ後の表示延長状態
     let resetTimer: number | null = null;
     let cooldownTimer: number | null = null;
     let postRefreshTimer: number | null = null;
@@ -59,10 +60,26 @@ export function useWheelRefresh({
     }
 
     function startPostRefreshDisplay(): void {
-        isShowingPostRefresh = true;
+        console.log(
+            "Before: wheelState.isShowingPostRefresh =",
+            wheelState.isShowingPostRefresh
+        );
+        wheelState.isShowingPostRefresh = true;
+        console.log(
+            "After: wheelState.isShowingPostRefresh =",
+            wheelState.isShowingPostRefresh
+        );
         clearTimer(postRefreshTimer);
         postRefreshTimer = setTimeout(() => {
-            isShowingPostRefresh = false;
+            console.log(
+                "Timeout Before: wheelState.isShowingPostRefresh =",
+                wheelState.isShowingPostRefresh
+            );
+            wheelState.isShowingPostRefresh = false;
+            console.log(
+                "Timeout After: wheelState.isShowingPostRefresh =",
+                wheelState.isShowingPostRefresh
+            );
             postRefreshTimer = null;
         }, INDICATOR_DISPLAY_DELAY);
     }
@@ -222,7 +239,11 @@ export function useWheelRefresh({
             return isCoolingDown;
         },
         get isShowingPostRefresh() {
-            return isShowingPostRefresh;
+            console.log(
+                "Getter called: wheelState.isShowingPostRefresh =",
+                wheelState.isShowingPostRefresh
+            );
+            return wheelState.isShowingPostRefresh;
         },
         bindRefreshTriggerLine: (el: HTMLElement) => {
             refreshTriggerLineEl = el;
