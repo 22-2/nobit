@@ -41,12 +41,13 @@
         };
     };
 
-    const { wheelProgress, isCoolingDown } = useWheelRefresh({
-        getScrollElement: () => scrollContainerEl,
-        isEnabled: () => isEnabled && !isRefreshing,
-        up: createRefreshHandler(onUpRefresh),
-        down: createRefreshHandler(onDownRefresh),
-    });
+    const { wheelProgress, isCoolingDown, isShowingPostRefresh } =
+        useWheelRefresh({
+            getScrollElement: () => scrollContainerEl,
+            isEnabled: () => isEnabled && !isRefreshing,
+            up: createRefreshHandler(onUpRefresh),
+            down: createRefreshHandler(onDownRefresh),
+        });
 
     $effect(() => {
         if (scrollContainerEl) {
@@ -67,12 +68,14 @@
         progress={wheelProgress}
         {isCoolingDown}
         {isRefreshing}
+        {isShowingPostRefresh}
         position="top"
     />
     <WheelProgressIndicator
         progress={wheelProgress}
         {isCoolingDown}
         {isRefreshing}
+        {isShowingPostRefresh}
         position="bottom"
     />
 
@@ -90,6 +93,9 @@
                 </p>
                 <p data-testid="state-refreshing">
                     isRefreshing: {isRefreshing}
+                </p>
+                <p data-testid="state-post-refresh">
+                    isShowingPostRefresh: {isShowingPostRefresh}
                 </p>
             </div>
         {/if}
@@ -118,6 +124,9 @@
                 </p>
                 <p data-testid="state-refreshing">
                     isRefreshing: {isRefreshing}
+                </p>
+                <p data-testid="state-post-refresh">
+                    isShowingPostRefresh: {isShowingPostRefresh}
                 </p>
             </div>
         {/if}

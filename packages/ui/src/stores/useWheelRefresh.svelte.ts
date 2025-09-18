@@ -40,6 +40,7 @@ export function useWheelRefresh({
     const COOLDOWN_PERIOD = 1000;
     const RESET_DELAY = 800;
     const EDGE_BUFFER = 10;
+    const INDICATOR_DISPLAY_DELAY = 500; // リフレッシュ後のインジケータ表示延長時間
 
     let wheelState = $state<WheelState>({
         count: 0,
@@ -47,12 +48,23 @@ export function useWheelRefresh({
         threshold: DEFAULT_WHEEL_THRESHOLD,
     });
     let isCoolingDown = $state(false);
+    let isShowingPostRefresh = $state(false); // リフレッシュ後の表示延長状態
     let resetTimer: number | null = null;
     let cooldownTimer: number | null = null;
+    let postRefreshTimer: number | null = null;
     let refreshTriggerLineEl = $state<HTMLElement | undefined>();
 
     function clearTimer(timer: number | null): void {
         if (timer) clearTimeout(timer);
+    }
+
+    function startPostRefreshDisplay(): void {
+        isShowingPostRefresh = true;
+        clearTimer(postRefreshTimer);
+        postRefreshTimer = setTimeout(() => {
+            isShowingPostRefresh = false;
+            postRefreshTimer = null;
+        }, INDICATOR_DISPLAY_DELAY);
     }
 
     function resetWheelState(): void {
@@ -138,6 +150,7 @@ export function useWheelRefresh({
     function triggerRefresh(config: DirectionalRefreshConfig): void {
         clearTimer(resetTimer);
         resetTimer = null;
+        startPostRefreshDisplay(); // リフレッシュ後の表示延長を開始
         config.onRefresh();
         resetWheelState();
         startCooldown();
@@ -198,6 +211,7 @@ export function useWheelRefresh({
     onDestroy(() => {
         clearTimer(resetTimer);
         clearTimer(cooldownTimer);
+        clearTimer(postRefreshTimer);
     });
 
     return {
@@ -206,6 +220,9 @@ export function useWheelRefresh({
         },
         get isCoolingDown() {
             return isCoolingDown;
+        },
+        get isShowingPostRefresh() {
+            return isShowingPostRefresh;
         },
         bindRefreshTriggerLine: (el: HTMLElement) => {
             refreshTriggerLineEl = el;
