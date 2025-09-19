@@ -2,7 +2,6 @@
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import WheelProgressIndicator from "../components/WheelProgressIndicator.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
-    import "./obsidian-variables.css";
 
     // defineMeta で Storybook のメタ情報を定義します
     const { Story } = defineMeta({

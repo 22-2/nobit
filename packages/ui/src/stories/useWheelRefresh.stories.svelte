@@ -1,7 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
-    import "./obsidian-variables.css";
 
     // `fn` はモック関数、他はテスト用ユーティリティ
     import {

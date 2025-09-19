@@ -2,7 +2,6 @@
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import BBSThreadTable from "../components/BBSThreadTable.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
-    import "./obsidian-variables.css";
     import { fn } from "storybook/test";
 
     // サンプルデータの生成
