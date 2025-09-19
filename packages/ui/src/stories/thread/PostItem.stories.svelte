@@ -1,7 +1,7 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import PostItem from "../view/thread/PostItem.svelte";
-    import CenterDecorator from "./helpers/CenterDecorator.svelte";
+    import PostItem from "../../view/thread/PostItem.svelte";
+    import CenterDecorator from "../helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 
     // サンプルデータの生成
@@ -314,7 +314,7 @@
             authorName: "複合投稿者",
             mail: "",
             authorId: "COMPLEX1",
-            content: `<a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> <a class="internal-res-link" data-res-number="5">&gt;&gt;5</a> 
+            content: `<a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> <a class="internal-res-link" data-res-number="5">&gt;&gt;5</a>
 複数の要素を含むポストです。
 
 画像も複数枚添付されています。

@@ -1,7 +1,7 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import ThreadFilters from "../view/thread/ThreadFilters.svelte";
-    import CenterDecorator from "./helpers/CenterDecorator.svelte";
+    import ThreadFilters from "../../view/thread/ThreadFilters.svelte";
+    import CenterDecorator from "../helpers/CenterDecorator.svelte";
     // サンプルフィルター状態の生成
     const generateDefaultFilters = () => ({
         popular: false,

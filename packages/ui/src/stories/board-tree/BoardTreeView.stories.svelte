@@ -1,7 +1,7 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import BoardTreeView from "../view/board-list/BoardTreeView.svelte";
-    import CenterDecorator from "./helpers/CenterDecorator.svelte";
+    import BoardTreeView from "../../view/board-tree/BoardTreeView.svelte";
+    import CenterDecorator from "../helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 
     // サンプルデータの生成

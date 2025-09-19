@@ -1,7 +1,7 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import ThreadTableHeader from "../view/board/ThreadTableHeader.svelte";
-    import CenterDecorator from "./helpers/CenterDecorator.svelte";
+    import ThreadTableHeader from "../../view/board/ThreadTableHeader.svelte";
+    import CenterDecorator from "../helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 
     const defaultVisibleColumns = {

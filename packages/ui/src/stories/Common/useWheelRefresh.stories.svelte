@@ -1,18 +1,11 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import CenterDecorator from "./helpers/CenterDecorator.svelte";
+    import CenterDecorator from "../helpers/CenterDecorator.svelte";
 
-    // `fn` はモック関数、他はテスト用ユーティリティ
-    import {
-        fn,
-        expect,
-        userEvent,
-        fireEvent,
-        within,
-        waitFor,
-    } from "storybook/test";
+    // テスト用ユーティリティ
+    import { fn, expect, fireEvent, within, waitFor } from "storybook/test";
 
-    import WheelRefreshTester from "./helpers/WheelRefreshTester.svelte";
+    import WheelRefreshTester from "../helpers/WheelRefreshTester.svelte";
 
     const { Story } = defineMeta({
         title: "Common/useWheelRefresh",
