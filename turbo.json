@@ -1,18 +1,54 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
-  "ui": "tui",
-  "tasks": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
+    "$schema": "https://turborepo.com/schema.json",
+    "ui": "tui",
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "inputs": ["$TURBO_DEFAULT$", ".env*"],
+            "outputs": [".next/**", "!.next/cache/**"]
+        },
+        "check-types": {
+            "dependsOn": ["^check-types"]
+        },
+        "test": {
+            "dependsOn": ["^test"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "src/**/*.test.{ts,js,svelte}",
+                "src/**/*.spec.{ts,js,svelte}"
+            ],
+            "outputs": ["coverage/**"]
+        },
+        "test:unit": {
+            "dependsOn": ["^test:unit"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "src/**/*.test.{ts,js,svelte}",
+                "src/**/*.spec.{ts,js,svelte}"
+            ],
+            "outputs": ["coverage/**"]
+        },
+        "test:coverage": {
+            "dependsOn": ["^test:coverage"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "src/**/*.test.{ts,js,svelte}",
+                "src/**/*.spec.{ts,js,svelte}"
+            ],
+            "outputs": ["coverage/**"]
+        },
+        "build-storybook": {
+            "dependsOn": ["^build-storybook"],
+            "inputs": [
+                "$TURBO_DEFAULT$",
+                "src/**/*.stories.{ts,js,svelte}",
+                ".storybook/**"
+            ],
+            "outputs": ["storybook-static/**"]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        }
     }
-  }
 }

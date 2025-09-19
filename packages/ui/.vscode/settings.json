@@ -1,0 +1,10 @@
+{
+    "vitest.include": ["**/*.{test,spec}.{js,ts,svelte}"],
+    "vitest.exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/*.stories.{js,ts,svelte}"
+    ],
+    "testing.automaticallyOpenPeekView": "never",
+    "testing.openTesting": "neverOpen"
+}

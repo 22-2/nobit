@@ -5,6 +5,10 @@
         "build": "turbo run build",
         "dev": "turbo run dev",
         "check-types": "turbo run check-types",
+        "test": "turbo run test",
+        "test:unit": "turbo run test:unit",
+        "test:coverage": "turbo run test:coverage",
+        "build-storybook": "turbo run build-storybook",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepare": "husky"
