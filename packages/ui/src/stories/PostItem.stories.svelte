@@ -306,40 +306,39 @@
 />
 
 <!-- 複数の画像とアンカーを含む複合ポスト -->
-<Story name="Complex Post">
-    <CenterDecorator padding="var(--size-4-4)" minHeight="var(--size-4-75)">
-        <PostItem
-            post={{
-                resNum: 10,
-                authorName: "複合投稿者",
-                mail: "",
-                authorId: "COMPLEX1",
-                content: `<a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> <a class="internal-res-link" data-res-number="5">&gt;&gt;5</a> 
+<Story
+    name="Complex Post"
+    args={{
+        post: {
+            resNum: 10,
+            authorName: "複合投稿者",
+            mail: "",
+            authorId: "COMPLEX1",
+            content: `<a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> <a class="internal-res-link" data-res-number="5">&gt;&gt;5</a> 
 複数の要素を含むポストです。
 
 画像も複数枚添付されています。
 外部リンクもあります: https://example.com`,
-                date: new Date("2024-01-01T11:00:00Z"),
-                references: [1, 5],
-                replies: [11, 12],
-                hasImage: true,
-                hasExternalLink: true,
-                postIdCount: 2,
-                siblingPostNumbers: [10, 15],
-                imageUrls: [
-                    "https://via.placeholder.com/150x150/cc0066/ffffff?text=Img1",
-                    "https://via.placeholder.com/150x150/0066cc/ffffff?text=Img2",
-                    "https://via.placeholder.com/150x150/66cc00/ffffff?text=Img3",
-                ],
-            }}
-            index={9}
-            onHoverPostLink={fn()}
-            onLeavePostLink={fn()}
-            onJumpToPost={fn()}
-            onShowReplyTree={fn()}
-            onShowIdPosts={fn()}
-            onShowPostContextMenu={fn()}
-            onThreadLinkClick={fn()}
-        />
-    </CenterDecorator>
-</Story>
+            date: new Date("2024-01-01T11:00:00Z"),
+            references: [1, 5],
+            replies: [11, 12],
+            hasImage: true,
+            hasExternalLink: true,
+            postIdCount: 2,
+            siblingPostNumbers: [10, 15],
+            imageUrls: [
+                "https://via.placeholder.com/150x150/cc0066/ffffff?text=Img1",
+                "https://via.placeholder.com/150x150/0066cc/ffffff?text=Img2",
+                "https://via.placeholder.com/150x150/66cc00/ffffff?text=Img3",
+            ],
+        },
+        index: 9,
+        onHoverPostLink: fn(),
+        onLeavePostLink: fn(),
+        onJumpToPost: fn(),
+        onShowReplyTree: fn(),
+        onShowIdPosts: fn(),
+        onShowPostContextMenu: fn(),
+        onThreadLinkClick: fn(),
+    }}
+/>
