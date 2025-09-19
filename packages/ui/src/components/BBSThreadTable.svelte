@@ -118,12 +118,12 @@
                     onclick={() => sorter.setSort(header.key)}
                     class:sorted={sorter.sortKey === header.key}
                 >
-                    {header.label}
                     {#if sorter.sortKey === header.key}
                         <span class="sort-indicator">
                             {sorter.sortDirection === "asc" ? "▲" : "▼"}
                         </span>
                     {/if}
+                    {header.label}
                 </div>
             {/if}
         {/each}
