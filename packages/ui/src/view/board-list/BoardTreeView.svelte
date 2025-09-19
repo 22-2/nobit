@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { BBSMenu } from "../types";
-    import TreeItem from "../components/TreeItem.svelte";
-    import TreeContainer from "../components/TreeContainer.svelte";
-    import LoadingMessage from "../components/LoadingMessage.svelte";
+    import type { BBSMenu } from "../../types";
+    import TreeItem from "./TreeItem.svelte";
+    import TreeContainer from "./TreeContainer.svelte";
+    import LoadingMessage from "../common/LoadingMessage.svelte";
 
     let { getBBSMenus, openBoardView } = $props<{
         getBBSMenus: () => Promise<{ url: string; menu: BBSMenu }[]>;

@@ -1,7 +1,7 @@
 <script lang="ts">
     // import { setTooltip, type TooltipOptions } from "obsidian"; // obsidianを除外
-    import type { SubjectItem } from "../types";
-    import { useSorter, type SorterState } from "../stores/useSorter.svelte";
+    import type { SubjectItem } from "../../types";
+    import { useSorter, type SorterState } from "../../stores/useSorter.svelte";
     // import { createVirtualizer } from "../utils/virtualizer.svelte"; // virtualizerを除外
 
     type ThreadItem = SubjectItem & { index: number };

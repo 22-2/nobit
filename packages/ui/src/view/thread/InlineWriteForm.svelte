@@ -1,6 +1,6 @@
 <!-- apps/obsidian-plugin/src/components/InlineWriteForm.svelte -->
 <script lang="ts">
-    import type { PostData } from "../types";
+    import type { PostData } from "../../types";
 
     let {
         handlePost,

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { Post, Thread } from "../types";
+    import type { Post, Thread } from "../../types";
     import PostTree from "./PostTree.svelte";
     import PostItem from "./PostItem.svelte";
-    import { usePopover } from "../stores/usePopover.svelte";
+    import { usePopover } from "../../stores/usePopover.svelte";
 
     type HoverDetail = {
         targetEl: HTMLElement;

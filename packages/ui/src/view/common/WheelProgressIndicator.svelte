@@ -1,6 +1,6 @@
 <!-- src/components/WheelProgressIndicator.svelte -->
 <script lang="ts">
-    import type { WheelState } from "../stores/useWheelRefresh.svelte.ts";
+    import type { WheelState } from "../../stores/useWheelRefresh.svelte.ts";
 
     let { wheelState, position = "top" } = $props<{
         wheelState: WheelState;

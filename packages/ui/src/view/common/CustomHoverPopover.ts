@@ -1,5 +1,5 @@
 import { mount, unmount } from "svelte";
-import { Logger } from "../utils/logging";
+import { Logger } from "../../utils/logging";
 
 // A minimal Component class to replicate Obsidian's lifecycle management
 // without the dependency on Obsidian itself.

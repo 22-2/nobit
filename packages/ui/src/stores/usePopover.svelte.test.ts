@@ -9,7 +9,7 @@ import {
     afterAll,
 } from "vitest";
 import { usePopover } from "./usePopover.svelte";
-import { CustomHoverPopover } from "../popover/CustomHoverPopover";
+import { CustomHoverPopover } from "../view/common/CustomHoverPopover";
 
 // Mock CustomHoverPopover
 vi.mock("../popover/CustomHoverPopover", () => {

@@ -6,7 +6,7 @@ import {
     CustomHoverPopover,
     Component,
     type PopoverService as IPopoverService,
-} from "../components/CustomHoverPopover";
+} from "../view/common/CustomHoverPopover";
 import { Logger } from "../utils/logging";
 import type { Post, Thread } from "../types";
 

@@ -1,6 +1,6 @@
 <!-- src/components/ThreadFilters.svelte -->
 <script lang="ts">
-    import type { ThreadFilters } from "../types";
+    import type { ThreadFilters } from "../../types";
 
     // Tabler Icons
     import {

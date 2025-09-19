@@ -1,7 +1,7 @@
 <!-- src/components/PostItem.svelte -->
 <script lang="ts">
-    import type { Post } from "../types";
-    import { formatDate } from "../utils/idnex";
+    import type { Post } from "../../types";
+    import { formatDate } from "../../utils/idnex";
 
     type HoverDetail = {
         targetEl: HTMLElement;

@@ -1,6 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import InlineWriteForm from "../components/InlineWriteForm.svelte";
+    import InlineWriteForm from "../view/thread/InlineWriteForm.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 
