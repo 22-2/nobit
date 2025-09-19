@@ -40,3 +40,4 @@ yarn-error.log*
 *storybook.log
 storybook-static
 packages/ui/src/stories/obsidian-app.very-large.css
+pnpm-lock.yaml
