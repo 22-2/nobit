@@ -1,6 +1,5 @@
 import { writable, get } from "svelte/store";
 import { mount, unmount } from "svelte";
-import type { Post, OldThread } from "@repo/libch/core/types";
 import PostItemComponent from "../components/PostItem.svelte";
 import PostTree from "../components/PostTree.svelte";
 import InfoPopup from "../components/InfoPopup.svelte";
@@ -10,13 +9,14 @@ import {
     type PopoverService as IPopoverService,
 } from "./CustomHoverPopover";
 import { Logger } from "../utils/logging";
+import type { Post, Thread } from "../types";
 
 // --- State Management ---
 
 export const activePopovers = writable<CustomHoverPopover[]>([]);
 
 let hideTimeout: NodeJS.Timeout | null = null;
-let threadData: OldThread | null = null;
+let threadData: Thread | null = null;
 let popoverContainer: HTMLElement | null = null;
 
 const popoverRoot = new Component();
@@ -279,7 +279,7 @@ export const popoverService = {
         popoverContainer = container;
         document.addEventListener("mousedown", handleDocumentClick);
     },
-    setThreadData(data: OldThread | null) {
+    setThreadData(data: Thread | null) {
         threadData = data;
     },
     handleHover,
