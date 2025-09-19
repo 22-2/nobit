@@ -1,6 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import LoadingSpinner from "../components/LoadingSpinner.svelte";
+    import LoadingSpinner from "../view/common/LoadingSpinner.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
 
     // defineMeta で Storybook のメタ情報を定義します

@@ -1,6 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import PostItem from "../components/PostItem.svelte";
+    import PostItem from "../view/thread/PostItem.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 

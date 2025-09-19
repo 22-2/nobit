@@ -1,6 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import BBSThreadTable from "../components/BBSThreadTable.svelte";
+    import BBSThreadTable from "../view/board/BBSThreadTable.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 

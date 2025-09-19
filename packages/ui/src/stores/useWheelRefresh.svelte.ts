@@ -51,12 +51,12 @@ export function useWheelRefresh({
         isShowingPostRefresh: false,
         isCoolingDown: false,
     });
-    let resetTimer: number | null = null;
-    let cooldownTimer: number | null = null;
-    let postRefreshTimer: number | null = null;
+    let resetTimer: ReturnType<typeof setTimeout> | null = null;
+    let cooldownTimer: ReturnType<typeof setTimeout> | null = null;
+    let postRefreshTimer: ReturnType<typeof setTimeout> | null = null;
     let refreshTriggerLineEl = $state<HTMLElement | undefined>();
 
-    function clearTimer(timer: number | null): void {
+    function clearTimer(timer: ReturnType<typeof setTimeout> | null): void {
         if (timer) clearTimeout(timer);
     }
 
