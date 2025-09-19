@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import ObsidianContainer from "./ObsidianContainer.svelte";
 
     interface Props {
         children: Snippet;
@@ -18,20 +19,22 @@
     }: Props = $props();
 </script>
 
-<div
-    class="center-decorator"
-    style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: {padding};
-        min-height: {minHeight};
-        {backgroundColor ? `background-color: ${backgroundColor};` : ''}
-        {borderRadius ? `border-radius: ${borderRadius};` : ''}
-    "
->
-    {@render children()}
-</div>
+<ObsidianContainer>
+    <div
+        class="center-decorator"
+        style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: {padding};
+            min-height: {minHeight};
+            {backgroundColor ? `background-color: ${backgroundColor};` : ''}
+            {borderRadius ? `border-radius: ${borderRadius};` : ''}
+        "
+    >
+        {@render children()}
+    </div>
+</ObsidianContainer>
 
 <style>
     .center-decorator {

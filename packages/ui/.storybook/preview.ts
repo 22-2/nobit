@@ -1,5 +1,4 @@
 import type { Preview } from "@storybook/svelte-vite";
-import "../src/stories/obsidian-variables.css";
 
 const preview: Preview = {
     parameters: {
