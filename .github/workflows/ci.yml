@@ -6,10 +6,16 @@ on:
     pull_request:
         branches: [main, develop]
 
-jobs:
-    test:
-        runs-on: ubuntu-latest
+env:
+    NODE_VERSION: "18"
+    PNPM_VERSION: "10.17.0"
 
+jobs:
+    # 依存関係のインストールとビルド成果物の準備
+    prepare:
+        runs-on: ubuntu-latest
+        outputs:
+            cache-key: ${{ steps.cache-key.outputs.key }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -17,28 +23,70 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "18"
+                  node-version: ${{ env.NODE_VERSION }}
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
-                  version: "10.17.0"
+                  version: ${{ env.PNPM_VERSION }}
 
             - name: Get pnpm store directory
               shell: bash
               run: |
                   echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
+            - name: Generate cache key
+              id: cache-key
+              run: |
+                  echo "key=${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
             - name: Setup pnpm cache
               uses: actions/cache@v4
               with:
                   path: ${{ env.STORE_PATH }}
-                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  key: ${{ steps.cache-key.outputs.key }}
                   restore-keys: |
                       ${{ runner.os }}-pnpm-store-
 
             - name: Install dependencies
               run: pnpm install --no-frozen-lockfile
+
+            # node_modulesをアーティファクトとして保存
+            - name: Cache node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+    # 静的解析（型チェック、フォーマット）
+    static-analysis:
+        runs-on: ubuntu-latest
+        needs: prepare
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
             - name: Type check
               run: pnpm run check-types
@@ -46,8 +94,71 @@ jobs:
             - name: Format check
               run: pnpm run format:check
 
-            - name: Run unit tests
-              run: pnpm run test:unit
+    # 単体テスト
+    unit-tests:
+        runs-on: ubuntu-latest
+        needs: prepare
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Run unit tests with coverage
+              run: |
+                  pnpm run test:unit
+                  pnpm run test:coverage
+
+            - name: Upload coverage artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: coverage-reports
+                  path: packages/ui/coverage/
+                  retention-days: 7
+
+    # Storybookテスト
+    storybook-tests:
+        runs-on: ubuntu-latest
+        needs: prepare
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
             - name: Run Storybook tests
               run: pnpm run test:storybook
@@ -57,21 +168,78 @@ jobs:
               run: pnpm run build-storybook
               working-directory: packages/ui
 
+            - name: Upload Storybook build
+              uses: actions/upload-artifact@v4
+              with:
+                  name: storybook-build
+                  path: packages/ui/storybook-static/
+                  retention-days: 7
+
+    # E2Eテスト（複数ブラウザで並列実行）
+    e2e-tests:
+        runs-on: ubuntu-latest
+        needs: prepare
+        strategy:
+            matrix:
+                browser: [chromium, firefox, webkit]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
             - name: Install Playwright browsers
-              run: pnpm exec playwright install --with-deps
+              run: pnpm exec playwright install ${{ matrix.browser }} --with-deps
               working-directory: packages/ui
 
             - name: Run E2E tests
-              run: pnpm run test:e2e
+              run: pnpm exec playwright test --project=${{ matrix.browser }}
               working-directory: packages/ui
 
-            - name: Generate coverage report
-              run: pnpm run test:coverage
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report-${{ matrix.browser }}
+                  path: packages/ui/playwright-report/
+                  retention-days: 7
 
-            # Coverage upload disabled - keeping local only
-            # - name: Upload test coverage
-            #   uses: codecov/codecov-action@v4
-            #   if: always()
-            #   with:
-            #     files: ./packages/ui/coverage/lcov.info
-            #     fail_ci_if_error: false
+    # 全ジョブの完了確認
+    ci-status:
+        runs-on: ubuntu-latest
+        needs: [static-analysis, unit-tests, storybook-tests, e2e-tests]
+        if: always()
+        steps:
+            - name: Check CI status
+              run: |
+                  echo "Static Analysis: ${{ needs.static-analysis.result }}"
+                  echo "Unit Tests: ${{ needs.unit-tests.result }}"
+                  echo "Storybook Tests: ${{ needs.storybook-tests.result }}"
+                  echo "E2E Tests: ${{ needs.e2e-tests.result }}"
+                  
+                  if [[ "${{ needs.static-analysis.result }}" != "success" || 
+                        "${{ needs.unit-tests.result }}" != "success" || 
+                        "${{ needs.storybook-tests.result }}" != "success" || 
+                        "${{ needs.e2e-tests.result }}" != "success" ]]; then
+                    echo "❌ Some CI jobs failed"
+                    exit 1
+                  fi
+                  
+                  echo "✅ All CI jobs completed successfully!"
