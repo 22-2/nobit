@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Post, Thread } from "../types";
-    import { popoverService } from "../popover/popoverService.svelte";
     import PostTree from "./PostTree.svelte";
     import PostItem from "./PostItem.svelte";
+    import { usePopover } from "../stores/usePopover.svelte";
 
     type HoverDetail = {
         targetEl: HTMLElement;
@@ -33,6 +33,8 @@
     const replies = post.replies
         .map((replyNum) => thread.posts[replyNum - 1])
         .filter((p): p is Post => p !== undefined);
+
+    const popover = usePopover();
 </script>
 
 <div class="post-tree-node" style="--level: {level}">
@@ -41,7 +43,7 @@
         index={thread.posts.indexOf(post)}
         {onHoverPostLink}
         onLeavePostLink={() => {
-            popoverService.startHideTimer();
+            popover.startHideTimer();
         }}
     />
     {#if replies.length > 0}
