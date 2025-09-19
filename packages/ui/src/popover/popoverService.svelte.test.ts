@@ -8,8 +8,7 @@ import {
     beforeAll,
     afterAll,
 } from "vitest";
-import { get } from "svelte/store";
-import { popoverService, activePopovers } from "./popover.service";
+import { popoverService, activePopovers } from "./popoverService.svelte";
 import { CustomHoverPopover } from "./CustomHoverPopover";
 
 // Mock CustomHoverPopover
@@ -109,6 +108,7 @@ describe("PopoverService", () => {
             title: "test",
             url: "http://example.com/1234567890",
             posts: mockPosts as any,
+            resCount: mockPosts.length,
         });
     });
 
@@ -118,8 +118,8 @@ describe("PopoverService", () => {
         popoverService.destroy();
         // Clear any mocks
         vi.clearAllMocks();
-        // Reset store
-        activePopovers.set([]);
+        // Reset state
+        activePopovers.length = 0;
     });
 
     it("should not hide popover when moving from parent to child", () => {
@@ -130,7 +130,7 @@ describe("PopoverService", () => {
         // 1. Show parent and child popovers
         popoverService.handleHover(parentTarget, 0, 0, mockEvent);
         popoverService.handleHover(childTarget, 1, 1, mockEvent);
-        expect(get(activePopovers)).toHaveLength(2);
+        expect(activePopovers).toHaveLength(2);
 
         // 2. Simulate mouse leaving parent, which starts the timer
         const serviceInterface = (CustomHoverPopover as any).mock.calls[0][0];
@@ -146,7 +146,7 @@ describe("PopoverService", () => {
         vi.advanceTimersByTime(500);
 
         // 6. Assert popovers are still visible
-        expect(get(activePopovers)).toHaveLength(2);
+        expect(activePopovers).toHaveLength(2);
         const parentInstance = (CustomHoverPopover as any).mock.results[0]
             .value;
         expect(parentInstance.hide).not.toHaveBeenCalled();
@@ -158,8 +158,8 @@ describe("PopoverService", () => {
 
         // 1. Show a popover
         popoverService.handleHover(targetEl, 0, 0, mockEvent);
-        expect(get(activePopovers)).toHaveLength(1);
-        const popover = get(activePopovers)[0] as InstanceType<
+        expect(activePopovers).toHaveLength(1);
+        const popover = activePopovers[0] as InstanceType<
             typeof CustomHoverPopover
         >;
 
@@ -171,7 +171,7 @@ describe("PopoverService", () => {
         vi.advanceTimersByTime(500);
 
         // 4. Assert that all popovers are hidden
-        expect(get(activePopovers)).toHaveLength(0);
+        expect(activePopovers).toHaveLength(0);
         const popoverInstance = (CustomHoverPopover as any).mock.results[0]
             .value;
         expect(popoverInstance.hide).toHaveBeenCalled();

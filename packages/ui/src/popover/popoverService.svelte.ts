@@ -1,4 +1,3 @@
-import { writable, get } from "svelte/store";
 import { mount, unmount } from "svelte";
 import PostItemComponent from "../components/PostItem.svelte";
 import PostTree from "../components/PostTree.svelte";
@@ -13,7 +12,7 @@ import type { Post, Thread } from "../types";
 
 // --- State Management ---
 
-export const activePopovers = writable<CustomHoverPopover[]>([]);
+export const activePopovers = $state<CustomHoverPopover[]>([]);
 
 let hideTimeout: NodeJS.Timeout | null = null;
 let threadData: Thread | null = null;
@@ -31,15 +30,15 @@ function clearHideTimer() {
 }
 
 function hidePopoversFrom(fromLevel: number) {
-    const currentPopovers = get(activePopovers);
-    if (currentPopovers.length <= fromLevel) return;
+    if (activePopovers.length <= fromLevel) return;
 
     Logger.debug(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
 
-    const toClose = currentPopovers.slice(fromLevel);
-    const remainingPopovers = currentPopovers.slice(0, fromLevel);
+    const toClose = activePopovers.slice(fromLevel);
+    const remainingPopovers = activePopovers.slice(0, fromLevel);
 
-    activePopovers.set(remainingPopovers);
+    activePopovers.length = 0;
+    activePopovers.push(...remainingPopovers);
 
     toClose.forEach((popover) => popover.hide());
 }
@@ -53,7 +52,7 @@ function startHideTimer() {
 
 function handleDocumentClick(event: MouseEvent) {
     const target = event.target as Node;
-    const isClickInsidePopover = get(activePopovers).some((popover) =>
+    const isClickInsidePopover = activePopovers.some((popover) =>
         popover.hoverEl.contains(target)
     );
 
@@ -125,11 +124,10 @@ function showPostPreview(
         })
     );
 
-    activePopovers.update((popovers) => {
-        const newPopovers = popovers.slice(0, level);
-        newPopovers.push(popover);
-        return newPopovers;
-    });
+    const newPopovers = activePopovers.slice(0, level);
+    newPopovers.push(popover);
+    activePopovers.length = 0;
+    activePopovers.push(...newPopovers);
 }
 
 function showPostTreePreview(
@@ -190,11 +188,10 @@ function showPostTreePreview(
         })
     );
 
-    activePopovers.update((popovers) => {
-        const newPopovers = popovers.slice(0, level);
-        newPopovers.push(popover);
-        return newPopovers;
-    });
+    const newPopovers = activePopovers.slice(0, level);
+    newPopovers.push(popover);
+    activePopovers.length = 0;
+    activePopovers.push(...newPopovers);
 }
 
 function showSimplePopup(message: string, event: MouseEvent) {
@@ -244,8 +241,7 @@ function handleHover(
         return;
     }
 
-    const currentPopovers = get(activePopovers);
-    if (currentPopovers[level]?.targetEl === targetEl) {
+    if (activePopovers[level]?.targetEl === targetEl) {
         return;
     }
 
