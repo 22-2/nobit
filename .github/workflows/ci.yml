@@ -57,6 +57,14 @@ jobs:
         run: pnpm run build-storybook
         working-directory: packages/ui
         
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps
+        working-directory: packages/ui
+        
+      - name: Run E2E tests
+        run: pnpm run test:e2e
+        working-directory: packages/ui
+        
       - name: Generate coverage report
         run: pnpm run test:coverage
         
