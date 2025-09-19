@@ -2,6 +2,7 @@
     // Import obsidian styles only within this component's scope
     import "../obsidian-app.css";
     import "../obsidian-variables.css";
+    import "../obsidian-variables.custom.css";
 </script>
 
 <div class="obsidian-app-container">
