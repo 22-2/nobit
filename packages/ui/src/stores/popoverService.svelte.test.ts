@@ -8,8 +8,8 @@ import {
     beforeAll,
     afterAll,
 } from "vitest";
-import { popoverService, activePopovers } from "./popoverService.svelte";
-import { CustomHoverPopover } from "./CustomHoverPopover";
+import { popoverService } from "./usePopover.svelte";
+import { CustomHoverPopover } from "../components/CustomHoverPopover";
 
 // Mock CustomHoverPopover
 vi.mock("./CustomHoverPopover", () => {
