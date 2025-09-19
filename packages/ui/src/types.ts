@@ -6,6 +6,15 @@ export interface VisibleColumns {
     ikioi: boolean;
 }
 
+export interface ThreadFilters {
+    popular: boolean;
+    image: boolean;
+    video: boolean;
+    external: boolean;
+    internal: boolean;
+    searchText: string;
+}
+
 export type ColumnKey = keyof VisibleColumns;
 
 export interface SubjectItem {
