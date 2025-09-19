@@ -67,11 +67,14 @@
     data-testid="scroll-container"
     bind:this={scrollContainerEl}
 >
-    <!-- WheelProgressIndicator に wheelState オブジェクトを直接渡すように変更 -->
-    <WheelProgressIndicator {wheelState} position="top" />
-    <WheelProgressIndicator {wheelState} position="bottom" />
-
     <div class="content">
+        <!-- 有効なリフレッシュ方向に応じてインジケータを条件付きで表示 -->
+        {#if onUpRefresh}
+            <WheelProgressIndicator {wheelState} position="top" />
+        {/if}
+        {#if onDownRefresh}
+            <WheelProgressIndicator {wheelState} position="bottom" />
+        {/if}
         <!-- statePositionに応じて状態表示の位置を切り替え -->
         {#if statePosition === "top"}
             <div class="indicator">
@@ -127,7 +130,6 @@
 
 <style>
     .test-container {
-        position: relative;
         height: 300px;
         width: 400px;
         overflow-y: auto;
@@ -137,7 +139,7 @@
     }
     .content {
         padding: 1rem;
-        height: 600px;
+        position: relative;
     }
     .indicator {
         border: 1px solid #ccc;

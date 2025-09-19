@@ -57,9 +57,6 @@
         font-weight: bold;
         box-shadow: var(--shadow-s);
         z-index: 100;
-        /* opacity と animation は visibility で制御する場合、初期はコメントアウトまたは削除 */
-        /* opacity: 0; */
-        /* animation: fade-in 0.2s ease-out forwards; */
         user-select: none;
         display: flex;
         align-items: center;
@@ -83,7 +80,7 @@
 
     .wheel-progress-indicator.bottom {
         top: unset;
-        bottom: 3em;
+        bottom: 2em;
     }
 
     .wheel-progress-indicator.refreshing {
