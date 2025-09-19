@@ -121,7 +121,13 @@
 />
 
 <!-- インタラクティブなテスト -->
-<Story name="Interactive Test">
+<Story
+    name="Interactive Test"
+    args={{
+        filters: generateDefaultFilters(),
+        isVisible: true,
+    }}
+>
     <CenterDecorator padding="var(--size-4-4)" minHeight="var(--size-4-50)">
         <div style="width: 100%; max-width: 800px;">
             <h3
@@ -136,14 +142,7 @@
                 コンソールに変更内容が表示されます。
             </p>
             <ThreadFilters
-                filters={{
-                    popular: false,
-                    image: false,
-                    video: false,
-                    external: false,
-                    internal: false,
-                    searchText: "",
-                }}
+                filters={generateDefaultFilters()}
                 isVisible={true}
             />
             <div
@@ -162,7 +161,13 @@
 </Story>
 
 <!-- 狭い画面でのテスト -->
-<Story name="Narrow Screen">
+<Story
+    name="Narrow Screen"
+    args={{
+        filters: generateActiveFilters(),
+        isVisible: true,
+    }}
+>
     <div style="width: 300px; margin: 0 auto; padding: var(--size-4-4);">
         <h3
             style="margin-bottom: var(--size-4-4); color: var(--text-normal); font-size: 1em;"
