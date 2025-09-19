@@ -1,7 +1,7 @@
 import { mount, unmount } from "svelte";
-import PostItemComponent from "../components/PostItem.svelte";
-import PostTree from "../components/PostTree.svelte";
-import InfoPopup from "../components/InfoPopup.svelte";
+import PostItemComponent from "../view/thread/PostItem.svelte";
+import PostTree from "../view/thread/PostTree.svelte";
+import InfoPopup from "../view/common/InfoPopup.svelte";
 import {
     CustomHoverPopover,
     Component,

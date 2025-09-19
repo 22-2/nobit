@@ -1,7 +1,7 @@
 <!-- src/stories/helpers/WheelRefreshTester.svelte -->
 <script lang="ts">
     import { useWheelRefresh } from "../../stores/useWheelRefresh.svelte";
-    import WheelProgressIndicator from "../../components/WheelProgressIndicator.svelte";
+    import WheelProgressIndicator from "../../view/common/WheelProgressIndicator.svelte";
 
     let {
         isEnabled = true,
