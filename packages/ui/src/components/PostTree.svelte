@@ -64,7 +64,7 @@
 <style>
     .post-tree-node {
         /* prettier-ignore */
-        margin-left: calc(var(--level) * 12px);
+        margin-left: calc(var(--level) * var(--size-4-3));
         border-left: 2px solid var(--background-modifier-border);
         padding-left: var(--size-4-2);
         contain: content;
