@@ -26,7 +26,10 @@
     let scrollContainerEl: HTMLElement | undefined = $state();
     let isRefreshing = $state(false);
 
-    const createRefreshHandler = (callback?: () => Promise<void>) => {
+    const createRefreshHandler = (
+        callback?: () => Promise<void>,
+        isUp: boolean = true
+    ) => {
         if (!callback) return undefined;
 
         return {
@@ -37,7 +40,7 @@
                     isRefreshing = false;
                 }, 1000);
             },
-            threshold: onUpRefresh === callback ? upThreshold : downThreshold,
+            threshold: isUp ? upThreshold : downThreshold,
         };
     };
 
@@ -45,8 +48,8 @@
     const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
         getScrollElement: () => scrollContainerEl,
         isEnabled: () => isEnabled && !isRefreshing,
-        up: createRefreshHandler(onUpRefresh),
-        down: createRefreshHandler(onDownRefresh),
+        up: createRefreshHandler(onUpRefresh, true),
+        down: createRefreshHandler(onDownRefresh, false),
     });
 
     $effect(() => {

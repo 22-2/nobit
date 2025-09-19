@@ -58,6 +58,7 @@
     name="UpRefresh"
     args={{
         onUpRefresh: fn(),
+        onDownRefresh: undefined, // 下方向のリフレッシュを無効化
         upThreshold: 5,
         isEnabled: true,
     }}
@@ -141,6 +142,7 @@
     name="DownRefresh"
     args={{
         onDownRefresh: fn(),
+        onUpRefresh: undefined, // 上方向のリフレッシュを無効化
         downThreshold: 4,
         isEnabled: true,
         initialScrollTop: -1,
@@ -159,15 +161,74 @@
             );
         });
 
-        await step("Scroll down at bottom to trigger refresh", async () => {
-            for (let i = 0; i < 4; i++) {
+        await step(
+            "Scroll down at bottom to show progress indicator",
+            async () => {
                 await fireEvent.wheel(scrollContainer, { deltaY: 100 });
+                await waitFor(() => {
+                    expect(canvas.getByText("Count: 1")).toBeInTheDocument();
+                });
+                const indicator = await canvas.findByText("↓");
+                expect(indicator).toBeInTheDocument();
+                await fireEvent.wheel(scrollContainer, { deltaY: 100 });
+                await fireEvent.wheel(scrollContainer, { deltaY: 100 });
+                await waitFor(() => {
+                    expect(canvas.getByText("Count: 3")).toBeInTheDocument();
+                });
+                const progressBar =
+                    canvasElement.querySelector(".progress-bar");
+                expect(progressBar.style.width).toBe("75%");
             }
+        );
 
+        await step("Scroll more to trigger refresh function", async () => {
+            await fireEvent.wheel(scrollContainer, { deltaY: 100 });
             await waitFor(() => {
                 expect(args.onDownRefresh).toHaveBeenCalledTimes(1);
             });
+            await waitFor(() => {
+                expect(
+                    canvas.getByText("isRefreshing: true")
+                ).toBeInTheDocument();
+                expect(canvas.queryByText("↓")).not.toBeInTheDocument();
+            });
         });
+
+        await step("Should show post-refresh indicator", async () => {
+            expect(args.onDownRefresh).toHaveBeenCalledTimes(1);
+            await waitFor(() => {
+                expect(
+                    canvas.getByText("isShowingPostRefresh: true")
+                ).toBeInTheDocument();
+            });
+            // リフレッシュ後のチェックマークインジケータが表示されることを確認
+            const checkmark = await canvas.findByText("✓");
+            expect(checkmark).toBeInTheDocument();
+        });
+
+        await step("Should be in cooldown period", async () => {
+            await waitFor(() => {
+                expect(
+                    canvas.getByText("isCoolingDown: true")
+                ).toBeInTheDocument();
+            });
+            await fireEvent.wheel(scrollContainer, { deltaY: 100 });
+            expect(canvas.queryByText("↓")).not.toBeInTheDocument();
+        });
+
+        await step(
+            "Post-refresh indicator should disappear after delay",
+            async () => {
+                await waitFor(
+                    () => {
+                        expect(
+                            canvas.getByText("isShowingPostRefresh: false")
+                        ).toBeInTheDocument();
+                    },
+                    { timeout: 1000 }
+                );
+            }
+        );
     }}
 >
     <WheelRefreshTester {...args} />
