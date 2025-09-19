@@ -10,7 +10,17 @@
         IconSearch,
     } from "@tabler/icons-svelte";
 
-    let { filters, isVisible = true } = $props<{
+    let {
+        filters = {
+            popular: false,
+            image: false,
+            video: false,
+            external: false,
+            internal: false,
+            searchText: "",
+        },
+        isVisible = true,
+    } = $props<{
         filters: ThreadFilters;
         isVisible: boolean;
     }>();

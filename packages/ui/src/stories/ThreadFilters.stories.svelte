@@ -214,7 +214,13 @@
 </Story>
 
 <!-- 各フィルターの個別テスト -->
-<Story name="Individual Filters">
+<Story
+    name="Individual Filters"
+    args={{
+        filters: generateDefaultFilters(),
+        isVisible: true,
+    }}
+>
     <CenterDecorator padding="var(--size-4-4)" minHeight="var(--size-4-100)">
         <div
             style="width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: var(--size-4-6);"
