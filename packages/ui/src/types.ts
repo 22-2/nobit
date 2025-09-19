@@ -7,3 +7,9 @@ export interface VisibleColumns {
 }
 
 export type ColumnKey = keyof VisibleColumns;
+
+export interface SubjectItem {
+    id: string; // スレッドID (unixtime)
+    title: string;
+    resCount: number;
+}
