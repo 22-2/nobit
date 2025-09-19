@@ -2,8 +2,6 @@
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import ThreadFilters from "../view/thread/ThreadFilters.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
-    import { fn } from "storybook/test";
-
     // サンプルフィルター状態の生成
     const generateDefaultFilters = () => ({
         popular: false,
@@ -30,6 +28,43 @@
         external: true,
         internal: true,
         searchText: "全てのフィルターが有効",
+    });
+
+    // 個別フィルター用の関数
+    const generatePopularOnlyFilters = () => ({
+        popular: true,
+        image: false,
+        video: false,
+        external: false,
+        internal: false,
+        searchText: "",
+    });
+
+    const generateImageOnlyFilters = () => ({
+        popular: false,
+        image: true,
+        video: false,
+        external: false,
+        internal: false,
+        searchText: "",
+    });
+
+    const generateVideoOnlyFilters = () => ({
+        popular: false,
+        image: false,
+        video: true,
+        external: false,
+        internal: false,
+        searchText: "",
+    });
+
+    const generateExternalInternalFilters = () => ({
+        popular: false,
+        image: false,
+        video: false,
+        external: true,
+        internal: true,
+        searchText: "",
     });
 
     const { Story } = defineMeta({
@@ -191,14 +226,7 @@
                     人気フィルターのみ
                 </h4>
                 <ThreadFilters
-                    filters={{
-                        popular: true,
-                        image: false,
-                        video: false,
-                        external: false,
-                        internal: false,
-                        searchText: "",
-                    }}
+                    filters={generatePopularOnlyFilters()}
                     isVisible={true}
                 />
             </div>
@@ -210,14 +238,7 @@
                     画像フィルターのみ
                 </h4>
                 <ThreadFilters
-                    filters={{
-                        popular: false,
-                        image: true,
-                        video: false,
-                        external: false,
-                        internal: false,
-                        searchText: "",
-                    }}
+                    filters={generateImageOnlyFilters()}
                     isVisible={true}
                 />
             </div>
@@ -229,14 +250,7 @@
                     動画フィルターのみ
                 </h4>
                 <ThreadFilters
-                    filters={{
-                        popular: false,
-                        image: false,
-                        video: true,
-                        external: false,
-                        internal: false,
-                        searchText: "",
-                    }}
+                    filters={generateVideoOnlyFilters()}
                     isVisible={true}
                 />
             </div>
@@ -248,14 +262,7 @@
                     外部・内部フィルター
                 </h4>
                 <ThreadFilters
-                    filters={{
-                        popular: false,
-                        image: false,
-                        video: false,
-                        external: true,
-                        internal: true,
-                        searchText: "",
-                    }}
+                    filters={generateExternalInternalFilters()}
                     isVisible={true}
                 />
             </div>
