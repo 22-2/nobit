@@ -1,5 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
+    import CenterDecorator from "./helpers/CenterDecorator.svelte";
     import "./obsidian-variables.css";
 
     // `fn` はモック関数、他はテスト用ユーティリティ
@@ -31,6 +32,17 @@
                 description: "テスト用の状態表示エリアの位置",
             },
         },
+        // CenterDecoratorを使用してテストコンポーネントを配置
+        decorators: [
+            (StoryComponent) => ({
+                Component: CenterDecorator,
+                props: {
+                    children: StoryComponent,
+                    minHeight: "400px",
+                    padding: "1rem",
+                },
+            }),
+        ],
     });
 </script>
 

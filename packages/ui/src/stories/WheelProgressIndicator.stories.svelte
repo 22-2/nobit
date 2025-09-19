@@ -1,6 +1,7 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import WheelProgressIndicator from "../components/WheelProgressIndicator.svelte";
+    import CenterDecorator from "./helpers/CenterDecorator.svelte";
     import "./obsidian-variables.css";
 
     // defineMeta で Storybook のメタ情報を定義します
@@ -18,33 +19,23 @@
                 options: ["top", "bottom"],
                 description: "インジケーターの表示位置",
             },
-            // isRefreshing は WheelProgressIndicator の props から削除されたため、ここでも削除
-            // isCoolingDown も wheelState の一部なので、直接 progress.isCoolingDown を操作するように変更
             wheelState: {
                 control: "object",
                 description: "進捗状況を管理するオブジェクト",
             },
         },
-        // デコレーターを使って、コンポーネントを中央に配置し、
+        // CenterDecoratorを使用してコンポーネントを中央に配置し、
         // 絶対配置のコンテキストを提供します
-        // decorators: [
-        //   (Story) => ({
-        //     // template を使うことで、Story をラップするHTMLを定義できます
-        //     template: `
-        //       <div style="
-        //         position: relative;
-        //         height: 200px;
-        //         border: 1px dashed #ccc;
-        //         display: flex;
-        //         align-items: center;
-        //         justify-content: center;
-        //         padding: 1rem;
-        //       ">
-        //         <Story />
-        //       </div>
-        //     `
-        //   })
-        // ]
+        decorators: [
+            (StoryComponent) => ({
+                Component: CenterDecorator,
+                props: {
+                    children: StoryComponent,
+                    minHeight: "200px",
+                    padding: "1rem",
+                },
+            }),
+        ],
     });
 </script>
 
