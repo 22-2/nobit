@@ -68,7 +68,7 @@
     });
 
     const { Story } = defineMeta({
-        title: "UI/ThreadFilters",
+        title: "Thread/ThreadFilters",
         component: ThreadFilters,
         tags: ["autodocs"],
         argTypes: {

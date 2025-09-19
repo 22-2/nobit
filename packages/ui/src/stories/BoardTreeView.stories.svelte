@@ -131,7 +131,7 @@
     };
 
     const { Story } = defineMeta({
-        title: "View/BoardTreeView",
+        title: "Board Tree/BoardTreeView",
         component: BoardTreeView,
         tags: ["autodocs"],
         argTypes: {

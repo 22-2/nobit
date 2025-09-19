@@ -5,7 +5,7 @@
     import { fn } from "storybook/test";
 
     const { Story } = defineMeta({
-        title: "UI/InlineWriteForm",
+        title: "Thread/InlineWriteForm",
         component: InlineWriteForm,
         tags: ["autodocs"],
         argTypes: {

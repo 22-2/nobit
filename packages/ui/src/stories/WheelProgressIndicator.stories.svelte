@@ -6,7 +6,7 @@
     // defineMeta で Storybook のメタ情報を定義します
     const { Story } = defineMeta({
         // Storybook のサイドバーに表示されるタイトル
-        title: "UI/WheelProgressIndicator",
+        title: "Common/WheelProgressIndicator",
         // 対象のコンポーネント
         component: WheelProgressIndicator,
         // Storybook の Docs ページを自動生成するタグ

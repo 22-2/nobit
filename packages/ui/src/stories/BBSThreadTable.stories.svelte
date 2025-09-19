@@ -34,7 +34,7 @@
     };
 
     const { Story } = defineMeta({
-        title: "UI/BBSThreadTable",
+        title: "Board/BBSThreadTable",
         component: BBSThreadTable,
         tags: ["autodocs"],
         argTypes: {

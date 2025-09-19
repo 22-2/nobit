@@ -114,7 +114,7 @@
     });
 
     const { Story } = defineMeta({
-        title: "UI/PostItem",
+        title: "Thread/PostItem",
         component: PostItem,
         tags: ["autodocs"],
         argTypes: {

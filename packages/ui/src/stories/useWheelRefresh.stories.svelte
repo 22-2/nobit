@@ -15,7 +15,7 @@
     import WheelRefreshTester from "./helpers/WheelRefreshTester.svelte";
 
     const { Story } = defineMeta({
-        title: "Hooks/useWheelRefresh",
+        title: "Common/useWheelRefresh",
         component: WheelRefreshTester,
         tags: ["autodocs", "test"],
         argTypes: {

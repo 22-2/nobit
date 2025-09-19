@@ -12,7 +12,7 @@
     };
 
     const { Story } = defineMeta({
-        title: "UI/ThreadTableHeader",
+        title: "Board/ThreadTableHeader",
         component: ThreadTableHeader,
         tags: ["autodocs"],
         argTypes: {
