@@ -13,3 +13,15 @@ export interface SubjectItem {
     title: string;
     resCount: number;
 }
+
+export interface Board {
+    name: string;
+    url: string;
+}
+
+export interface BBSMenuCategory {
+    name: string;
+    boards: Board[];
+}
+
+export type BBSMenu = BBSMenuCategory[];

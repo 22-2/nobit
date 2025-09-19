@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import obsidian styles only within this component's scope
-    import "../obsidian-app.css";
+    import "../obsidian-app.very-large.css";
     import "../obsidian-variables.css";
     import "../obsidian-variables.custom.css";
 </script>
