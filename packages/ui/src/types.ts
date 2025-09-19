@@ -68,3 +68,9 @@ export interface Thread {
     id: string;
     resCount: number;
 }
+
+export interface PostData {
+    name: string;
+    mail: string;
+    content: string;
+}
