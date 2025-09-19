@@ -182,10 +182,14 @@
     }
 
     .thread-table-header {
-        flex-shrink: 0; /* ヘッダーが縮まないように */
+        flex-shrink: 0;
         cursor: context-menu;
-        border-bottom: 1px solid var(--background-modifier-border);
+        border-bottom: var(--border-width) solid
+            var(--background-modifier-border);
         background-color: var(--background-secondary);
+        z-index: var(--layer-sidedock); /* 10 */
+        position: sticky;
+        top: 0;
     }
 
     .thread-table-body {
@@ -203,26 +207,30 @@
     }
 
     .tr {
-        border-bottom: 1px solid var(--background-modifier-border);
+        border-bottom: var(--border-width) solid
+            var(--background-modifier-border);
+        min-height: var(--size-4-9); /* 36px - 推定行高 */
     }
 
-    /* --- セル共通スタイル --- */
+    /* --- セル共通スタイル（Obsidianの4pxグリッド準拠） --- */
     .th,
     .td {
-        padding: 8px;
+        padding: var(--size-4-2); /* 8px */
         text-align: left;
         white-space: nowrap;
-        box-sizing: border-box; /* paddingを含めて幅を計算 */
+        box-sizing: border-box;
+        font-size: var(--font-ui-small); /* 13px */
     }
 
     .th {
         cursor: pointer;
         user-select: none;
-        font-weight: bold;
+        font-weight: var(--font-semibold); /* 600 */
+        font-size: var(--font-ui-small); /* 13px */
     }
     .sort-indicator {
-        font-size: 0.8em;
-        margin-left: 4px;
+        font-size: var(--font-ui-smaller); /* 12px */
+        margin-left: var(--size-4-1); /* 4px */
     }
 
     /* --- ホバースタイル --- */
@@ -245,24 +253,24 @@
         cursor: pointer;
     }
 
-    /* --- 列の幅と配置 (Flexbox) --- */
+    /* --- 列の幅と配置（Obsidianスペーシング準拠） --- */
     .col-index {
-        flex: 0 0 4em;
+        flex: 0 0 var(--size-4-16); /* 64px */
         text-align: right;
-        justify-content: flex-end; /* Flexアイテム内のテキスト配置 */
-        padding-right: 1em;
+        justify-content: flex-end;
+        padding-right: var(--size-4-4); /* 16px */
     }
     .col-title {
-        flex: 1 1 0; /* 伸縮可能にし、残りのスペースを埋める */
-        min-width: 0; /* これが重要！ flexアイテム内で text-overflow を効かせるため */
+        flex: 1 1 0;
+        min-width: 0;
     }
     .col-res {
-        flex: 0 0 5em;
+        flex: 0 0 var(--size-4-18); /* 72px */
         text-align: right;
         justify-content: flex-end;
     }
     .col-ikioi {
-        flex: 0 0 6em;
+        flex: 0 0 var(--size-4-18); /* 72px */
         text-align: right;
         justify-content: flex-end;
     }

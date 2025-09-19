@@ -12,8 +12,8 @@
 
     let {
         children,
-        padding = "2rem",
-        minHeight = "100px",
+        padding = "var(--size-4-8)" /* 32px */,
+        minHeight = "var(--size-4-25)" /* 100px */,
         backgroundColor,
         borderRadius,
     }: Props = $props();

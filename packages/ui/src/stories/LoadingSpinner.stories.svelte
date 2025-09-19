@@ -15,12 +15,13 @@
         argTypes: {
             size: {
                 control: { type: "select" },
-                options: ["small", "medium", "large"],
-                description: "スピナーのサイズ",
+                options: ["small", "medium", "large", "extra-large"],
+                description:
+                    "スピナーのサイズ（Obsidianの4pxグリッドに基づく）",
             },
             color: {
                 control: { type: "color" },
-                description: "スピナーの色",
+                description: "スピナーの色（Obsidianのカラー変数推奨）",
             },
             strokeWidth: {
                 control: { type: "range", min: 1, max: 5, step: 0.5 },
@@ -82,29 +83,51 @@
     }}
 />
 
-<!-- 4. カスタムカラー（青） -->
+<!-- 4. 特大サイズ -->
 <Story
-    name="Custom Color Blue"
+    name="Extra Large"
     args={{
-        size: "medium",
-        color: "#007acc",
+        size: "extra-large",
+        color: "var(--interactive-accent)",
         strokeWidth: 2,
         speed: "normal",
     }}
 />
 
-<!-- 5. カスタムカラー（緑） -->
+<!-- 5. Obsidianテーマカラー（成功） -->
 <Story
-    name="Custom Color Green"
+    name="Success Color"
     args={{
         size: "medium",
-        color: "#28a745",
+        color: "var(--color-green)",
         strokeWidth: 2,
         speed: "normal",
     }}
 />
 
-<!-- 6. 太い線 -->
+<!-- 6. Obsidianテーマカラー（警告） -->
+<Story
+    name="Warning Color"
+    args={{
+        size: "medium",
+        color: "var(--color-orange)",
+        strokeWidth: 2,
+        speed: "normal",
+    }}
+/>
+
+<!-- 7. Obsidianテーマカラー（エラー） -->
+<Story
+    name="Error Color"
+    args={{
+        size: "medium",
+        color: "var(--color-red)",
+        strokeWidth: 2,
+        speed: "normal",
+    }}
+/>
+
+<!-- 8. 太い線 -->
 <Story
     name="Thick Stroke"
     args={{
@@ -115,7 +138,7 @@
     }}
 />
 
-<!-- 7. 細い線 -->
+<!-- 9. 細い線 -->
 <Story
     name="Thin Stroke"
     args={{
@@ -126,7 +149,7 @@
     }}
 />
 
-<!-- 8. 高速アニメーション -->
+<!-- 10. 高速アニメーション -->
 <Story
     name="Fast Animation"
     args={{
@@ -137,7 +160,7 @@
     }}
 />
 
-<!-- 9. 低速アニメーション -->
+<!-- 11. 低速アニメーション -->
 <Story
     name="Slow Animation"
     args={{
@@ -148,7 +171,7 @@
     }}
 />
 
-<!-- 10. 複数のスピナーを並べて表示 -->
+<!-- 12. 複数のスピナーを並べて表示（Obsidianスペーシング使用） -->
 <Story name="Multiple Sizes">
     <CenterDecorator>
         <div
@@ -156,26 +179,46 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2rem;
+            gap: var(--size-4-8);
         "
         >
             <div style="text-align: center;">
                 <LoadingSpinner size="small" />
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">Small</p>
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Small (16px)
+                </p>
             </div>
             <div style="text-align: center;">
                 <LoadingSpinner size="medium" />
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">Medium</p>
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Medium (24px)
+                </p>
             </div>
             <div style="text-align: center;">
                 <LoadingSpinner size="large" />
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">Large</p>
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Large (32px)
+                </p>
+            </div>
+            <div style="text-align: center;">
+                <LoadingSpinner size="extra-large" />
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Extra Large (48px)
+                </p>
             </div>
         </div>
     </CenterDecorator>
 </Story>
 
-<!-- 11. 異なる速度のスピナーを並べて表示 -->
+<!-- 13. 異なる速度のスピナーを並べて表示 -->
 <Story name="Different Speeds">
     <CenterDecorator>
         <div
@@ -183,28 +226,97 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2rem;
+            gap: var(--size-4-8);
         "
         >
             <div style="text-align: center;">
                 <LoadingSpinner speed="slow" />
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">Slow</p>
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Slow
+                </p>
             </div>
             <div style="text-align: center;">
                 <LoadingSpinner speed="normal" />
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">Normal</p>
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Normal
+                </p>
             </div>
             <div style="text-align: center;">
                 <LoadingSpinner speed="fast" />
-                <p style="margin-top: 0.5rem; font-size: 0.8rem;">Fast</p>
+                <p
+                    style="margin-top: var(--size-4-2); font-size: var(--font-ui-small);"
+                >
+                    Fast
+                </p>
             </div>
         </div>
     </CenterDecorator>
 </Story>
 
-<!-- 12. ダークテーマでの表示例 -->
-<Story name="Dark Theme">
-    <CenterDecorator backgroundColor="#1e1e1e" borderRadius="8px">
-        <LoadingSpinner color="#ffffff" />
+<!-- 14. Obsidianカラーバリエーション -->
+<Story name="Obsidian Color Variations">
+    <CenterDecorator>
+        <div
+            style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--size-4-6);
+            flex-wrap: wrap;
+        "
+        >
+            <div style="text-align: center;">
+                <LoadingSpinner color="var(--interactive-accent)" />
+                <p
+                    style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
+                >
+                    Accent
+                </p>
+            </div>
+            <div style="text-align: center;">
+                <LoadingSpinner color="var(--text-normal)" />
+                <p
+                    style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
+                >
+                    Normal
+                </p>
+            </div>
+            <div style="text-align: center;">
+                <LoadingSpinner color="var(--text-muted)" />
+                <p
+                    style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
+                >
+                    Muted
+                </p>
+            </div>
+            <div style="text-align: center;">
+                <LoadingSpinner color="var(--color-green)" />
+                <p
+                    style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
+                >
+                    Success
+                </p>
+            </div>
+            <div style="text-align: center;">
+                <LoadingSpinner color="var(--color-orange)" />
+                <p
+                    style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
+                >
+                    Warning
+                </p>
+            </div>
+            <div style="text-align: center;">
+                <LoadingSpinner color="var(--color-red)" />
+                <p
+                    style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
+                >
+                    Error
+                </p>
+            </div>
+        </div>
     </CenterDecorator>
 </Story>

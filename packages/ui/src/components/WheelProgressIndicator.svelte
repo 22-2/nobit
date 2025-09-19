@@ -46,22 +46,22 @@
 <style>
     .wheel-progress-indicator {
         position: absolute;
-        top: 1em;
+        top: var(--size-4-4); /* 16px */
         left: 50%;
         transform: translateX(-50%);
         background-color: var(--background-secondary);
         color: var(--text-normal);
         border-radius: var(--radius-l);
-        padding: 0.3em 0.8em;
-        font-size: 1.2em;
-        font-weight: bold;
+        padding: var(--size-2-3) var(--size-4-3); /* 6px 12px */
+        font-size: var(--font-ui-medium); /* 15px */
+        font-weight: var(--font-semibold); /* 600 */
         box-shadow: var(--shadow-s);
-        z-index: 100;
+        z-index: var(--layer-tooltip); /* 70 */
         user-select: none;
         display: flex;
         align-items: center;
-        gap: 0.5em;
-        border: 1px solid var(--background-modifier-border);
+        gap: var(--size-4-2); /* 8px */
+        border: var(--border-width) solid var(--background-modifier-border);
     }
 
     /* visibility: hidden の要素はアニメーションさせても見えないため、
@@ -80,11 +80,11 @@
 
     .wheel-progress-indicator.bottom {
         top: unset;
-        bottom: 2em;
+        bottom: var(--size-4-8); /* 32px */
     }
 
     .wheel-progress-indicator.refreshing {
-        padding: 0.5em;
+        padding: var(--size-4-2); /* 8px */
     }
 
     .wheel-progress-indicator.post-refresh {
@@ -99,10 +99,10 @@
     }
 
     .progress-bar-wrapper {
-        width: 50px;
-        height: 8px;
+        width: var(--size-4-12); /* 48px */
+        height: var(--size-4-2); /* 8px */
         background-color: var(--background-modifier-border);
-        border-radius: 4px;
+        border-radius: var(--radius-s);
         overflow: hidden;
     }
 
@@ -110,12 +110,13 @@
         height: 100%;
         background-color: var(--interactive-accent);
         transition: width 0.1s linear;
+        border-radius: var(--radius-s);
     }
 
     @keyframes fade-in {
         from {
             opacity: 0;
-            transform: translate(-50%, -10px);
+            transform: translate(-50%, calc(-1 * var(--size-2-3))); /* -6px */
         }
         to {
             opacity: 0.9;

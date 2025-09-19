@@ -37,8 +37,8 @@
                 Component: CenterDecorator,
                 props: {
                     children: StoryComponent,
-                    minHeight: "400px",
-                    padding: "1rem",
+                    minHeight: "var(--size-4-100)" /* 400px相当 */,
+                    padding: "var(--size-4-4)" /* 16px */,
                 },
             }),
         ],

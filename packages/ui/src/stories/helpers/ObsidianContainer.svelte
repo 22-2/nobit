@@ -19,16 +19,11 @@
 
         /* Reset any potential conflicts */
         all: initial;
-        font-family: var(
-            --font-interface,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            sans-serif
-        );
-        color: var(--text-normal, #dcddde);
-        background: var(--background-primary, #2f3136);
+        font-family: var(--font-interface-theme);
+        font-size: var(--font-ui-medium); /* 15px */
+        line-height: var(--line-height-normal); /* 1.5 */
+        color: var(--text-normal);
+        background: var(--background-primary);
     }
 
     /* Re-apply necessary global styles within container */

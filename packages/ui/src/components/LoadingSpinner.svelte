@@ -1,6 +1,6 @@
 <script lang="ts">
     interface Props {
-        size?: "small" | "medium" | "large";
+        size?: "small" | "medium" | "large" | "extra-large";
         color?: string;
         strokeWidth?: number;
         speed?: "slow" | "normal" | "fast";
@@ -13,10 +13,12 @@
         speed = "normal",
     }: Props = $props();
 
+    // Obsidianの4pxグリッドシステムに基づいたサイズ設定
     const sizeMap = {
-        small: 16,
-        medium: 24,
-        large: 32,
+        small: "var(--size-4-4)", // 16px (4x4)
+        medium: "var(--size-4-6)", // 24px (4x6)
+        large: "var(--size-4-8)", // 32px (4x8)
+        "extra-large": "var(--size-4-12)", // 48px (4x12)
     };
 
     const speedMap = {
@@ -32,8 +34,8 @@
 <div
     class="loading-spinner"
     style="
-        width: {diameter}px;
-        height: {diameter}px;
+        width: {diameter};
+        height: {diameter};
         --spinner-color: {color};
         --animation-duration: {animationDuration};
     "
@@ -41,8 +43,8 @@
     aria-label="読み込み中"
 >
     <svg
-        width={diameter}
-        height={diameter}
+        width="100%"
+        height="100%"
         viewBox="0 0 24 24"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -65,10 +67,15 @@
     .loading-spinner {
         display: inline-block;
         animation: spin var(--animation-duration) linear infinite;
+        /* Obsidianのレイヤーシステムに準拠 */
+        position: relative;
+        z-index: var(--layer-popover, 30);
     }
 
     .spinner-circle {
         animation: dash var(--animation-duration) ease-in-out infinite;
+        /* より滑らかなアニメーション */
+        transform-origin: center;
     }
 
     @keyframes spin {
@@ -92,6 +99,16 @@
         100% {
             stroke-dasharray: 90, 150;
             stroke-dashoffset: -124;
+        }
+    }
+
+    /* アクセシビリティ: motion設定を尊重 */
+    @media (prefers-reduced-motion: reduce) {
+        .loading-spinner {
+            animation-duration: 3s;
+        }
+        .spinner-circle {
+            animation-duration: 3s;
         }
     }
 </style>

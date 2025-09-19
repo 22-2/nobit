@@ -130,25 +130,27 @@
 
 <style>
     .test-container {
-        height: 300px;
-        width: 400px;
+        height: var(--size-4-75); /* 300px */
+        width: var(--size-4-100); /* 400px */
         overflow-y: auto;
-        border: 2px solid #3366ff;
-        background-color: #f0f4f8;
-        font-family: sans-serif;
+        border: var(--border-width-thick, 2px) solid var(--interactive-accent);
+        background-color: var(--background-primary);
+        font-family: var(--font-interface-theme);
+        font-size: var(--font-ui-small); /* 13px */
     }
     .content {
-        padding: 1rem;
+        padding: var(--size-4-4); /* 16px */
         position: relative;
+        color: var(--text-normal);
     }
     .indicator {
-        border: 1px solid #ccc;
-        padding: 0.5rem;
-        margin: 1rem 0;
-        background-color: white;
-        border-radius: 8px;
+        border: var(--border-width) solid var(--background-modifier-border);
+        padding: var(--size-4-2); /* 8px */
+        margin: var(--size-4-4) 0; /* 16px 0 */
+        background-color: var(--background-secondary);
+        border-radius: var(--radius-m);
     }
     .filler {
-        padding: 1rem 0;
+        padding: var(--size-4-4) 0; /* 16px 0 */
     }
 </style>

@@ -72,8 +72,8 @@
                 Component: CenterDecorator,
                 props: {
                     children: StoryComponent,
-                    padding: "1rem",
-                    minHeight: "500px",
+                    padding: "var(--size-4-4)" /* 16px */,
+                    minHeight: "var(--size-4-125)" /* 500px相当 */,
                 },
             }),
         ],
