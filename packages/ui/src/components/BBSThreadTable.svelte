@@ -1,7 +1,7 @@
 <script lang="ts">
     // import { setTooltip, type TooltipOptions } from "obsidian"; // obsidianを除外
     import type { SubjectItem } from "../types";
-    import { createSorter, type SorterState } from "../stores/useSorter.svelte";
+    import { useSorter, type SorterState } from "../stores/useSorter.svelte";
     // import { createVirtualizer } from "../utils/virtualizer.svelte"; // virtualizerを除外
 
     type ThreadItem = SubjectItem & { index: number };
@@ -61,7 +61,7 @@
         threads.map((t, index) => ({ ...t, index: index + 1 }))
     );
 
-    const sorter = createSorter(
+    const sorter = useSorter(
         () => indexedThreads,
         {
             index: { compare: (a, b) => a.index - b.index },

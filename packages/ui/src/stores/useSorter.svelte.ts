@@ -20,7 +20,7 @@ export type SortColumn<T> = {
 };
 
 /**
- * createSorterに渡すカラム設定の型
+ * useSorterに渡すカラム設定の型
  * @template T - ソート対象のアイテムの型
  */
 export type SorterColumns<T> = {
@@ -37,7 +37,7 @@ export type SorterColumns<T> = {
  * @param onSortChange - ソート状態が変更されたときに呼び出されるコールバック
  * @returns リアクティブなソート状態と、ソートを更新する関数
  */
-export function createSorter<T>(
+export function useSorter<T>(
     getItems: () => T[],
     columns: SorterColumns<T>,
     initialState: SorterState,
