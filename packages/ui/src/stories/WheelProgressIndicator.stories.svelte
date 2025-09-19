@@ -1,6 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import WheelProgressIndicator from "../components/WheelProgressIndicator.svelte";
+    import WheelProgressIndicator from "../view/common/WheelProgressIndicator.svelte";
     import CenterDecorator from "./helpers/CenterDecorator.svelte";
 
     // defineMeta で Storybook のメタ情報を定義します
