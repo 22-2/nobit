@@ -33,6 +33,7 @@
         "vitest": "^3.2.4"
     },
     "dependencies": {
-        "@nobit/typescript-config": "workspace:*"
+        "@nobit/typescript-config": "workspace:*",
+        "date-fns": "^4.1.0"
     }
 }
