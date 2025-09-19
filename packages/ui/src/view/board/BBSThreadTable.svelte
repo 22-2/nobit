@@ -137,10 +137,15 @@
                 class="tr"
                 role="row"
                 data-testid="thread-row-{thread.id}"
-                onmousedown={(e) => openThread(thread, e)}
+                onmousedown={(e) => {
+                    if (e.button === 2) {
+                        openContextMenu(thread, e);
+                    } else if (e.button === 0 || e.button === 1) {
+                        openThread(thread, e);
+                    }
+                }}
                 oncontextmenu={(e) => {
                     e.preventDefault();
-                    openContextMenu(thread, e);
                 }}
             >
                 {#if visibleColumns.index}
