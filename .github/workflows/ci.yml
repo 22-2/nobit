@@ -7,7 +7,7 @@ on:
         branches: [main, develop]
 
 env:
-    NODE_VERSION: "18"
+    NODE_VERSION: "20"
     PNPM_VERSION: "10.17.0"
 
 jobs:
@@ -233,13 +233,13 @@ jobs:
                   echo "Unit Tests: ${{ needs.unit-tests.result }}"
                   echo "Storybook Tests: ${{ needs.storybook-tests.result }}"
                   echo "E2E Tests: ${{ needs.e2e-tests.result }}"
-                  
-                  if [[ "${{ needs.static-analysis.result }}" != "success" || 
-                        "${{ needs.unit-tests.result }}" != "success" || 
-                        "${{ needs.storybook-tests.result }}" != "success" || 
+
+                  if [[ "${{ needs.static-analysis.result }}" != "success" ||
+                        "${{ needs.unit-tests.result }}" != "success" ||
+                        "${{ needs.storybook-tests.result }}" != "success" ||
                         "${{ needs.e2e-tests.result }}" != "success" ]]; then
                     echo "❌ Some CI jobs failed"
                     exit 1
                   fi
-                  
+
                   echo "✅ All CI jobs completed successfully!"
