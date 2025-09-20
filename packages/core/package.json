@@ -7,7 +7,8 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-		"test": "vitest"
+    "test": "vitest",
+    "test:unit": "vitest run --passWithNoTests"
   },
   "devDependencies": {
     "vitest": "^3.2.4"
