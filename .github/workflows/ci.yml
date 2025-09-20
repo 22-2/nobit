@@ -205,7 +205,23 @@ jobs:
                       apps/*/node_modules
                   key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
 
+            - name: Get Playwright version
+              id: playwright-version
+              run: |
+                  VERSION=$(grep '"@playwright/test"' packages/ui/package.json | sed 's/.*: "//; s/".*//')
+                  echo "PLAYWRIGHT_VERSION=$VERSION" >> $GITHUB_ENV
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-
+
             - name: Install Playwright browsers
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
               run: pnpm exec playwright install ${{ matrix.browser }} --with-deps
               working-directory: packages/ui
 
