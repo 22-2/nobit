@@ -18,7 +18,7 @@ jobs:
             cache-key: ${{ steps.cache-key.outputs.key }}
         steps:
             - name: Disable man-db auto-update
-              run: sudo debconf-set-selections <<< "man-db man-db/auto-update boolean false"
+              run: echo "set man-db/auto-update false" | sudo debconf-communicate; sudo dpkg-reconfigure man-db
 
             - name: Checkout
               uses: actions/checkout@v4
