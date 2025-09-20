@@ -1,3 +1,6 @@
+import module from "node:module";
+
+const require = module.createRequire(import.meta.url);
 import { defineConfig, devices } from "@playwright/test";
 
 /**
