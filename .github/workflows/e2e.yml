@@ -1,0 +1,136 @@
+name: E2E Tests
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+env:
+    NODE_VERSION: "20"
+    PNPM_VERSION: "10.17.0"
+
+jobs:
+    # 依存関係のインストールとビルド成果物の準備 (e2e専用)
+    prepare-e2e:
+        runs-on: ubuntu-latest
+        outputs:
+            cache-key: ${{ steps.cache-key.outputs.key }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Get pnpm store directory
+              shell: bash
+              run: |
+                  echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Generate cache key
+              id: cache-key
+              run: |
+                  echo "key=${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+            - name: Setup pnpm cache
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.STORE_PATH }}
+                  key: ${{ steps.cache-key.outputs.key }}
+                  restore-keys: |
+                      ${{ runner.os }}-pnpm-store-
+
+            - name: Install dependencies
+              run: pnpm install --no-frozen-lockfile
+
+            # node_modulesをアーティファクトとして保存
+            - name: Cache node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+    # E2Eテスト（複数ブラウザで並列実行）
+    e2e-tests:
+        runs-on: ubuntu-latest
+        needs: prepare-e2e # 依存関係を prepare-e2e に変更
+        strategy:
+            matrix:
+                browser: [chromium, firefox, webkit]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Get Playwright version
+              id: playwright-version
+              run: |
+                  VERSION=$(grep '"@playwright/test"' packages/ui/package.json | sed 's/.*: "//; s/".*//')
+                  echo "PLAYWRIGHT_VERSION=$VERSION" >> $GITHUB_ENV
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-
+
+            - name: Disable man-db auto-update permanently
+              run: |
+                  sudo apt-get update
+                  # `man-db` の再設定を非対話的に行い、自動更新を無効にする試み
+                  sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure man-db <<EOF
+                  false
+                  EOF
+                  # より確実な方法として、man-dbの自動更新を完全に無効化する設定ファイル編集も検討できますが、
+                  # デフォルトではman-dbは頻繁に自動更新を行うわけではないため、この設定で十分な場合が多いです。
+                  # 問題が続く場合は、以下のコマンドも検討してください:
+                  # sudo apt-mark hold man-db
+
+            - name: Install Playwright browsers
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+              run: pnpm exec playwright install ${{ matrix.browser }} --with-deps
+              working-directory: packages/ui
+
+            - name: Run E2E tests
+              run: pnpm exec playwright test --project=${{ matrix.browser }}
+              working-directory: packages/ui
+
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report-${{ matrix.browser }}
+                  path: packages/ui/playwright-report/
+                  retention-days: 7
