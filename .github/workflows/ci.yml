@@ -17,13 +17,6 @@ jobs:
         outputs:
             cache-key: ${{ steps.cache-key.outputs.key }}
         steps:
-            - name: Disable man-db auto-update permanently
-              run: |
-                  sudo apt-get update
-                  sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure man-db <<EOF
-                  false
-                  EOF
-
             - name: Checkout
               uses: actions/checkout@v4
 
@@ -190,6 +183,13 @@ jobs:
             matrix:
                 browser: [chromium, firefox, webkit]
         steps:
+            - name: Disable man-db auto-update permanently
+              run: |
+                  sudo apt-get update
+                  sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure man-db <<EOF
+                  false
+                  EOF
+
             - name: Checkout
               uses: actions/checkout@v4
 
