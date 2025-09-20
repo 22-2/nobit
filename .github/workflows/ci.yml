@@ -183,13 +183,6 @@ jobs:
             matrix:
                 browser: [chromium, firefox, webkit]
         steps:
-            - name: Disable man-db auto-update permanently
-              run: |
-                  sudo apt-get update
-                  sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure man-db <<EOF
-                  false
-                  EOF
-
             - name: Checkout
               uses: actions/checkout@v4
 
@@ -226,6 +219,13 @@ jobs:
                   key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
                   restore-keys: |
                       ${{ runner.os }}-playwright-
+
+            - name: Disable man-db auto-update permanently
+              run: |
+                  sudo apt-get update
+                  sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure man-db <<EOF
+                  false
+                  EOF
 
             - name: Install Playwright browsers
               if: steps.playwright-cache.outputs.cache-hit != 'true'
