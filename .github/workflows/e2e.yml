@@ -108,15 +108,10 @@ jobs:
 
             - name: Disable man-db auto-update permanently
               run: |
-                  sudo apt-get update
-                  # `man-db` の再設定を非対話的に行い、自動更新を無効にする試み
-                  sudo DEBIAN_FRONTEND=noninteractive dpkg-reconfigure man-db <<EOF
-                  false
-                  EOF
-                  # より確実な方法として、man-dbの自動更新を完全に無効化する設定ファイル編集も検討できますが、
-                  # デフォルトではman-dbは頻繁に自動更新を行うわけではないため、この設定で十分な場合が多いです。
-                  # 問題が続く場合は、以下のコマンドも検討してください:
-                  # sudo apt-mark hold man-db
+                  echo "set man-db/auto-update false" | sudo debconf-communicate; sudo dpkg-reconfigure man-db
+                  sudo apt-get update -q
+                  sudo apt-get install -y -q xvfb herbstluftwm dzen2 x11-xserver-utils
+                  sudo apt-mark hold man-db
 
             - name: Install Playwright browsers
               if: steps.playwright-cache.outputs.cache-hit != 'true'
