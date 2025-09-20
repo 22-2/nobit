@@ -1,0 +1,144 @@
+name: E2E Tests
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+env:
+    NODE_VERSION: "20"
+    PNPM_VERSION: "10.17.0"
+
+jobs:
+    # 依存関係のインストールとビルド成果物の準備 (e2e専用)
+    prepare-e2e:
+        runs-on: ubuntu-latest
+        outputs:
+            cache-key: ${{ steps.cache-key.outputs.key }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Get pnpm store directory
+              shell: bash
+              run: |
+                  echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+            - name: Generate cache key
+              id: cache-key
+              run: |
+                  echo "key=${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}" >> $GITHUB_OUTPUT
+
+            - name: Setup pnpm cache
+              uses: actions/cache@v4
+              with:
+                  path: ${{ env.STORE_PATH }}
+                  key: ${{ steps.cache-key.outputs.key }}
+                  restore-keys: |
+                      ${{ runner.os }}-pnpm-store-
+
+            - name: Install dependencies
+              run: pnpm install --no-frozen-lockfile
+
+            # node_modulesをアーティファクトとして保存
+            - name: Cache node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+    # E2Eテスト（複数ブラウザで並列実行）
+    e2e-tests:
+        runs-on: ubuntu-latest
+        needs: prepare-e2e
+        strategy:
+            matrix:
+                browser: [chromium, firefox, webkit]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Get Playwright version
+              id: playwright-version
+              run: |
+                  VERSION=$(grep '"@playwright/test"' packages/ui/package.json | sed 's/.*: "//; s/".*//')
+                  echo "PLAYWRIGHT_VERSION=$VERSION" >> $GITHUB_ENV
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-
+
+            # man-dbの自動更新を無効化し、Playwrightの依存関係をインストール
+            # Playwrightのブラウザが正常に起動しない問題は、Playwrightの依存関係が適切にインストールされていないか、
+            # 環境のセットアップに問題があることが原因であることが多いです。
+            # playwright install --with-deps コマンドは、ブラウザだけでなく、それらの実行に必要なシステム依存関係もインストールします。
+            # また、man-db の自動更新を無効化する処理は、環境によっては長時間かかったり、問題を引き起こす可能性があるため、
+            # Playwrightのインストール処理の前に移動させ、確実に依存関係が解決されるようにします。
+            - name: Disable man-db auto-update permanently and install Playwright dependencies
+              run: |
+                  echo "set man-db/auto-update false" | sudo debconf-communicate
+                  sudo dpkg-reconfigure man-db
+                  sudo apt-get update -q
+                  sudo apt-get install -y -q xvfb herbstluftwm dzen2 x11-xserver-utils
+                  sudo apt-mark hold man-db
+                  # Playwrightのブラウザと依存関係をここでインストール
+                  pnpm exec playwright install --with-deps
+              working-directory: packages/ui
+
+            # Playwrightのブラウザインストールは、上記のステップで --with-deps と共に実行されるため、このステップは不要になります。
+            # ブラウザキャッシュのヒット/ミスに関わらず、Playwrightのインストールコマンドを --with-deps オプション付きで一度実行するのが最も確実です。
+            # - name: Install Playwright browsers
+            #   if: steps.playwright-cache.outputs.cache-hit != 'true'
+            #   run: |
+            #       pnpm exec playwright install ${{ matrix.browser }} --with-deps
+            #   working-directory: packages/ui
+
+            - name: Run E2E tests
+              run: pnpm exec playwright test --project=${{ matrix.browser }}
+              working-directory: packages/ui
+
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report-${{ matrix.browser }}
+                  path: packages/ui/playwright-report/
+                  retention-days: 7

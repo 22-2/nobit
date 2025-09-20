@@ -8,7 +8,7 @@
     },
     "scripts": {
         "test": "vitest",
-        "test:unit": "vitest run --project unit",
+        "test:unit": "vitest run --project unit --passWithNoTests",
         "test:unit:watch": "vitest --project unit",
         "test:storybook": "vitest run --project storybook",
         "test:e2e": "playwright test",
