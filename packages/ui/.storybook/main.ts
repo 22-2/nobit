@@ -12,7 +12,12 @@ function getAbsolutePath(value: string): any {
 const config: StorybookConfig = {
     stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|ts|svelte)"],
     addons: [
-        getAbsolutePath("@storybook/addon-svelte-csf"),
+        {
+            name: getAbsolutePath("@storybook/addon-svelte-csf"),
+            options: {
+                legacyTemplate: true,
+            },
+        },
         getAbsolutePath("@chromatic-com/storybook"),
         getAbsolutePath("@storybook/addon-docs"),
         getAbsolutePath("@storybook/addon-a11y"),

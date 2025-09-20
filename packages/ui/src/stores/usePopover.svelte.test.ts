@@ -12,7 +12,7 @@ import { usePopover } from "./usePopover.svelte";
 import { CustomHoverPopover } from "../view/common/CustomHoverPopover";
 
 // Mock CustomHoverPopover
-vi.mock("../popover/CustomHoverPopover", () => {
+vi.mock("../view/common/CustomHoverPopover", () => {
     const Component = class {
         children: any[] = [];
         onload() {}
