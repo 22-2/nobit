@@ -12,6 +12,7 @@
         ThreadLinkClickDetail,
     } from "./PostItem.svelte";
     import LoadingSpinner from "../common/LoadingSpinner.svelte";
+    import ThreadToolbar from "./ThreadToolbar.svelte";
 
     type Props = {
         thread: Thread | null;
@@ -96,14 +97,18 @@
                 bind:isSubmitting={isSubmittingPost}
             />
         {:else}
-            <div class="write-form-trigger">
+            <!-- <div class="write-form-trigger">
                 <button
                     class="mod-cta"
                     onclick={() => (isWriteFormVisible = true)}
                 >
                     書き込む
                 </button>
-            </div>
+            </div> -->
+            <ThreadToolbar
+                onRefresh={() => {}}
+                onWriteButtonClick={() => (isWriteFormVisible = true)}
+            />
         {/if}
     {:else}
         <div class="loading-indicator">

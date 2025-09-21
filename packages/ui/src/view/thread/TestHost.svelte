@@ -4,6 +4,7 @@
     import ThreadFiltersComponent from "./ThreadFilters.svelte";
     import PostItem from "./PostItem.svelte";
     import InlineWriteForm from "./InlineWriteForm.svelte";
+    import ThreadToolbar from "./ThreadToolbar.svelte";
 
     type ShowReplyTreeDetail = {
         targetEl: HTMLElement;
@@ -117,6 +118,7 @@
             onCancel={() => (isWriteFormVisible = false)}
         />
     {:else}
-        <button onclick={() => (isWriteFormVisible = true)}>書き込む</button>
+        <!-- <button onclick={() => (isWriteFormVisible = true)}>書き込む</button> -->
+        <ThreadToolbar />
     {/if}
 </div>
