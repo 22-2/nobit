@@ -80,6 +80,6 @@
     .board-list-tree-container {
         height: 100%;
         overflow-y: auto;
-        padding: var(--size-4-2);
+        padding: var(--nobit-size-4-2);
     }
 </style>

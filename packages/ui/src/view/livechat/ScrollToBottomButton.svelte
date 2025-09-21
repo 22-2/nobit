@@ -14,13 +14,13 @@
         bottom: 1em;
         left: 50%;
         transform: translateX(-50%);
-        background-color: var(--interactive-accent);
-        color: var(--text-on-accent);
+        background-color: var(--nobit-interactive-accent);
+        color: var(--nobit-text-on-accent);
         border: none;
-        border-radius: var(--radius-l);
+        border-radius: var(--nobit-radius-l);
         padding: 0.5em 1em;
         cursor: pointer;
-        box-shadow: var(--shadow-s);
+        box-shadow: var(--nobit-shadow-s);
         z-index: 10;
         animation: fade-in 0.3s ease;
     }

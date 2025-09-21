@@ -63,26 +63,26 @@
         display: flex;
         align-items: center;
         width: 100%;
-        border-bottom: var(--border-width) solid
-            var(--background-modifier-border);
-        min-height: var(--size-4-9); /* 36px - 推定行高 */
+        border-bottom: var(--nobit-border-width) solid
+            var(--nobit-background-modifier-border);
+        min-height: var(--nobit-size-4-9);
     }
 
     .tr:hover {
         background-color: var(
-            --my-item-background-hover,
-            var(--background-secondary-alt)
+            --nobit-my-item-background-hover,
+            var(--nobit-background-secondary-alt)
         );
-        color: var(--my-item-color-hover, var(--text-normal));
+        color: var(--nobit-my-item-color-hover, var(--nobit-text-normal));
         cursor: pointer;
     }
 
     .td {
-        padding: var(--size-4-2); /* 8px */
+        padding: var(--nobit-size-4-2);
         text-align: left;
         white-space: nowrap;
         box-sizing: border-box;
-        font-size: var(--font-ui-small); /* 13px */
+        font-size: var(--nobit-font-ui-small);
     }
 
     .title-cell-content {

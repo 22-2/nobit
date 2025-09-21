@@ -1,0 +1,94 @@
+:root {
+    /*
+     * =================================================================
+     * THEME VARIABLES
+     *
+     * This file centralizes CSS variables to make theming easier.
+     * It can map to Obsidian's variables or define a custom theme
+     * with fallback values.
+     * =================================================================
+    */
+
+    /* Colors */
+    --nobit-background-primary: var(--background-primary, #ffffff);
+    --nobit-background-secondary: var(--background-secondary, #f2f3f5);
+    --nobit-background-secondary-alt: var(--background-secondary-alt, #e7e8ea);
+    --nobit-background-modifier-hover: var(
+        --background-modifier-hover,
+        #e0e1e3
+    );
+    --nobit-background-modifier-border: var(
+        --background-modifier-border,
+        #dddddd
+    );
+
+    --nobit-text-normal: var(--text-normal, #2e3338);
+    --nobit-text-muted: var(--text-muted, #888888);
+    --nobit-text-accent: var(--text-accent, #7f35b5);
+    --nobit-text-on-accent: var(--text-on-accent, #ffffff);
+    --nobit-text-error: var(--text-error, #d92c2c);
+
+    --nobit-icon-color: var(--icon-color, #888888);
+
+    --nobit-interactive-accent: var(--interactive-accent, #7f35b5);
+
+    /* Borders & Radius */
+    --nobit-border-width: var(--border-width, 1px);
+    --nobit-radius-s: var(--radius-s, 3px);
+    --nobit-radius-m: var(--radius-m, 5px);
+    --nobit-radius-l: var(--radius-l, 8px);
+
+    /* Sizing & Spacing (based on Obsidian's 4px grid) */
+    --nobit-size-2-3: var(--size-2-3, 6px);
+    --nobit-size-4-1: var(--size-4-1, 4px);
+    --nobit-size-4-2: var(--size-4-2, 8px);
+    --nobit-size-4-3: var(--size-4-3, 12px);
+    --nobit-size-4-4: var(--size-4-4, 16px);
+    --nobit-size-4-6: var(--size-4-6, 24px);
+    --nobit-size-4-8: var(--size-4-8, 32px);
+    --nobit-size-4-9: var(--size-4-9, 36px);
+    --nobit-size-4-12: var(--size-4-12, 48px);
+
+    /* Fonts */
+    --nobit-font-ui-small: var(--font-ui-small, 13px);
+    --nobit-font-ui-smaller: var(--font-ui-smaller, 12px);
+    --nobit-font-ui-medium: var(--font-ui-medium, 15px);
+    --nobit-font-semibold: var(--font-semibold, 600);
+
+    /* Shadows */
+    --nobit-shadow-s: var(
+        --shadow-s,
+        0 1px 3px rgba(0, 0, 0, 0.12),
+        0 1px 2px rgba(0, 0, 0, 0.24)
+    );
+    --nobit-shadow-l: var(
+        --shadow-l,
+        0 10px 20px rgba(0, 0, 0, 0.19),
+        0 6px 6px rgba(0, 0, 0, 0.23)
+    );
+
+    /* Layers */
+    --nobit-layer-sidedock: var(--layer-sidedock, 10);
+    --nobit-layer-popover: var(--layer-popover, 30);
+    --nobit-layer-tooltip: var(--layer-tooltip, 70);
+
+    /* Navigation Tree Specific */
+    --nobit-nav-indentation-guide-width: var(
+        --nav-indentation-guide-width,
+        1px
+    );
+    --nobit-nav-indentation-guide-color: var(
+        --nav-indentation-guide-color,
+        #dddddd
+    );
+
+    /* Custom Component Specific */
+    --nobit-my-item-background-hover: var(
+        --my-item-background-hover,
+        var(--nobit-background-modifier-hover)
+    );
+    --nobit-my-item-color-hover: var(
+        --my-item-color-hover,
+        var(--nobit-text-normal)
+    );
+}

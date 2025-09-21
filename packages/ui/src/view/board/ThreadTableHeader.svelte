@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { SorterState } from "../../services/types";
     import type { ColumnKey } from "../../types";
 
     type Props = {
@@ -68,10 +67,10 @@
     .thread-table-header {
         flex-shrink: 0;
         cursor: context-menu;
-        border-bottom: var(--border-width) solid
-            var(--background-modifier-border);
-        background-color: var(--background-secondary);
-        z-index: var(--layer-sidedock); /* 10 */
+        border-bottom: var(--nobit-border-width) solid
+            var(--nobit-background-modifier-border);
+        background-color: var(--nobit-background-secondary);
+        z-index: var(--nobit-layer-sidedock);
         position: sticky;
         top: 0;
         display: flex;
@@ -80,30 +79,30 @@
     }
 
     .th {
-        padding: var(--size-4-2); /* 8px */
+        padding: var(--nobit-size-4-2);
         text-align: left;
         white-space: nowrap;
         box-sizing: border-box;
-        font-size: var(--font-ui-small); /* 13px */
+        font-size: var(--nobit-font-ui-small);
         cursor: pointer;
         user-select: none;
-        font-weight: var(--font-semibold); /* 600 */
+        font-weight: var(--nobit-font-semibold);
     }
 
     .sort-indicator {
-        font-size: var(--font-ui-smaller); /* 12px */
-        margin-left: var(--size-4-1); /* 4px */
+        font-size: var(--nobit-font-ui-smaller);
+        margin-left: var(--nobit-size-4-1);
     }
 
     .th:hover {
         background-color: var(
-            --my-item-background-hover,
-            var(--background-modifier-hover)
+            --nobit-my-item-background-hover,
+            var(--nobit-background-modifier-hover)
         );
-        color: var(--my-item-color-hover, var(--text-normal));
+        color: var(--nobit-my-item-color-hover, var(--nobit-text-normal));
     }
 
     .th.sorted {
-        color: var(--text-accent);
+        color: var(--nobit-text-accent);
     }
 </style>

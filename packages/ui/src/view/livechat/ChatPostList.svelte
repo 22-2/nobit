@@ -101,12 +101,12 @@
         padding: 0.4em 1em;
     }
     .live-chat-item.odd {
-        background-color: var(--background-secondary);
+        background-color: var(--nobit-background-secondary);
     }
     .live-chat-number {
         font-weight: bold;
         margin-right: 0.5em;
-        color: var(--text-muted);
+        color: var(--nobit-text-muted);
     }
     .live-chat-content {
         word-wrap: break-word;
@@ -118,6 +118,6 @@
         vertical-align: middle;
     }
     .live-chat-content :global(a) {
-        color: var(--text-accent);
+        color: var(--nobit-text-accent);
     }
 </style>

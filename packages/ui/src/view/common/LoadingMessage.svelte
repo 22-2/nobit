@@ -11,11 +11,11 @@
 
 <style>
     .status-message {
-        color: var(--text-muted);
+        color: var(--nobit-text-muted);
         padding: 1em;
     }
 
     .error-message {
-        color: var(--text-error);
+        color: var(--nobit-text-error);
     }
 </style>

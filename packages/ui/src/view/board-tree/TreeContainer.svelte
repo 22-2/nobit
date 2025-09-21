@@ -10,8 +10,8 @@
 
 <style>
     .tree-item-children {
-        padding-left: var(--nav-indentation-guide-width);
-        border-left: 1px solid var(--nav-indentation-guide-color);
+        padding-left: var(--nobit-size-4-3); /* 12px */
+        border-left: 1px solid var(--nobit-nav-indentation-guide-color);
         margin-left: 12px;
     }
 </style>

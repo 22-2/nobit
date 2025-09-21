@@ -47,13 +47,13 @@
     .tree-item-self {
         display: flex;
         align-items: center;
-        padding: var(--size-4-1) var(--size-4-2);
-        border-radius: var(--radius-s);
+        padding: var(--nobit-size-4-1) var(--nobit-size-4-2);
+        border-radius: var(--nobit-radius-s);
         cursor: pointer;
     }
 
     .tree-item-self:hover {
-        background-color: var(--background-modifier-hover);
+        background-color: var(--nobit-background-modifier-hover);
     }
 
     .tree-item-inner {
@@ -64,14 +64,14 @@
     }
 
     .collapse-icon {
-        width: var(--size-4-6);
-        height: var(--size-4-6);
+        width: var(--nobit-size-4-6);
+        height: var(--nobit-size-4-6);
         display: flex;
         align-items: center;
         justify-content: center;
         transform: rotate(90deg);
         transition: transform 0.1s ease-in-out;
-        color: var(--icon-color);
+        color: var(--nobit-icon-color);
     }
 
     .nav-folder.is-collapsed .collapse-icon {
@@ -79,8 +79,8 @@
     }
 
     .collapse-icon svg {
-        width: var(--size-4-2);
-        height: var(--size-4-2);
+        width: var(--nobit-size-4-2);
+        height: var(--nobit-size-4-2);
         opacity: 0.5;
     }
 </style>

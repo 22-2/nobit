@@ -3,6 +3,7 @@
     import "../obsidian-app.very-large.css";
     import "../obsidian-variables.css";
     import "../obsidian-variables.custom.css";
+    import "../my-styles.css";
 </script>
 
 <div class="obsidian-app-container">

@@ -8,17 +8,16 @@
 
     let {
         size = "medium",
-        color = "var(--interactive-accent)",
+        color = "var(--nobit-interactive-accent)",
         strokeWidth = 2,
         speed = "normal",
     }: Props = $props();
 
-    // Obsidianの4pxグリッドシステムに基づいたサイズ設定
     const sizeMap = {
-        small: "var(--size-4-4)", // 16px (4x4)
-        medium: "var(--size-4-6)", // 24px (4x6)
-        large: "var(--size-4-8)", // 32px (4x8)
-        "extra-large": "var(--size-4-12)", // 48px (4x12)
+        small: "var(--nobit-size-4-4)", // 16px
+        medium: "var(--nobit-size-4-6)", // 24px
+        large: "var(--nobit-size-4-8)", // 32px
+        "extra-large": "var(--nobit-size-4-12)", // 48px
     };
 
     const speedMap = {
@@ -67,14 +66,12 @@
     .loading-spinner {
         display: inline-block;
         animation: spin var(--animation-duration) linear infinite;
-        /* Obsidianのレイヤーシステムに準拠 */
         position: relative;
-        z-index: var(--layer-popover, 30);
+        z-index: var(--nobit-layer-popover);
     }
 
     .spinner-circle {
         animation: dash var(--animation-duration) ease-in-out infinite;
-        /* より滑らかなアニメーション */
         transform-origin: center;
     }
 
@@ -102,7 +99,6 @@
         }
     }
 
-    /* アクセシビリティ: motion設定を尊重 */
     @media (prefers-reduced-motion: reduce) {
         .loading-spinner {
             animation-duration: 3s;
