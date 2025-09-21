@@ -1,10 +1,10 @@
-// E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\__tests__\ThreadIntegration.test.ts
+// E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\view\thread\ThreadIntegration.test.ts
 import { render, screen, fireEvent, waitFor } from "@testing-library/svelte";
 import { describe, it, expect, vi } from "vitest";
 import TestHost from "./TestHost.svelte";
 import type { Post } from "../../types";
 
-// テスト用のダミーデータ
+// テスト用のダミーデータ (変更なし)
 const mockPosts: Post[] = [
     {
         id: "1",
@@ -34,6 +34,7 @@ const mockPosts: Post[] = [
         authorId: "KLMNO",
         date: new Date("2025-09-20T10:10:00Z"),
         content: "これは3番目の投稿です。",
+        imageUrls: [], // imageUrlsを追加
         replies: [],
         postIdCount: 1,
         siblingPostNumbers: [3],
@@ -59,20 +60,27 @@ describe("Thread Integration Test", () => {
         const searchInput = screen.getByPlaceholderText("検索...");
         await fireEvent.input(searchInput, { target: { value: "画像" } });
 
-        expect(screen.getAllByRole("article").length).toBe(1);
+        // ▼ 変更点: waitFor を使ってDOMの更新を待つ
+        await waitFor(() => {
+            expect(screen.getAllByRole("article").length).toBe(1);
+            expect(
+                screen.getByText(/これは画像付きの投稿です/)
+            ).toBeInTheDocument();
+        });
+
         expect(
             screen.queryByText(/これは最初の投稿です/)
         ).not.toBeInTheDocument();
-        expect(
-            screen.getByText(/これは画像付きの投稿です/)
-        ).toBeInTheDocument();
         expect(
             screen.queryByText(/これは3番目の投稿です/)
         ).not.toBeInTheDocument();
 
         // 検索をクリア
         await fireEvent.input(searchInput, { target: { value: "" } });
-        expect(screen.getAllByRole("article").length).toBe(3);
+        // ▼ 変更点: こちらも waitFor で待つ
+        await waitFor(() => {
+            expect(screen.getAllByRole("article").length).toBe(3);
+        });
     });
 
     it("should filter posts by image button", async () => {
@@ -82,14 +90,20 @@ describe("Thread Integration Test", () => {
             screen.getByLabelText("画像を含むレスで絞り込む");
         await fireEvent.click(imageFilterButton);
 
-        expect(screen.getAllByRole("article").length).toBe(1);
-        expect(
-            screen.getByText(/これは画像付きの投稿です/)
-        ).toBeInTheDocument();
+        // ▼ 変更点: waitFor を追加
+        await waitFor(() => {
+            expect(screen.getAllByRole("article").length).toBe(1);
+            expect(
+                screen.getByText(/これは画像付きの投稿です/)
+            ).toBeInTheDocument();
+        });
 
         // フィルタを解除
         await fireEvent.click(imageFilterButton);
-        expect(screen.getAllByRole("article").length).toBe(3);
+        // ▼ 変更点: waitFor を追加
+        await waitFor(() => {
+            expect(screen.getAllByRole("article").length).toBe(3);
+        });
     });
 
     it("should filter with combined filters (text and image)", async () => {
@@ -98,20 +112,27 @@ describe("Thread Integration Test", () => {
         const searchInput = screen.getByPlaceholderText("検索...");
         await fireEvent.input(searchInput, { target: { value: "投稿" } });
 
-        // この時点で3件ヒットする
-        expect(screen.getAllByRole("article").length).toBe(3);
+        // ▼ 変更点: waitFor を追加
+        await waitFor(() => {
+            // この時点で3件ヒットする
+            expect(screen.getAllByRole("article").length).toBe(3);
+        });
 
         const imageFilterButton =
             screen.getByLabelText("画像を含むレスで絞り込む");
         await fireEvent.click(imageFilterButton);
 
-        // 「投稿」を含み、かつ画像があるのは1件だけ
-        expect(screen.getAllByRole("article").length).toBe(1);
-        expect(
-            screen.getByText(/これは画像付きの投稿です/)
-        ).toBeInTheDocument();
+        // ▼ 変更点: waitFor を追加
+        await waitFor(() => {
+            // 「投稿」を含み、かつ画像があるのは1件だけ
+            expect(screen.getAllByRole("article").length).toBe(1);
+            expect(
+                screen.getByText(/これは画像付きの投稿です/)
+            ).toBeInTheDocument();
+        });
     });
 
+    // このテストケースは元々 waitFor を使っているので、おそらく問題なく動作します
     it("should show write form, submit a new post, and clear the form", async () => {
         const handlePost = vi.fn().mockResolvedValue(undefined);
         render(TestHost, { props: { initialPosts: mockPosts, handlePost } });
