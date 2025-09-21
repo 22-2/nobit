@@ -9,7 +9,7 @@ export function createPostFormStore(deps: PostFormStoreDependencies) {
     const { threadService, notifier, logger, getThreadUrl, onPostSuccess } =
         deps;
 
-    const state = $state<PostFormState>({
+    const postFormState = $state<PostFormState>({
         postData: null,
         isInlineFormVisible: false,
         isSubmitting: false,
@@ -19,11 +19,11 @@ export function createPostFormStore(deps: PostFormStoreDependencies) {
     });
 
     const resetPostConfirmationState = () => {
-        state.isConfirmationVisible = false;
-        state.confirmationData = null;
-        state.confirmationHtml = "";
-        state.isSubmitting = false;
-        state.postData = null;
+        postFormState.isConfirmationVisible = false;
+        postFormState.confirmationData = null;
+        postFormState.confirmationHtml = "";
+        postFormState.isSubmitting = false;
+        postFormState.postData = null;
     };
 
     const postInternal = async (
@@ -37,7 +37,7 @@ export function createPostFormStore(deps: PostFormStoreDependencies) {
         }
 
         if (!confirmationData) {
-            state.isSubmitting = true;
+            postFormState.isSubmitting = true;
         }
 
         const result = await threadService.post(
@@ -50,39 +50,39 @@ export function createPostFormStore(deps: PostFormStoreDependencies) {
         switch (result.kind) {
             case "success":
                 notifier("書き込みに成功しました。");
-                state.isInlineFormVisible = false;
+                postFormState.isInlineFormVisible = false;
                 resetPostConfirmationState();
                 await onPostSuccess(); // 依存先の再読み込み処理を呼び出す
                 break;
             case "error":
                 notifier(`書き込みエラー: ${result.message}`);
                 logger.error(`書き込みエラー: `, result);
-                state.isConfirmationVisible = false;
-                state.isSubmitting = false;
+                postFormState.isConfirmationVisible = false;
+                postFormState.isSubmitting = false;
                 break;
             case "confirmation":
-                state.isConfirmationVisible = true;
-                state.confirmationHtml = result.html;
-                state.confirmationData = result.formData;
-                state.isSubmitting = false; // 確認画面表示中は送信中ではない
+                postFormState.isConfirmationVisible = true;
+                postFormState.confirmationHtml = result.html;
+                postFormState.confirmationData = result.formData;
+                postFormState.isSubmitting = false; // 確認画面表示中は送信中ではない
                 break;
         }
     };
 
     return {
-        state,
+        postForm: postFormState,
         showInlineForm: () => {
-            state.isInlineFormVisible = true;
+            postFormState.isInlineFormVisible = true;
         },
         hideInlineForm: () => {
-            state.isInlineFormVisible = false;
+            postFormState.isInlineFormVisible = false;
         },
         submitPost: async (data: PostData) => {
-            state.postData = data;
+            postFormState.postData = data;
             await postInternal(data);
         },
         submitPostWithConfirmation: async () => {
-            const { postData, confirmationData } = state;
+            const { postData, confirmationData } = postFormState;
             if (postData && confirmationData) {
                 await postInternal(postData, confirmationData);
             }

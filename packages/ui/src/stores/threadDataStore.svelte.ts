@@ -13,7 +13,7 @@ import {
 export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     const { initialThread, bbsProvider, logger } = deps;
 
-    const state = $state<ThreadDataState>({
+    const threadState = $state<ThreadDataState>({
         thread: {
             url: initialThread.url,
             title: initialThread.title ?? "",
@@ -53,36 +53,37 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     };
 
     const loadThread = async (): Promise<void> => {
-        const url = state.thread?.url;
+        const url = threadState.thread?.url;
         if (!url) {
             logger.warn("loadThread called with invalid URL.");
-            state.error = "スレッドのURLが無効です。";
+            threadState.error = "スレッドのURLが無効です。";
             return;
         }
         logger.info("Loading thread...", { url });
 
         await handleAsyncOperation(() => bbsProvider.getThread(url), {
             onStart: () => {
-                state.isLoading = true;
-                state.error = null;
+                threadState.isLoading = true;
+                threadState.error = null;
             },
             onSuccess: (threadData) => {
-                if (threadData) state.thread = threadData;
+                if (threadData) threadState.thread = threadData;
             },
             onError: (error) => {
-                state.error = error.message || "スレッドの取得に失敗しました";
-                state.thread = null;
+                threadState.error =
+                    error.message || "スレッドの取得に失敗しました";
+                threadState.thread = null;
             },
             onFinally: () => {
-                state.isLoading = false;
+                threadState.isLoading = false;
             },
         });
     };
 
     const updateAndLoadThread = (threadIdentifier: ThreadIdentifier): void => {
-        if (state.thread?.url !== threadIdentifier.url) {
-            state.thread = threadIdentifier as Thread;
-            state.error = null;
+        if (threadState.thread?.url !== threadIdentifier.url) {
+            threadState.thread = threadIdentifier as Thread;
+            threadState.error = null;
             loadThread().catch((e) =>
                 logger.error("Failed to load thread after update", e)
             );
@@ -90,14 +91,14 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     };
 
     $effect(() => {
-        if (!state.autoReload || !state.thread?.url) return;
+        if (!threadState.autoReload || !threadState.thread?.url) return;
 
         const timer = setInterval(() => {
             loadThread().catch((e) => logger.error("Auto-reload failed", e));
-        }, state.autoReloadInterval);
+        }, threadState.autoReloadInterval);
 
         logger.info(
-            `Auto-reload timer started with interval: ${state.autoReloadInterval}ms`
+            `Auto-reload timer started with interval: ${threadState.autoReloadInterval}ms`
         );
         return () => {
             clearInterval(timer);
@@ -112,14 +113,14 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     }
 
     return {
-        state,
+        thread: threadState,
         loadThread,
         updateAndLoadThread,
         setAutoReload: (enabled: boolean) => {
-            state.autoReload = enabled;
+            threadState.autoReload = enabled;
         },
         setAutoScroll: (enabled: boolean) => {
-            state.autoScroll = enabled;
+            threadState.autoScroll = enabled;
         },
     };
 }
