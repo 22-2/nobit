@@ -1,33 +1,40 @@
 <script lang="ts">
     import type { Post, Thread } from "../../types";
+    // PostItemから型定義をインポート
+    import type {
+        HoverDetail,
+        ShowReplyTreeDetail,
+        ShowIdPostsDetail,
+        ShowPostContextMenuDetail,
+        ThreadLinkClickDetail,
+    } from "./PostItem.svelte";
     import PostTree from "./PostTree.svelte";
     import PostItem from "./PostItem.svelte";
     import { usePopover } from "../../stores/usePopover.svelte";
-
-    type HoverDetail = {
-        targetEl: HTMLElement;
-        index: number;
-        event: MouseEvent;
-    };
-
-    type ShowReplyTreeDetail = {
-        targetEl: HTMLElement;
-        originResNumber: number;
-        event: MouseEvent;
-    };
 
     let {
         post,
         thread,
         level = 0,
         onHoverPostLink,
+        onLeavePostLink,
+        onJumpToPost,
         onShowReplyTree,
+        onShowIdPosts,
+        onShowPostContextMenu,
+        onThreadLinkClick,
     }: {
         post: Post;
         thread: Thread;
         level?: number;
-        onHoverPostLink: (detail: HoverDetail) => void;
-        onShowReplyTree: (detail: ShowReplyTreeDetail) => void;
+        // PostItemに合わせてオプショナルにする
+        onHoverPostLink?: (detail: HoverDetail) => void;
+        onLeavePostLink?: () => void;
+        onJumpToPost?: (resNumber: number) => void;
+        onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
+        onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
+        onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
+        onThreadLinkClick?: (detail: ThreadLinkClickDetail) => void;
     } = $props();
 
     const replies = post.replies
@@ -35,26 +42,44 @@
         .filter((p): p is Post => p !== undefined);
 
     const popover = usePopover();
+
+    // --- [修正] onLeavePostLinkの処理をまとめる ---
+    function handleLeavePostLink() {
+        popover.startHideTimer();
+        if (onLeavePostLink) {
+            onLeavePostLink();
+        }
+    }
 </script>
 
 <div class="post-tree-node" style="--level: {level}">
+    <!-- --- [修正] 全てのプロパティをPostItemに渡す --- -->
     <PostItem
         {post}
         index={thread.posts.indexOf(post)}
         {onHoverPostLink}
-        onLeavePostLink={() => {
-            popover.startHideTimer();
-        }}
+        onLeavePostLink={handleLeavePostLink}
+        {onJumpToPost}
+        {onShowReplyTree}
+        {onShowIdPosts}
+        {onShowPostContextMenu}
+        {onThreadLinkClick}
     />
     {#if replies.length > 0}
         <div class="post-tree-replies">
             {#each replies as reply}
+                <!-- --- [修正] 全てのプロパティを再帰的にPostTreeに渡す --- -->
                 <PostTree
                     post={reply}
                     {thread}
                     level={level + 1}
                     {onHoverPostLink}
+                    {onLeavePostLink}
+                    {onJumpToPost}
                     {onShowReplyTree}
+                    {onShowIdPosts}
+                    {onShowPostContextMenu}
+                    {onThreadLinkClick}
                 />
             {/each}
         </div>

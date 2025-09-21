@@ -173,6 +173,93 @@
         };
     };
 
+    const generateMultipleRepliesThread = () => {
+        const posts = [
+            {
+                resNum: 1,
+                authorName: "名無しさん",
+                mail: "",
+                authorId: "ABC123",
+                content: "複数の返信があるポストです",
+                date: new Date("2024-01-01T10:00:00Z"),
+                references: [],
+                replies: [2, 3, 4, 5],
+                hasImage: false,
+                hasExternalLink: false,
+                postIdCount: 1,
+                siblingPostNumbers: [1],
+                imageUrls: [],
+            },
+            {
+                resNum: 2,
+                authorName: "名無しさん",
+                mail: "",
+                authorId: "DEF456",
+                content: "返信1",
+                date: new Date("2024-01-01T10:05:00Z"),
+                references: [1],
+                replies: [],
+                hasImage: false,
+                hasExternalLink: false,
+                postIdCount: 1,
+                siblingPostNumbers: [2],
+                imageUrls: [],
+            },
+            {
+                resNum: 3,
+                authorName: "名無しさん",
+                mail: "",
+                authorId: "GHI789",
+                content: "返信2",
+                date: new Date("2024-01-01T10:10:00Z"),
+                references: [1],
+                replies: [],
+                hasImage: false,
+                hasExternalLink: false,
+                postIdCount: 1,
+                siblingPostNumbers: [3],
+                imageUrls: [],
+            },
+            {
+                resNum: 4,
+                authorName: "名無しさん",
+                mail: "",
+                authorId: "JKL012",
+                content: "返信3",
+                date: new Date("2024-01-01T10:15:00Z"),
+                references: [1],
+                replies: [],
+                hasImage: false,
+                hasExternalLink: false,
+                postIdCount: 1,
+                siblingPostNumbers: [4],
+                imageUrls: [],
+            },
+            {
+                resNum: 5,
+                authorName: "名無しさん",
+                mail: "",
+                authorId: "MNO345",
+                content: "返信4",
+                date: new Date("2024-01-01T10:20:00Z"),
+                references: [1],
+                replies: [],
+                hasImage: false,
+                hasExternalLink: false,
+                postIdCount: 1,
+                siblingPostNumbers: [5],
+                imageUrls: [],
+            },
+        ];
+        return {
+            title: "複数返信テストスレッド",
+            posts,
+            url: "https://example.5ch.net/test/read.cgi/sample/1234567892/",
+            id: "1234567892",
+            resCount: posts.length,
+        };
+    };
+
     const { Story } = defineMeta({
         title: "Thread/PostTree",
         component: PostTree,
@@ -273,110 +360,13 @@
 />
 
 <!-- 複数の返信があるポスト -->
-<Story name="Multiple Replies">
-    <CenterDecorator padding="var(--size-4-4)" minHeight="var(--size-4-100)">
-        <PostTree
-            post={{
-                resNum: 1,
-                authorName: "名無しさん",
-                mail: "",
-                authorId: "ABC123",
-                content: "複数の返信があるポストです",
-                date: new Date("2024-01-01T10:00:00Z"),
-                references: [],
-                replies: [2, 3, 4, 5],
-                hasImage: false,
-                hasExternalLink: false,
-                postIdCount: 1,
-                siblingPostNumbers: [1],
-                imageUrls: [],
-            }}
-            thread={{
-                title: "複数返信テストスレッド",
-                posts: [
-                    {
-                        resNum: 1,
-                        authorName: "名無しさん",
-                        mail: "",
-                        authorId: "ABC123",
-                        content: "複数の返信があるポストです",
-                        date: new Date("2024-01-01T10:00:00Z"),
-                        references: [],
-                        replies: [2, 3, 4, 5],
-                        hasImage: false,
-                        hasExternalLink: false,
-                        postIdCount: 1,
-                        siblingPostNumbers: [1],
-                        imageUrls: [],
-                    },
-                    {
-                        resNum: 2,
-                        authorName: "名無しさん",
-                        mail: "",
-                        authorId: "DEF456",
-                        content: "返信1",
-                        date: new Date("2024-01-01T10:05:00Z"),
-                        references: [1],
-                        replies: [],
-                        hasImage: false,
-                        hasExternalLink: false,
-                        postIdCount: 1,
-                        siblingPostNumbers: [2],
-                        imageUrls: [],
-                    },
-                    {
-                        resNum: 3,
-                        authorName: "名無しさん",
-                        mail: "",
-                        authorId: "GHI789",
-                        content: "返信2",
-                        date: new Date("2024-01-01T10:10:00Z"),
-                        references: [1],
-                        replies: [],
-                        hasImage: false,
-                        hasExternalLink: false,
-                        postIdCount: 1,
-                        siblingPostNumbers: [3],
-                        imageUrls: [],
-                    },
-                    {
-                        resNum: 4,
-                        authorName: "名無しさん",
-                        mail: "",
-                        authorId: "JKL012",
-                        content: "返信3",
-                        date: new Date("2024-01-01T10:15:00Z"),
-                        references: [1],
-                        replies: [],
-                        hasImage: false,
-                        hasExternalLink: false,
-                        postIdCount: 1,
-                        siblingPostNumbers: [4],
-                        imageUrls: [],
-                    },
-                    {
-                        resNum: 5,
-                        authorName: "名無しさん",
-                        mail: "",
-                        authorId: "MNO345",
-                        content: "返信4",
-                        date: new Date("2024-01-01T10:20:00Z"),
-                        references: [1],
-                        replies: [],
-                        hasImage: false,
-                        hasExternalLink: false,
-                        postIdCount: 1,
-                        siblingPostNumbers: [5],
-                        imageUrls: [],
-                    },
-                ],
-                url: "https://example.5ch.net/test/read.cgi/sample/1234567892/",
-                id: "1234567892",
-                resCount: 5,
-            }}
-            level={0}
-            onHoverPostLink={fn()}
-            onShowReplyTree={fn()}
-        />
-    </CenterDecorator>
-</Story>
+<Story
+    name="Multiple Replies"
+    args={{
+        post: generateMultipleRepliesThread().posts[0],
+        thread: generateMultipleRepliesThread(),
+        level: 0,
+        onHoverPostLink: fn(),
+        onShowReplyTree: fn(),
+    }}
+/>
