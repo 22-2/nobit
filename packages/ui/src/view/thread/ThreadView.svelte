@@ -79,7 +79,7 @@
             {#each filteredPosts() as post (post.resNum)}
                 <PostItem
                     {post}
-                    index={post.resNum}
+                    index={post.resNum - 1}
                     {onJumpToPost}
                     {onShowReplyTree}
                     {onShowIdPosts}

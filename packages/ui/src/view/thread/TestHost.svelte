@@ -1,3 +1,4 @@
+<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\view\thread\TestHost.svelte -->
 <script lang="ts">
     import type { PostData, ThreadFilters, Post } from "../../types";
     import ThreadFiltersComponent from "./ThreadFilters.svelte";
@@ -74,7 +75,7 @@
         await handlePost(postData);
 
         const newPost: Post = {
-            id: `post-${posts.length + 1}`,
+            resNum: posts.length + 1,
             authorName: postData.name || "名無しさん",
             authorId: "TESTID",
             date: new Date(),
@@ -83,6 +84,11 @@
             replies: [],
             postIdCount: 1,
             siblingPostNumbers: [posts.length + 1],
+            // Post型に合わせるための必須プロパティ
+            mail: postData.mail,
+            references: [],
+            hasImage: false,
+            hasExternalLink: false,
         };
         posts = [...posts, newPost];
         isWriteFormVisible = false; // フォームを閉じる
@@ -93,10 +99,10 @@
     <ThreadFiltersComponent bind:filters isVisible={true} />
 
     <div class="posts-list">
-        {#each filteredPosts() as post (post.id)}
+        {#each filteredPosts() as post (post.resNum)}
             <PostItem
                 {post}
-                index={posts.indexOf(post)}
+                index={post.resNum - 1}
                 {onJumpToPost}
                 {onShowReplyTree}
                 {onShowIdPosts}

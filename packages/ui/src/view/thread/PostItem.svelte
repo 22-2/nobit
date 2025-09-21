@@ -18,6 +18,7 @@
 
     export type ShowIdPostsDetail = {
         targetEl: HTMLElement;
+        post: Post; // <<< [修正] postプロパティを追加
         siblingPostNumbers: number[];
         event: MouseEvent;
     };
@@ -134,6 +135,7 @@
         } else if (triggerEl.matches(".post-author-id a") && onShowIdPosts) {
             onShowIdPosts({
                 targetEl: triggerEl,
+                post, // <<< [修正] postオブジェクトを渡す
                 siblingPostNumbers: post.siblingPostNumbers,
                 event,
             });

@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 import TestHost from "./TestHost.svelte";
 import type { Post } from "../../types";
 
-// テスト用のダミーデータ (拡張版)
+// テスト用のダミーデータ (Post型に準拠)
 const mockPosts: Post[] = [
     {
         resNum: 1,
@@ -12,14 +12,14 @@ const mockPosts: Post[] = [
         authorId: "ABCDE",
         date: new Date("2025-09-20T10:00:00Z"),
         content: "これは最初の投稿です。特定のキーワードを含みます。",
-        imageUrls: [],
-        replies: [3], // この投稿への返信がある
-        postIdCount: 2, // 複数回投稿しているID
-        siblingPostNumbers: [1, 4],
-        hasExternalLink: true,
-        hasImage: true,
         mail: "",
+        imageUrls: [],
         references: [],
+        replies: [3],
+        postIdCount: 2,
+        siblingPostNumbers: [1, 4],
+        hasImage: false,
+        hasExternalLink: false,
     },
     {
         resNum: 2,
@@ -27,14 +27,14 @@ const mockPosts: Post[] = [
         authorId: "FGHIJ",
         date: new Date("2025-09-20T10:05:00Z"),
         content: `これは画像付きの投稿です。<a class="internal-res-link" href="#" data-res-number="1">&gt;&gt;1</a>へのアンカー。`,
+        mail: "",
         imageUrls: ["http://example.com/image.jpg"],
+        references: [1],
         replies: [],
         postIdCount: 1,
         siblingPostNumbers: [2],
-        hasExternalLink: true,
         hasImage: true,
-        mail: "",
-        references: [],
+        hasExternalLink: false,
     },
     {
         resNum: 3,
@@ -42,14 +42,14 @@ const mockPosts: Post[] = [
         authorId: "KLMNO",
         date: new Date("2025-09-20T10:10:00Z"),
         content: "これは3番目の投稿です。",
+        mail: "",
         imageUrls: [],
+        references: [1],
         replies: [],
         postIdCount: 1,
         siblingPostNumbers: [3],
-        hasExternalLink: true,
-        hasImage: true,
-        mail: "",
-        references: [],
+        hasImage: false,
+        hasExternalLink: false,
     },
     {
         resNum: 4,
@@ -57,14 +57,14 @@ const mockPosts: Post[] = [
         authorId: "ABCDE", // 1番と同じID
         date: new Date("2025-09-20T10:15:00Z"),
         content: "同じIDからの投稿です。",
-        imageUrls: [],
-        replies: [],
-        postIdCount: 2, // 複数回投稿しているID
-        siblingPostNumbers: [1, 4],
-        hasExternalLink: true,
-        hasImage: true,
         mail: "",
+        imageUrls: [],
         references: [],
+        replies: [],
+        postIdCount: 2,
+        siblingPostNumbers: [1, 4],
+        hasImage: false,
+        hasExternalLink: false,
     },
 ];
 
@@ -134,9 +134,7 @@ describe("Thread Integration Test", () => {
         const searchInput = screen.getByPlaceholderText("検索...");
         await fireEvent.input(searchInput, { target: { value: "投稿" } });
 
-        // ▼ 変更点: waitFor を追加
         await waitFor(() => {
-            // この時点で3件ヒットする
             expect(screen.getAllByRole("article").length).toBe(4);
         });
 
@@ -144,9 +142,7 @@ describe("Thread Integration Test", () => {
             screen.getByLabelText("画像を含むレスで絞り込む");
         await fireEvent.click(imageFilterButton);
 
-        // ▼ 変更点: waitFor を追加
         await waitFor(() => {
-            // 「投稿」を含み、かつ画像があるのは1件だけ
             expect(screen.getAllByRole("article").length).toBe(1);
             expect(
                 screen.getByText(/これは画像付きの投稿です/)
@@ -204,8 +200,6 @@ describe("PostItem Interaction Tests", () => {
             },
         });
 
-        // 最初の投稿 (ID: ABCDE, postIdCount: 2) のIDリンクをクリック
-        // getByTextは複数見つかるとエラーになるので、getAll...で絞り込む
         const idLinks = screen.getAllByText("ABCDE");
         expect(idLinks.length).toBeGreaterThan(0);
         await fireEvent.click(idLinks[0]);
@@ -227,14 +221,13 @@ describe("PostItem Interaction Tests", () => {
             },
         });
 
-        // 最初の投稿には「返信 (1)」リンクがあるはず
         const replyTreeLink = screen.getByText("返信 (1)");
         await fireEvent.click(replyTreeLink);
 
         expect(handleShowReplyTree).toHaveBeenCalledTimes(1);
         expect(handleShowReplyTree).toHaveBeenCalledWith(
             expect.objectContaining({
-                originResNumber: 1, // レス番号は 1
+                originResNumber: 1,
             })
         );
     });
@@ -248,12 +241,11 @@ describe("PostItem Interaction Tests", () => {
             },
         });
 
-        // 2番目の投稿にある `>>1` リンクをクリック
         const anchorLink = screen.getByText(">>1");
         await fireEvent.click(anchorLink);
 
         expect(handleJumpToPost).toHaveBeenCalledTimes(1);
-        expect(handleJumpToPost).toHaveBeenCalledWith(1); // 1番のレスへジャンプ
+        expect(handleJumpToPost).toHaveBeenCalledWith(1);
     });
 
     it("should fire onShowPostContextMenu when a post is right-clicked", async () => {
@@ -265,7 +257,6 @@ describe("PostItem Interaction Tests", () => {
             },
         });
 
-        // 3番目の投稿を右クリック
         const postElement = screen
             .getByText(/これは3番目の投稿です/)
             .closest("div.post");
@@ -277,7 +268,7 @@ describe("PostItem Interaction Tests", () => {
         expect(handleShowPostContextMenu).toHaveBeenCalledTimes(1);
         expect(handleShowPostContextMenu).toHaveBeenCalledWith(
             expect.objectContaining({
-                post: mockPosts[2], // 3番目の投稿オブジェクト
+                post: mockPosts[2],
                 index: 2,
             })
         );
