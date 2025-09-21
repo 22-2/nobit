@@ -1,33 +1,24 @@
-/* 共通の列スタイル */
 .col-index {
-    flex: 0 0 var(--size-4-16); /* 64px */
+    width: 50px;
     text-align: right;
-    justify-content: flex-end;
-    padding-right: var(--size-4-4); /* 16px */
+    flex-shrink: 0;
+    padding-right: var(--nobit-size-4-3); /* 12px for better spacing */
 }
 
 .col-title {
-    flex: 1 1 0;
-    min-width: 0;
+    flex-grow: 1;
+    min-width: 100px;
+    overflow: hidden;
 }
 
 .col-res {
-    flex: 0 0 var(--size-4-18); /* 72px */
+    width: 70px;
     text-align: right;
-    justify-content: flex-end;
+    flex-shrink: 0;
 }
 
 .col-ikioi {
-    flex: 0 0 var(--size-4-18); /* 72px */
+    width: 80px;
     text-align: right;
-    justify-content: flex-end;
-}
-
-/* 共通のセルスタイル */
-.thread-table-cell {
-    padding: var(--size-4-2); /* 8px */
-    text-align: left;
-    white-space: nowrap;
-    box-sizing: border-box;
-    font-size: var(--font-ui-small); /* 13px */
+    flex-shrink: 0;
 }
