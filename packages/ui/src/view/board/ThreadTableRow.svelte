@@ -27,6 +27,7 @@
 <div
     class="tr"
     role="row"
+    tabindex="0"
     data-testid="thread-row-{thread.id}"
     onmousedown={(e) => onMouseDown(thread, e)}
     oncontextmenu={(e) => {

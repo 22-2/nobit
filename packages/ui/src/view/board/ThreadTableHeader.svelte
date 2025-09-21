@@ -24,11 +24,18 @@
         { key: "resCount", label: "レス", className: "col-res" },
         { key: "ikioi", label: "勢い", className: "col-ikioi" },
     ] as const;
+
+    function handleKeyDown(e: KeyboardEvent, key: string) {
+        if (e.key === "Enter" || e.key === " ") {
+            onSort(key);
+        }
+    }
 </script>
 
 <div
     class="thread-table-header"
     role="rowheader"
+    tabindex="0"
     oncontextmenu={(e) => {
         e.preventDefault();
         onContextMenu(e);
@@ -39,7 +46,9 @@
             <div
                 class="th {header.className}"
                 role="columnheader"
+                tabindex="0"
                 onclick={() => onSort(header.key)}
+                onkeydown={(e) => handleKeyDown(e, header.key)}
                 class:sorted={sortKey === header.key}
             >
                 {#if sortKey === header.key}
