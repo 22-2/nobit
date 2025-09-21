@@ -92,9 +92,7 @@
             siblingPostNumbers: [postCounter],
             imageUrls:
                 postCounter % 4 === 0
-                    ? [
-                          `https://via.placeholder.com/40x40?text=New${postCounter}`,
-                      ]
+                    ? [`https://localhost/40x40?text=New${postCounter}`]
                     : [],
         };
         // 直接 `posts` ステートを更新する代わりに、addNewPost 関数を呼び出す

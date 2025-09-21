@@ -51,8 +51,8 @@
         postIdCount: 1,
         siblingPostNumbers: [2],
         imageUrls: [
-            "https://via.placeholder.com/150x150/0066cc/ffffff?text=Image1",
-            "https://via.placeholder.com/150x150/cc6600/ffffff?text=Image2",
+            "https://localhost/150x150/0066cc/ffffff?text=Image1",
+            "https://localhost/150x150/cc6600/ffffff?text=Image2",
         ],
     });
 
@@ -327,9 +327,9 @@
             postIdCount: 2,
             siblingPostNumbers: [10, 15],
             imageUrls: [
-                "https://via.placeholder.com/150x150/cc0066/ffffff?text=Img1",
-                "https://via.placeholder.com/150x150/0066cc/ffffff?text=Img2",
-                "https://via.placeholder.com/150x150/66cc00/ffffff?text=Img3",
+                "https://localhost/150x150/cc0066/ffffff?text=Img1",
+                "https://localhost/150x150/0066cc/ffffff?text=Img2",
+                "https://localhost/150x150/66cc00/ffffff?text=Img3",
             ],
         },
         index: 9,

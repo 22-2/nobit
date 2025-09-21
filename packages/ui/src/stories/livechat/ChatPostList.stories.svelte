@@ -14,7 +14,7 @@
                 authorName: "名無しさん",
                 mail: "",
                 authorId: `ID${(i % 5).toString().padStart(2, "0")}`,
-                content: `これは${i}番目の投稿です。ライブチャットのテストメッセージ。<a href="https://example.com" target="_blank">リンク</a>や<img src="https://via.placeholder.com/50x50?text=Img${i}" alt="sample image" />も含まれます。`,
+                content: `これは${i}番目の投稿です。ライブチャットのテストメッセージ。<a href="https://example.com" target="_blank">リンク</a>や<img src="https://localhost/50x50?text=Img${i}" alt="sample image" />も含まれます。`,
                 date: new Date(Date.now() - (count - i) * 1000 * 60), // 過去の投稿をシミュレート
                 references: i > 1 ? [i - 1] : [],
                 replies: [],
@@ -23,9 +23,7 @@
                 postIdCount: 1,
                 siblingPostNumbers: [i],
                 imageUrls:
-                    i % 3 === 0
-                        ? [`https://via.placeholder.com/50x50?text=Img${i}`]
-                        : [],
+                    i % 3 === 0 ? [`https://localhost/50x50?text=Img${i}`] : [],
             });
         }
         return posts;
@@ -119,7 +117,7 @@
 この投稿の目的は、コンポーネントが長いコンテンツをどのように扱うかを確認することです。
 ライブチャットのようなリアルタイム性の高い表示では、テキストの折り返しやスクロールの挙動が重要になります。
 <a href="https://longexample.com/very/long/url/that/might/break/layout/if/not/handled/correctly" target="_blank">非常に長いURLの例</a>。
-<img src="https://via.placeholder.com/200x100?text=WideImg" alt="wide image" />
+<img src="https://localhost/200x100?text=WideImg" alt="wide image" />
 `,
                 date: new Date(),
                 references: [1],
@@ -128,7 +126,7 @@
                 hasExternalLink: true,
                 postIdCount: 1,
                 siblingPostNumbers: [6],
-                imageUrls: ["https://via.placeholder.com/200x100?text=WideImg"],
+                imageUrls: ["https://localhost/200x100?text=WideImg"],
             },
             ...generatePosts(5).map((p) => ({ ...p, resNum: p.resNum + 6 })),
         ],
@@ -148,7 +146,7 @@
                 authorName: "画像太郎",
                 mail: "",
                 authorId: "IMGTARO",
-                content: `<img src="https://via.placeholder.com/120x120?text=BigImage" alt="big image" />`,
+                content: `<img src="https://localhost/120x120?text=BigImage" alt="big image" />`,
                 date: new Date(),
                 references: [],
                 replies: [],
@@ -156,9 +154,7 @@
                 hasExternalLink: false,
                 postIdCount: 1,
                 siblingPostNumbers: [6],
-                imageUrls: [
-                    "https://via.placeholder.com/120x120?text=BigImage",
-                ],
+                imageUrls: ["https://localhost/120x120?text=BigImage"],
             },
             ...generatePosts(5).map((p) => ({ ...p, resNum: p.resNum + 6 })),
         ],

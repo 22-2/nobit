@@ -69,9 +69,7 @@
             authorId: "FGHIJ",
             date: new Date("2025-09-20T10:05:00Z"),
             content: `これは画像付きの投稿です。<a class="internal-res-link" href="#" data-res-number="1">&gt;&gt;1</a>へのアンカー。`,
-            imageUrls: [
-                "https://via.placeholder.com/150x150/0066cc/ffffff?text=Image",
-            ],
+            imageUrls: ["https://localhost/150x150/0066cc/ffffff?text=Image"],
             replies: [],
             postIdCount: 1,
             siblingPostNumbers: [2],
