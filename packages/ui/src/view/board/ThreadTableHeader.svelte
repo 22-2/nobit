@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SorterState } from "../../stores/useSorter.svelte";
+    import type { SorterState } from "../../services/types";
     import type { ColumnKey } from "../../types";
 
     type Props = {

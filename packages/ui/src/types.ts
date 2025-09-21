@@ -65,12 +65,33 @@ export interface Thread {
     title: string;
     posts: Post[];
     url: string;
-    id: string;
-    resCount: number;
 }
 
 export interface PostData {
     name: string;
     mail: string;
     content: string;
+}
+
+export type PostResult =
+    | SuccessPostResult
+    | ErrorPostResult
+    | ConfirmationPostResult;
+
+export interface SuccessPostResult {
+    kind: "success";
+    message: string;
+}
+
+export interface ErrorPostResult {
+    kind: "error";
+    message: string;
+}
+
+export interface ConfirmationPostResult {
+    kind: "confirmation";
+    /** 確認画面のHTMLコンテンツ */
+    html: string;
+    /** 再投稿に必要なフォームデータ */
+    formData: Record<string, string>;
 }

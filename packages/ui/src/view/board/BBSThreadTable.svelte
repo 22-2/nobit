@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { SubjectItem } from "../../types";
-    import { useSorter, type SorterState } from "../../stores/useSorter.svelte";
+    import { useSorter } from "../../stores/useSorter.svelte";
+    import { type SorterState } from "../../services/types";
     import ThreadTableHeader from "./ThreadTableHeader.svelte";
     import ThreadTableBody from "./ThreadTableBody.svelte";
 

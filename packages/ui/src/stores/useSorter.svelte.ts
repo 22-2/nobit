@@ -1,31 +1,4 @@
-import { type ColumnKey } from "../types";
-
-export type SortDirection = "asc" | "desc";
-
-/** ソーターの状態 */
-export type SorterState = {
-    sortKey: ColumnKey | null;
-    sortDirection: SortDirection;
-};
-
-/**
- * ソート可能なカラムの設定
- * @template T - ソート対象のアイテムの型
- */
-export type SortColumn<T> = {
-    /** 昇順でソートするための比較関数 */
-    compare: (a: T, b: T) => number;
-    /** このキーが選択されたときのデフォルトのソート方向 */
-    defaultDirection?: SortDirection;
-};
-
-/**
- * useSorterに渡すカラム設定の型
- * @template T - ソート対象のアイテムの型
- */
-export type SorterColumns<T> = {
-    [key: string]: SortColumn<T>;
-};
+import type { SorterColumns, SorterState } from "../services/types";
 
 /**
  * Svelte 5 runes を利用して、配列のソート状態を管理するコンポーザブル関数。
