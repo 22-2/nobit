@@ -1,3 +1,4 @@
+<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\common\useWheelRefresh.stories.svelte -->
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import CenterDecorator from "../helpers/CenterDecorator.svelte";
@@ -58,56 +59,31 @@
         const canvas = within(canvasElement);
         const scrollContainer = await canvas.findByTestId("scroll-container");
 
-        // await step("Scroll up at top to show progress indicator", async () => {
-        //     scrollContainer.scrollTop = 0;
-        //     await fireEvent.wheel(scrollContainer, { deltaY: -100 });
-        //     await waitFor(() => {
-        //         expect(canvas.getByText("Count: 1")).toBeInTheDocument();
-        //     });
-        //     const indicator = await canvas.findByText("↑");
-        //     expect(indicator).toBeInTheDocument();
-        //     await fireEvent.wheel(scrollContainer, { deltaY: -100 });
-        //     await fireEvent.wheel(scrollContainer, { deltaY: -100 });
-        //     await waitFor(() => {
-        //         expect(canvas.getByText("Count: 3")).toBeInTheDocument();
-        //     });
-        //     const progressBar = canvasElement.querySelector(".progress-bar");
-        //     expect(progressBar.style.width).toBe("60%");
-        // });
-
         await step("Scroll more to trigger refresh function", async () => {
-            await fireEvent.wheel(scrollContainer, { deltaY: -100 });
-            await fireEvent.wheel(scrollContainer, { deltaY: -100 });
+            scrollContainer.scrollTop = 0;
+            // NOTE: WheelRefreshTester.svelte が `status` を表示するように変更されている前提
+            for (let i = 0; i < 5; i++) {
+                await fireEvent.wheel(scrollContainer, { deltaY: -100 });
+            }
             await waitFor(() => {
                 expect(args.onUpRefresh).toHaveBeenCalledTimes(1);
             });
             await waitFor(() => {
                 expect(
-                    canvas.getByText("isRefreshing: true")
+                    canvas.getByText("status: coolingDown")
                 ).toBeInTheDocument();
                 expect(canvas.queryByText("↑")).not.toBeInTheDocument();
             });
         });
 
-        // await step("Should show post-refresh indicator", async () => {
-        //     expect(args.onUpRefresh).toHaveBeenCalledTimes(1);
-        //     await waitFor(() => {
-        //         expect(
-        //             canvas.getByText("isShowingPostRefresh: true")
-        //         ).toBeInTheDocument();
-        //     });
-        //     // リフレッシュ後のチェックマークインジケータが表示されることを確認
-        //     const checkmark = await canvas.findByText("✓");
-        //     expect(checkmark).toBeInTheDocument();
-        // });
-
         await step("Should be in cooldown period", async () => {
             await waitFor(() => {
                 expect(
-                    canvas.getByText("isCoolingDown: true")
+                    canvas.getByText("status: coolingDown")
                 ).toBeInTheDocument();
             });
             await fireEvent.wheel(scrollContainer, { deltaY: -100 });
+            // クールダウン中はインジケータは出ない
             expect(canvas.queryByText("↑")).not.toBeInTheDocument();
         });
 
@@ -124,6 +100,17 @@
                 );
             }
         );
+
+        await step("Should return to idle status after cooldown", async () => {
+            await waitFor(
+                () => {
+                    expect(
+                        canvas.getByText("status: idle")
+                    ).toBeInTheDocument();
+                },
+                { timeout: 1500 }
+            );
+        });
     }}
 >
     <WheelRefreshTester {...args} />
@@ -138,8 +125,6 @@
         downThreshold: 4,
         isEnabled: true,
         initialScrollTop: -1,
-        // ★★★ ここがポイント ★★★
-        // 状態表示を下に配置するように指定
         statePosition: "bottom",
     }}
     play={async ({ args, canvasElement, step }) => {
@@ -153,55 +138,25 @@
             );
         });
 
-        // await step(
-        //     "Scroll down at bottom to show progress indicator",
-        //     async () => {
-        //         await fireEvent.wheel(scrollContainer, { deltaY: 100 });
-        //         await waitFor(() => {
-        //             expect(canvas.getByText("Count: 1")).toBeInTheDocument();
-        //         });
-        //         const indicator = await canvas.findByText("↓");
-        //         expect(indicator).toBeInTheDocument();
-        //         await fireEvent.wheel(scrollContainer, { deltaY: 100 });
-        //         await fireEvent.wheel(scrollContainer, { deltaY: 100 });
-        //         await waitFor(() => {
-        //             expect(canvas.getByText("Count: 3")).toBeInTheDocument();
-        //         });
-        //         const progressBar =
-        //             canvasElement.querySelector(".progress-bar");
-        //         expect(progressBar.style.width).toBe("75%");
-        //     }
-        // );
-
         await step("Scroll more to trigger refresh function", async () => {
-            await fireEvent.wheel(scrollContainer, { deltaY: 100 });
+            for (let i = 0; i < 4; i++) {
+                await fireEvent.wheel(scrollContainer, { deltaY: 100 });
+            }
             await waitFor(() => {
                 expect(args.onDownRefresh).toHaveBeenCalledTimes(1);
             });
             await waitFor(() => {
                 expect(
-                    canvas.getByText("isRefreshing: true")
+                    canvas.getByText("status: coolingDown")
                 ).toBeInTheDocument();
                 expect(canvas.queryByText("↓")).not.toBeInTheDocument();
             });
         });
 
-        // await step("Should show post-refresh indicator", async () => {
-        //     expect(args.onDownRefresh).toHaveBeenCalledTimes(1);
-        //     await waitFor(() => {
-        //         expect(
-        //             canvas.getByText("isShowingPostRefresh: true")
-        //         ).toBeInTheDocument();
-        //     });
-        //     // リフレッシュ後のチェックマークインジケータが表示されることを確認
-        //     const checkmark = await canvas.findByText("✓");
-        //     expect(checkmark).toBeInTheDocument();
-        // });
-
         await step("Should be in cooldown period", async () => {
             await waitFor(() => {
                 expect(
-                    canvas.getByText("isCoolingDown: true")
+                    canvas.getByText("status: coolingDown")
                 ).toBeInTheDocument();
             });
             await fireEvent.wheel(scrollContainer, { deltaY: 100 });
@@ -245,6 +200,8 @@
             }
             expect(canvas.queryByText("↑")).not.toBeInTheDocument();
             expect(args.onUpRefresh).not.toHaveBeenCalled();
+            // 初期状態がidleであることを確認
+            expect(canvas.getByText("status: idle")).toBeInTheDocument();
         });
     }}
 >
@@ -273,15 +230,18 @@
             });
         });
 
-        // await step("Check post-refresh indicator appears", async () => {
-        //     await waitFor(() => {
-        //         expect(
-        //             canvas.getByText("isShowingPostRefresh: true")
-        //         ).toBeInTheDocument();
-        //     });
-        //     const checkmark = await canvas.findByText("✓");
-        //     expect(checkmark).toBeInTheDocument();
-        // });
+        await step("Check post-refresh indicator appears", async () => {
+            await waitFor(() => {
+                expect(
+                    canvas.getByText("isShowingPostRefresh: true")
+                ).toBeInTheDocument();
+            });
+            // isShowingPostRefreshがtrueの間はstatusはcoolingDown
+            expect(canvas.getByText("status: coolingDown")).toBeInTheDocument();
+
+            const checkmark = await canvas.findByText("✅️");
+            expect(checkmark).toBeInTheDocument();
+        });
 
         await step("Check indicator disappears after delay", async () => {
             await waitFor(
@@ -292,7 +252,7 @@
                 },
                 { timeout: 1000 }
             );
-            expect(canvas.queryByText("✓")).not.toBeInTheDocument();
+            expect(canvas.queryByText("✅️")).not.toBeInTheDocument();
         });
     }}
 >

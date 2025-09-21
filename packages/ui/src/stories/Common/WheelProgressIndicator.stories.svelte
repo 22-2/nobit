@@ -1,3 +1,4 @@
+<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\common\WheelProgressIndicator.stories.svelte -->
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import WheelProgressIndicator from "../../view/common/WheelProgressIndicator.svelte";
@@ -48,10 +49,10 @@
     name="Default"
     args={{
         wheelState: {
+            status: "wheeling",
             count: 4,
             threshold: 7,
             direction: "down",
-            isCoolingDown: false,
             isShowingPostRefresh: false,
         },
         position: "top",
@@ -63,10 +64,10 @@
     name="Progress Full"
     args={{
         wheelState: {
+            status: "wheeling",
             count: 7,
             threshold: 7,
             direction: "down",
-            isCoolingDown: false,
             isShowingPostRefresh: false,
         },
         position: "top",
@@ -80,10 +81,10 @@
         // 'Default'ストーリーのargsを上書き
         ...{
             wheelState: {
+                status: "wheeling",
                 count: 3,
                 threshold: 7,
                 direction: "up",
-                isCoolingDown: false,
                 isShowingPostRefresh: false,
             },
         },
@@ -95,42 +96,42 @@
     name="Position Bottom"
     args={{
         wheelState: {
+            status: "wheeling",
             count: 5,
             threshold: 7,
             direction: "down",
-            isCoolingDown: false,
             isShowingPostRefresh: false,
         },
         position: "bottom",
     }}
 />
 
-<!-- 5. isCoolingDown が true で非表示になる状態 -->
+<!-- 5. status が 'coolingDown' で非表示になる状態 -->
 <Story
     name="Hidden (Cooling Down)"
     args={{
         wheelState: {
+            status: "coolingDown",
             count: 4,
             threshold: 7,
             direction: "down",
-            isCoolingDown: true,
             isShowingPostRefresh: false,
-        }, // isCoolingDown を wheelState 内に含める
+        },
         position: "top",
     }}
 />
 
-<!-- 6. リフレッシュ後のインジケーター表示 (✓) -->
+<!-- 6. リフレッシュ後のインジケーター表示 (✅️) -->
 <Story
     name="Post Refresh (Checkmark)"
     args={{
         wheelState: {
+            status: "coolingDown",
             count: 0,
             threshold: 7,
             direction: null,
-            isCoolingDown: false,
             isShowingPostRefresh: true,
-        }, // isShowingPostRefresh を wheelState 内に含める
+        },
         position: "top",
     }}
 />

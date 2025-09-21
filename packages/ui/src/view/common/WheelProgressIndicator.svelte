@@ -1,4 +1,4 @@
-<!-- src/components/WheelProgressIndicator.svelte -->
+<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\view\common\WheelProgressIndicator.svelte -->
 <script lang="ts">
     import type { WheelState } from "../../stores/useWheelRefresh.svelte.ts";
 
@@ -7,8 +7,9 @@
         position?: "top" | "bottom";
     }>();
 
+    // isCoolingDown の代わりに status をチェック
     let shouldBeVisible = $derived(
-        (wheelState.count > 0 && !wheelState.isCoolingDown) ||
+        (wheelState.count > 0 && wheelState.status !== "coolingDown") ||
             wheelState.isShowingPostRefresh
     );
 
@@ -26,7 +27,8 @@
     class:bottom={position === "bottom"}
     style="visibility: {shouldBeVisible ? 'visible' : 'hidden'};"
 >
-    {#if !wheelState.isCoolingDown || wheelState.isShowingPostRefresh}
+    <!-- isCoolingDown の代わりに status をチェック。isShowingPostRefresh が true の場合は表示を許可 -->
+    {#if wheelState.status !== "coolingDown" || wheelState.isShowingPostRefresh}
         {label}
         <span class="progress-bar-wrapper">
             <div
@@ -66,7 +68,7 @@
             opacity 0.2s,
             visibility 0.2s;
     }
-
+    /*
     .wheel-progress-indicator[style*="visibility: visible"] {
         opacity: 0.9;
         animation: fade-in 0.2s ease-out forwards;
@@ -74,7 +76,7 @@
     .wheel-progress-indicator[style*="visibility: hidden"] {
         opacity: 0;
         pointer-events: none;
-    }
+    } */
 
     .wheel-progress-indicator.bottom {
         top: unset;

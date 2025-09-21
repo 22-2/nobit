@@ -1,4 +1,4 @@
-// src/hooks/useWheelRefresh.svelte.ts
+// E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stores\useWheelRefresh.svelte.ts
 
 import { onDestroy } from "svelte";
 
@@ -15,13 +15,14 @@ interface WheelRefreshOptions {
 }
 
 type WheelDirection = "up" | "down";
+type WheelStatus = "idle" | "wheeling" | "coolingDown";
 
 export interface WheelState {
+    status: WheelStatus;
     count: number;
     direction: WheelDirection | null;
     threshold: number;
     isShowingPostRefresh: boolean;
-    isCoolingDown: boolean;
 }
 
 interface ScrollInfo {
@@ -45,11 +46,11 @@ export function useWheelRefresh({
     const INDICATOR_DISPLAY_DELAY = 500; // リフレッシュ後のインジケータ表示延長時間
 
     let wheelState = $state<WheelState>({
+        status: "idle",
         count: 0,
         direction: null,
         threshold: DEFAULT_WHEEL_THRESHOLD,
         isShowingPostRefresh: false,
-        isCoolingDown: false,
     });
     let resetTimer: ReturnType<typeof setTimeout> | null = null;
     let cooldownTimer: ReturnType<typeof setTimeout> | null = null;
@@ -61,31 +62,16 @@ export function useWheelRefresh({
     }
 
     function startPostRefreshDisplay(): void {
-        console.log(
-            "Before: wheelState.isShowingPostRefresh =",
-            wheelState.isShowingPostRefresh
-        );
         wheelState.isShowingPostRefresh = true;
-        console.log(
-            "After: wheelState.isShowingPostRefresh =",
-            wheelState.isShowingPostRefresh
-        );
         clearTimer(postRefreshTimer);
         postRefreshTimer = setTimeout(() => {
-            console.log(
-                "Timeout Before: wheelState.isShowingPostRefresh =",
-                wheelState.isShowingPostRefresh
-            );
             wheelState.isShowingPostRefresh = false;
-            console.log(
-                "Timeout After: wheelState.isShowingPostRefresh =",
-                wheelState.isShowingPostRefresh
-            );
             postRefreshTimer = null;
         }, INDICATOR_DISPLAY_DELAY);
     }
 
     function resetWheelState(): void {
+        wheelState.status = "idle";
         wheelState.count = 0;
         wheelState.direction = null;
         wheelState.threshold = DEFAULT_WHEEL_THRESHOLD;
@@ -118,10 +104,11 @@ export function useWheelRefresh({
         );
     }
 
-    function updateWheelCount(
+    function updateWheelStateForWheeling(
         direction: WheelDirection,
         config: DirectionalRefreshConfig
     ): void {
+        wheelState.status = "wheeling";
         if (wheelState.direction !== direction) {
             wheelState.direction = direction;
             wheelState.count = 1;
@@ -152,10 +139,12 @@ export function useWheelRefresh({
     }
 
     function startCooldown(): void {
-        wheelState.isCoolingDown = true;
+        wheelState.status = "coolingDown";
         clearTimer(cooldownTimer);
         cooldownTimer = setTimeout(() => {
-            wheelState.isCoolingDown = false;
+            if (wheelState.status === "coolingDown") {
+                wheelState.status = "idle";
+            }
             cooldownTimer = null;
         }, COOLDOWN_PERIOD);
     }
@@ -168,9 +157,13 @@ export function useWheelRefresh({
     function triggerRefresh(config: DirectionalRefreshConfig): void {
         clearTimer(resetTimer);
         resetTimer = null;
-        startPostRefreshDisplay(); // リフレッシュ後の表示延長を開始
+
+        // 状態をリセットし、クールダウンと事後表示を開始
+        wheelState.count = 0;
+        wheelState.direction = null;
+
+        startPostRefreshDisplay();
         config.onRefresh();
-        resetWheelState();
         startCooldown();
     }
 
@@ -182,7 +175,7 @@ export function useWheelRefresh({
     ): void {
         e.preventDefault();
         scheduleReset();
-        updateWheelCount(direction, config);
+        updateWheelStateForWheeling(direction, config);
 
         if (shouldTriggerRefresh(direction, scrollInfo, wheelState.threshold)) {
             triggerRefresh(config);
@@ -191,7 +184,11 @@ export function useWheelRefresh({
 
     const handleWheel = (e: WheelEvent) => {
         const scrollContainerEl = getScrollElement();
-        if (!scrollContainerEl || !isEnabled() || wheelState.isCoolingDown) {
+        if (
+            !scrollContainerEl ||
+            !isEnabled() ||
+            wheelState.status === "coolingDown"
+        ) {
             return;
         }
 
@@ -206,7 +203,8 @@ export function useWheelRefresh({
 
         if (isAtScrollEdge(direction, scrollInfo)) {
             handleWheelAtEdge(e, direction, config, scrollInfo);
-        } else {
+        } else if (wheelState.status === "wheeling") {
+            // ホイール中にスクロール端から離れたらリセット
             resetWheelState();
         }
     };
