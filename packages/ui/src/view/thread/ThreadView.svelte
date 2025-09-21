@@ -11,6 +11,7 @@
         ShowReplyTreeDetail,
         ThreadLinkClickDetail,
     } from "./PostItem.svelte";
+    import LoadingSpinner from "../common/LoadingSpinner.svelte";
 
     type Props = {
         thread: Thread | null;
@@ -106,7 +107,7 @@
         {/if}
     {:else}
         <div class="loading-indicator">
-            <p>スレッドを読み込んでいます...</p>
+            <LoadingSpinner />
         </div>
     {/if}
 </div>
