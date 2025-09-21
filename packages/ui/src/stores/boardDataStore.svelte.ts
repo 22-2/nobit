@@ -1,4 +1,4 @@
-import type { BoardDataState, BoardDataStoreDependencies } from "./types";
+import type { BoardDataStoreDependencies, BoardDataState } from "./types";
 
 /**
  * 板のスレッド一覧データ取得と状態管理に特化したSvelte 5ストアを作成します。

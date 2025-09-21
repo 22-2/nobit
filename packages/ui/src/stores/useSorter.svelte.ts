@@ -1,4 +1,4 @@
-import type { SorterColumns, SorterState } from "../services/types";
+import type { SorterColumns, SorterState } from "./types";
 
 /**
  * Svelte 5 runes を利用して、配列のソート状態を管理するコンポーザブル関数。
