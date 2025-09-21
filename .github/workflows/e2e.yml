@@ -142,3 +142,49 @@ jobs:
                   name: playwright-report-${{ matrix.browser }}
                   path: packages/ui/playwright-report/
                   retention-days: 7
+
+    # Storybookテスト
+    storybook-tests:
+        runs-on: ubuntu-latest
+        needs: prepare
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
+
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      apps/*/node_modules
+                  key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+            - name: Disable man-db auto-update permanently and install Playwright dependencies
+              run: |
+                  echo "set man-db/auto-update false" | sudo debconf-communicate
+                  sudo dpkg-reconfigure man-db
+                  sudo apt-get update -q
+                  sudo apt-get install -y -q xvfb herbstluftwm dzen2 x11-xserver-utils
+                  sudo apt-mark hold man-db
+                  # Playwrightのブラウザと依存関係をここでインストール
+                  pnpm exec playwright install --with-deps
+              working-directory: packages/ui
+
+            - name: Run Storybook tests
+              run: pnpm run test:storybook
+              working-directory: packages/ui
+
+            - name: Build Storybook
+              run: pnpm run build-storybook
+              working-directory: packages/ui
