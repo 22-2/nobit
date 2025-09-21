@@ -165,13 +165,6 @@ jobs:
               run: pnpm run build-storybook
               working-directory: packages/ui
 
-            - name: Upload Storybook build
-              uses: actions/upload-artifact@v4
-              with:
-                  name: storybook-build
-                  path: packages/ui/storybook-static/
-                  retention-days: 7
-
     # 全ジョブの完了確認
     ci-status:
         runs-on: ubuntu-latest
