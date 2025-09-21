@@ -13,6 +13,14 @@
         (wheelState.count > 0 && !wheelState.isCoolingDown) ||
             wheelState.isShowingPostRefresh
     );
+
+    let label = $derived(
+        wheelState.isShowingPostRefresh
+            ? "✅️"
+            : wheelState.direction === "up"
+              ? "↑"
+              : "↓"
+    );
 </script>
 
 <!-- #if は残しておき、visibility は CSS で制御するようにします -->
@@ -23,21 +31,20 @@
 <div
     class="wheel-progress-indicator"
     class:bottom={position === "bottom"}
-    class:post-refresh={wheelState.isShowingPostRefresh}
     style="visibility: {shouldBeVisible ? 'visible' : 'hidden'};"
 >
-    {#if wheelState.isShowingPostRefresh}
-        ✓
-    {:else if !wheelState.isCoolingDown}
+    {#if !wheelState.isCoolingDown || wheelState.isShowingPostRefresh}
         <!-- isCoolingDown の時も矢印とバーは表示しない -->
-        {wheelState.direction === "up" ? "↑" : "↓"}
+        {label}
         <span class="progress-bar-wrapper">
             <div
                 class="progress-bar"
-                style="width: {Math.min(
-                    (wheelState.count / wheelState.threshold) * 100,
-                    100
-                )}%;"
+                style="width: {wheelState.isShowingPostRefresh
+                    ? '100%'
+                    : Math.min(
+                          (wheelState.count / wheelState.threshold) * 100,
+                          100
+                      )}%;"
             ></div>
         </span>
     {/if}
