@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { SorterState } from "../../stores/useSorter.svelte";
+    import type { ColumnKey } from "../../types";
 
     type Props = {
         visibleColumns: Record<string, boolean>;
-        sortKey: string | null;
+        sortKey: ColumnKey | null;
         sortDirection: "asc" | "desc";
         onSort: (key: string) => void;
         onContextMenu: (e: MouseEvent) => void;

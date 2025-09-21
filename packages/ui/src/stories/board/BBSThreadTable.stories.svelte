@@ -58,8 +58,8 @@
                 action: "openThread",
                 description: "スレッドクリック時のコールバック",
             },
-            openContextMenu: {
-                action: "openContextMenu",
+            onContextMenu: {
+                action: "onContextMenu",
                 description: "右クリックメニュー表示のコールバック",
             },
             openHeaderContextMenu: {
@@ -89,7 +89,7 @@
         initialSortState: { key: "index", direction: "asc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -103,7 +103,7 @@
         initialSortState: { key: "index", direction: "asc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -117,7 +117,7 @@
         initialSortState: { key: "index", direction: "asc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -131,7 +131,7 @@
         initialSortState: { key: "resCount", direction: "desc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -145,7 +145,7 @@
         initialSortState: { key: "ikioi", direction: "desc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -164,7 +164,7 @@
         initialSortState: { key: "resCount", direction: "desc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -183,7 +183,7 @@
         initialSortState: { key: "title", direction: "asc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -218,7 +218,7 @@
         initialSortState: { key: "index", direction: "asc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -232,7 +232,7 @@
         initialSortState: { key: "ikioi", direction: "desc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />
@@ -272,7 +272,7 @@
         initialSortState: { key: "ikioi", direction: "desc" },
         onSortChange: fn(),
         openThread: fn(),
-        openContextMenu: fn(),
+        onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
 />

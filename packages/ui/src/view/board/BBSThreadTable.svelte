@@ -12,7 +12,7 @@
         initialSortState: SorterState;
         onSortChange: (newState: SorterState) => void;
         openThread: (thread: ThreadItem, e: MouseEvent) => void;
-        openContextMenu: (thread: ThreadItem, e: MouseEvent) => void;
+        onContextMenu: (thread: ThreadItem, e: MouseEvent) => void;
         openHeaderContextMenu: (e: MouseEvent) => void;
         tableContainerEl?: HTMLDivElement;
     };
@@ -24,7 +24,7 @@
         onSortChange,
         openThread,
         tableContainerEl = $bindable(),
-        openContextMenu,
+        onContextMenu,
         openHeaderContextMenu,
     }: Props = $props();
 
@@ -76,7 +76,7 @@
         threads={sorter.sortedItems()}
         {visibleColumns}
         onThreadClick={openThread}
-        {openContextMenu}
+        {onContextMenu}
         bind:containerEl={tableContainerEl}
     />
 </div>
