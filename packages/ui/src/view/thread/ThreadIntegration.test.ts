@@ -7,7 +7,7 @@ import type { Post } from "../../types";
 // テスト用のダミーデータ (拡張版)
 const mockPosts: Post[] = [
     {
-        id: "1",
+        resNum: 1,
         authorName: "名無しさん",
         authorId: "ABCDE",
         date: new Date("2025-09-20T10:00:00Z"),
@@ -16,9 +16,13 @@ const mockPosts: Post[] = [
         replies: [3], // この投稿への返信がある
         postIdCount: 2, // 複数回投稿しているID
         siblingPostNumbers: [1, 4],
+        hasExternalLink: true,
+        hasImage: true,
+        mail: "",
+        references: [],
     },
     {
-        id: "2",
+        resNum: 2,
         authorName: "名無しさん",
         authorId: "FGHIJ",
         date: new Date("2025-09-20T10:05:00Z"),
@@ -27,9 +31,13 @@ const mockPosts: Post[] = [
         replies: [],
         postIdCount: 1,
         siblingPostNumbers: [2],
+        hasExternalLink: true,
+        hasImage: true,
+        mail: "",
+        references: [],
     },
     {
-        id: "3",
+        resNum: 3,
         authorName: "別の名無しさん",
         authorId: "KLMNO",
         date: new Date("2025-09-20T10:10:00Z"),
@@ -38,9 +46,13 @@ const mockPosts: Post[] = [
         replies: [],
         postIdCount: 1,
         siblingPostNumbers: [3],
+        hasExternalLink: true,
+        hasImage: true,
+        mail: "",
+        references: [],
     },
     {
-        id: "4",
+        resNum: 4,
         authorName: "名無しさん",
         authorId: "ABCDE", // 1番と同じID
         date: new Date("2025-09-20T10:15:00Z"),
@@ -49,6 +61,10 @@ const mockPosts: Post[] = [
         replies: [],
         postIdCount: 2, // 複数回投稿しているID
         siblingPostNumbers: [1, 4],
+        hasExternalLink: true,
+        hasImage: true,
+        mail: "",
+        references: [],
     },
 ];
 
