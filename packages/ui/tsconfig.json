@@ -1,7 +1,8 @@
 {
     "extends": "@tsconfig/svelte/tsconfig.json",
     "compilerOptions": {
-        "verbatimModuleSyntax": true
+        "verbatimModuleSyntax": true,
+        "moduleResolution": "bundler"
     },
     "include": ["src/**/*", "./playwright.config.ts"]
 }
