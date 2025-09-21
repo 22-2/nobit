@@ -1,5 +1,4 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
-import AppComponent from "./App.svelte";
 import type Nobit from "../main";
 import { mount, unmount } from "svelte";
 

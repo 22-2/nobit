@@ -16,7 +16,8 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
-        "svelte": "5.38.6"
+        "svelte": "5.38.6",
+        "@nobit/ui": "workspace:*"
     },
     "devDependencies": {
         "@nobit/typescript-config": "workspace:*",

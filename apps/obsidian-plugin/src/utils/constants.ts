@@ -1,4 +1,4 @@
-import { NobitSettings } from "../settings";
+import { type NobitSettings } from "../settings";
 import manifest from "../../manifest.json";
 
 export const DEFAULT_SETTINGS: NobitSettings = {

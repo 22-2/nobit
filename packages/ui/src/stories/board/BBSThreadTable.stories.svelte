@@ -1,6 +1,6 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import BBSThreadTable from "../../view/board/BBSThreadTable.svelte";
+    import ThreadListTable from "../../view/board/ThreadListTable.svelte";
     import CenterDecorator from "../helpers/CenterDecorator.svelte";
     import { fn } from "storybook/test";
 
@@ -34,8 +34,8 @@
     };
 
     const { Story } = defineMeta({
-        title: "Board/BBSThreadTable",
-        component: BBSThreadTable,
+        title: "Board/ThreadListTable",
+        component: ThreadListTable,
         tags: ["autodocs"],
         argTypes: {
             threads: {
