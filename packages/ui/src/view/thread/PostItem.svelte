@@ -152,12 +152,14 @@
     class="post"
     id="res-{index + 1}"
     data-res-number={index + 1}
+    role="article"
+    aria-labelledby="post-header-{index + 1}"
     onmouseover={handleMouseOver}
     onmouseout={handleMouseOut}
     onclick={handleClick}
     oncontextmenu={handleContextMenu}
 >
-    <div class="post-header">
+    <div class="post-header" id="post-header-{index + 1}">
         <span class="post-number">{index + 1}:</span>
         <span class="post-name">{post.authorName}</span>
         <span class="post-author-id">
