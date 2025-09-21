@@ -1,4 +1,4 @@
-<script lang="ts">
+<script context="module">
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import PostItem from "../../view/thread/PostItem.svelte";
     import CenterDecorator from "../helpers/CenterDecorator.svelte";
