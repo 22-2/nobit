@@ -20,7 +20,16 @@ const config: StorybookConfig = {
     ],
     framework: {
         name: getAbsolutePath("@storybook/svelte-vite"),
-        options: {},
+        // options: {
+        //     builder: {
+        //         viteConfigPath: "../vite.config.ts",
+        //         svelte: {
+        //             compilerOptions: {
+        //                 runes: true,
+        //             },
+        //         },
+        //     },
+        // },
     },
     async viteFinal(config) {
         // ソースマップを有効にする
