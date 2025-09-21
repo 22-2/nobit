@@ -10,3 +10,5 @@ export const IconHeart = vi.fn();
 export const IconPhoto = vi.fn();
 export const IconVideo = vi.fn();
 export const IconSearch = vi.fn();
+export const IconRefresh = vi.fn();
+export const IconPencil = vi.fn();

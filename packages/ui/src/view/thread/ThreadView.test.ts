@@ -181,7 +181,7 @@ describe("ThreadView.svelte Unit Test", () => {
                 screen.queryByPlaceholderText("書き込み内容（sageはmail欄へ）")
             ).not.toBeInTheDocument();
 
-            const writeButton = screen.getByText("書き込む");
+            const writeButton = screen.getByLabelText("このスレッドに書き込む");
             await fireEvent.click(writeButton);
 
             // ボタンクリックでフォームが表示される
@@ -213,7 +213,9 @@ describe("ThreadView.svelte Unit Test", () => {
                 onPost: handlePost,
             });
 
-            await fireEvent.click(screen.getByText("書き込む"));
+            await fireEvent.click(
+                screen.getByLabelText("このスレッドに書き込む")
+            );
 
             const textarea = screen.getByPlaceholderText(
                 "書き込み内容（sageはmail欄へ）"
