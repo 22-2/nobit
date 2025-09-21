@@ -30,7 +30,6 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
         operation: () => Promise<T>,
         options: OperationResult<T> = {}
     ): Promise<T | null> => {
-        // ... (以前のコードからnotifierの呼び出しを削除)
         const {
             errorMessage = "操作に失敗しました",
             onStart,
