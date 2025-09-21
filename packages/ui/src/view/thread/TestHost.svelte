@@ -4,12 +4,36 @@
     import PostItem from "./PostItem.svelte";
     import InlineWriteForm from "./InlineWriteForm.svelte";
 
+    type ShowReplyTreeDetail = {
+        targetEl: HTMLElement;
+        originResNumber: number;
+        event: MouseEvent;
+    };
+    type ShowIdPostsDetail = {
+        targetEl: HTMLElement;
+        siblingPostNumbers: number[];
+        event: MouseEvent;
+    };
+    type ShowPostContextMenuDetail = {
+        post: Post;
+        index: number;
+        event: MouseEvent;
+    };
+
     let {
         initialPosts = [],
         handlePost = async (_: PostData) => {},
+        onJumpToPost = (_: number) => {},
+        onShowReplyTree = (_: ShowReplyTreeDetail) => {},
+        onShowIdPosts = (_: ShowIdPostsDetail) => {},
+        onShowPostContextMenu = (_: ShowPostContextMenuDetail) => {},
     }: {
         initialPosts?: Post[];
         handlePost?: (postData: PostData) => Promise<void>;
+        onJumpToPost?: (resNumber: number) => void;
+        onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
+        onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
+        onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
     } = $props();
 
     let posts = $state(initialPosts);
@@ -65,16 +89,20 @@
     }
 </script>
 
-// packages/ui/src/view/thread/TestHost.svelte (またはテストディレクトリ内)
-
 <div class="thread-view-test-host">
     <ThreadFiltersComponent bind:filters isVisible={true} />
 
     <div class="posts-list">
         {#each filteredPosts() as post (post.id)}
-            <PostItem {post} index={posts.indexOf(post)} />
+            <PostItem
+                {post}
+                index={posts.indexOf(post)}
+                {onJumpToPost}
+                {onShowReplyTree}
+                {onShowIdPosts}
+                {onShowPostContextMenu}
+            />
         {/each}
-        }
     </div>
 
     {#if isWriteFormVisible}

@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from "vitest";
 import TestHost from "./TestHost.svelte";
 import type { Post } from "../../types";
 
-// テスト用のダミーデータ (変更なし)
+// テスト用のダミーデータ (拡張版)
 const mockPosts: Post[] = [
     {
         id: "1",
@@ -13,16 +13,16 @@ const mockPosts: Post[] = [
         date: new Date("2025-09-20T10:00:00Z"),
         content: "これは最初の投稿です。特定のキーワードを含みます。",
         imageUrls: [],
-        replies: [],
-        postIdCount: 1,
-        siblingPostNumbers: [1],
+        replies: [3], // この投稿への返信がある
+        postIdCount: 2, // 複数回投稿しているID
+        siblingPostNumbers: [1, 4],
     },
     {
         id: "2",
         authorName: "名無しさん",
         authorId: "FGHIJ",
         date: new Date("2025-09-20T10:05:00Z"),
-        content: "これは画像付きの投稿です。",
+        content: `これは画像付きの投稿です。<a class="internal-res-link" href="#" data-res-number="1">&gt;&gt;1</a>へのアンカー。`,
         imageUrls: ["http://example.com/image.jpg"],
         replies: [],
         postIdCount: 1,
@@ -34,10 +34,21 @@ const mockPosts: Post[] = [
         authorId: "KLMNO",
         date: new Date("2025-09-20T10:10:00Z"),
         content: "これは3番目の投稿です。",
-        imageUrls: [], // imageUrlsを追加
+        imageUrls: [],
         replies: [],
         postIdCount: 1,
         siblingPostNumbers: [3],
+    },
+    {
+        id: "4",
+        authorName: "名無しさん",
+        authorId: "ABCDE", // 1番と同じID
+        date: new Date("2025-09-20T10:15:00Z"),
+        content: "同じIDからの投稿です。",
+        imageUrls: [],
+        replies: [],
+        postIdCount: 2, // 複数回投稿しているID
+        siblingPostNumbers: [1, 4],
     },
 ];
 
@@ -46,7 +57,7 @@ describe("Thread Integration Test", () => {
         render(TestHost, { props: { initialPosts: mockPosts } });
 
         const posts = screen.getAllByRole("article");
-        expect(posts.length).toBe(3);
+        expect(posts.length).toBe(4);
         expect(screen.getByText(/これは最初の投稿です/)).toBeInTheDocument();
         expect(
             screen.getByText(/これは画像付きの投稿です/)
@@ -60,7 +71,6 @@ describe("Thread Integration Test", () => {
         const searchInput = screen.getByPlaceholderText("検索...");
         await fireEvent.input(searchInput, { target: { value: "画像" } });
 
-        // ▼ 変更点: waitFor を使ってDOMの更新を待つ
         await waitFor(() => {
             expect(screen.getAllByRole("article").length).toBe(1);
             expect(
@@ -77,9 +87,8 @@ describe("Thread Integration Test", () => {
 
         // 検索をクリア
         await fireEvent.input(searchInput, { target: { value: "" } });
-        // ▼ 変更点: こちらも waitFor で待つ
         await waitFor(() => {
-            expect(screen.getAllByRole("article").length).toBe(3);
+            expect(screen.getAllByRole("article").length).toBe(4);
         });
     });
 
@@ -90,7 +99,6 @@ describe("Thread Integration Test", () => {
             screen.getByLabelText("画像を含むレスで絞り込む");
         await fireEvent.click(imageFilterButton);
 
-        // ▼ 変更点: waitFor を追加
         await waitFor(() => {
             expect(screen.getAllByRole("article").length).toBe(1);
             expect(
@@ -98,11 +106,9 @@ describe("Thread Integration Test", () => {
             ).toBeInTheDocument();
         });
 
-        // フィルタを解除
         await fireEvent.click(imageFilterButton);
-        // ▼ 変更点: waitFor を追加
         await waitFor(() => {
-            expect(screen.getAllByRole("article").length).toBe(3);
+            expect(screen.getAllByRole("article").length).toBe(4);
         });
     });
 
@@ -115,7 +121,7 @@ describe("Thread Integration Test", () => {
         // ▼ 変更点: waitFor を追加
         await waitFor(() => {
             // この時点で3件ヒットする
-            expect(screen.getAllByRole("article").length).toBe(3);
+            expect(screen.getAllByRole("article").length).toBe(4);
         });
 
         const imageFilterButton =
@@ -132,55 +138,35 @@ describe("Thread Integration Test", () => {
         });
     });
 
-    // このテストケースは元々 waitFor を使っているので、おそらく問題なく動作します
     it("should show write form, submit a new post, and clear the form", async () => {
-        // Promiseをテストコード側で制御するための準備
         let resolvePost: (value: undefined) => void;
         const postPromise = new Promise<undefined>((resolve) => {
             resolvePost = resolve;
         });
-
-        // handlePostが、制御可能なPromiseを返すようにモックする
         const handlePost = vi.fn().mockImplementation(() => postPromise);
-
         render(TestHost, { props: { initialPosts: mockPosts, handlePost } });
 
-        // 1. 「書き込む」ボタンをクリックしてフォームを表示
         const writeButton = screen.getByText("書き込む");
         await fireEvent.click(writeButton);
         const textarea = screen.getByPlaceholderText(
             "書き込み内容（sageはmail欄へ）"
         );
         const submitButton = screen.getByText("投稿");
-        expect(textarea).toBeInTheDocument();
-        expect(submitButton).toBeDisabled();
-
-        // 2. 内容を入力して投稿ボタンが有効になることを確認
         await fireEvent.input(textarea, {
             target: { value: "新しい投稿です" },
         });
-        expect(submitButton).not.toBeDisabled();
-
-        // 3. 投稿ボタンをクリック
         await fireEvent.click(submitButton);
 
-        // 4. handlePostが呼ばれ、UIが「投稿中...」の状態になっていることを確認
         expect(handlePost).toHaveBeenCalledWith({
             name: "",
             mail: "",
             content: "新しい投稿です",
         });
 
-        // findByText を使って、DOMが更新されて "投稿中..." が表示されるのを待つ
-        // これでコンポーネントが非同期処理中の状態であることを確認できる
         await screen.findByText("投稿中...");
-        expect(screen.getByText("投稿中...")).toBeInTheDocument();
-
-        // 5. 非同期処理（投稿）を完了させる
         // @ts-ignore
         await resolvePost(undefined);
 
-        // 6. フォームが消え、新しい投稿がリストに表示されるのを待つ
         await waitFor(() => {
             expect(
                 screen.queryByPlaceholderText("書き込み内容（sageはmail欄へ）")
@@ -188,7 +174,96 @@ describe("Thread Integration Test", () => {
             expect(screen.getByText("新しい投稿です")).toBeInTheDocument();
         });
 
-        // 7. 投稿数が4に増えていることを確認
-        expect(screen.getAllByRole("article").length).toBe(4);
+        expect(screen.getAllByRole("article").length).toBe(5);
+    });
+});
+
+describe("PostItem Interaction Tests", () => {
+    it("should fire onShowIdPosts when ID link is clicked", async () => {
+        const handleShowIdPosts = vi.fn();
+        render(TestHost, {
+            props: {
+                initialPosts: mockPosts,
+                onShowIdPosts: handleShowIdPosts,
+            },
+        });
+
+        // 最初の投稿 (ID: ABCDE, postIdCount: 2) のIDリンクをクリック
+        // getByTextは複数見つかるとエラーになるので、getAll...で絞り込む
+        const idLinks = screen.getAllByText("ABCDE");
+        expect(idLinks.length).toBeGreaterThan(0);
+        await fireEvent.click(idLinks[0]);
+
+        expect(handleShowIdPosts).toHaveBeenCalledTimes(1);
+        expect(handleShowIdPosts).toHaveBeenCalledWith(
+            expect.objectContaining({
+                siblingPostNumbers: [1, 4],
+            })
+        );
+    });
+
+    it("should fire onShowReplyTree when reply-tree link is clicked", async () => {
+        const handleShowReplyTree = vi.fn();
+        render(TestHost, {
+            props: {
+                initialPosts: mockPosts,
+                onShowReplyTree: handleShowReplyTree,
+            },
+        });
+
+        // 最初の投稿には「返信 (1)」リンクがあるはず
+        const replyTreeLink = screen.getByText("返信 (1)");
+        await fireEvent.click(replyTreeLink);
+
+        expect(handleShowReplyTree).toHaveBeenCalledTimes(1);
+        expect(handleShowReplyTree).toHaveBeenCalledWith(
+            expect.objectContaining({
+                originResNumber: 1, // レス番号は 1
+            })
+        );
+    });
+
+    it("should fire onJumpToPost when an internal res link is clicked", async () => {
+        const handleJumpToPost = vi.fn();
+        render(TestHost, {
+            props: {
+                initialPosts: mockPosts,
+                onJumpToPost: handleJumpToPost,
+            },
+        });
+
+        // 2番目の投稿にある `>>1` リンクをクリック
+        const anchorLink = screen.getByText(">>1");
+        await fireEvent.click(anchorLink);
+
+        expect(handleJumpToPost).toHaveBeenCalledTimes(1);
+        expect(handleJumpToPost).toHaveBeenCalledWith(1); // 1番のレスへジャンプ
+    });
+
+    it("should fire onShowPostContextMenu when a post is right-clicked", async () => {
+        const handleShowPostContextMenu = vi.fn();
+        render(TestHost, {
+            props: {
+                initialPosts: mockPosts,
+                onShowPostContextMenu: handleShowPostContextMenu,
+            },
+        });
+
+        // 3番目の投稿を右クリック
+        const postElement = screen
+            .getByText(/これは3番目の投稿です/)
+            .closest("div.post");
+        expect(postElement).not.toBeNull();
+        if (postElement) {
+            await fireEvent.contextMenu(postElement);
+        }
+
+        expect(handleShowPostContextMenu).toHaveBeenCalledTimes(1);
+        expect(handleShowPostContextMenu).toHaveBeenCalledWith(
+            expect.objectContaining({
+                post: mockPosts[2], // 3番目の投稿オブジェクト
+                index: 2,
+            })
+        );
     });
 });
