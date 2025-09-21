@@ -1,0 +1,12 @@
+{
+    "extends": "@nobit/typescript-config/base",
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "verbatimModuleSyntax": true,
+        "downlevelIteration": true,
+        "types": ["node", "obsidian-typings"]
+    },
+    "include": ["src/**/*", "src/*", "**/*.ts"],
+    "exclude": ["node_modules/*"]
+}
