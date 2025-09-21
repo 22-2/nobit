@@ -1,8 +1,4 @@
 <script lang="ts">
-    // import type { Post, PostData, ThreadFilters } from "../types";
-    // import PostItem from "../view/thread/PostItem.svelte";
-    // import ThreadFiltersComponent from "../view/thread/ThreadFilters.svelte";
-    // import InlineWriteForm from "../view/thread/InlineWriteForm.svelte";
     import type { PostData, ThreadFilters, Post } from "../../types";
     import ThreadFiltersComponent from "./ThreadFilters.svelte";
     import PostItem from "./PostItem.svelte";
@@ -46,16 +42,13 @@
             ) {
                 return false;
             }
-            // Note: 他のフィルターのロジックもここに追加できます
             return true;
         });
     });
 
     async function submitPost(postData: PostData) {
-        // 親から渡されたモック関数を呼び出す
         await handlePost(postData);
 
-        // テストのために、成功したら新しい投稿をリストに直接追加する
         const newPost: Post = {
             id: `post-${posts.length + 1}`,
             authorName: postData.name || "名無しさん",
@@ -72,8 +65,8 @@
     }
 </script>
 
-//
-E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\__tests__\TestHost.svelte
+// packages/ui/src/view/thread/TestHost.svelte (またはテストディレクトリ内)
+
 <div class="thread-view-test-host">
     <ThreadFiltersComponent bind:filters isVisible={true} />
 
@@ -81,6 +74,7 @@ E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\__tests__\TestHost.s
         {#each filteredPosts() as post (post.id)}
             <PostItem {post} index={posts.indexOf(post)} />
         {/each}
+        }
     </div>
 
     {#if isWriteFormVisible}

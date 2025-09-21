@@ -11,14 +11,14 @@
     } from "@tabler/icons-svelte";
 
     let {
-        filters = {
+        filters = $bindable({
             popular: false,
             image: false,
             video: false,
             external: false,
             internal: false,
             searchText: "",
-        },
+        }),
         isVisible = true,
     } = $props<{
         filters: ThreadFilters;

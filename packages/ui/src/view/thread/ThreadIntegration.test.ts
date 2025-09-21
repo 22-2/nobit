@@ -134,7 +134,15 @@ describe("Thread Integration Test", () => {
 
     // このテストケースは元々 waitFor を使っているので、おそらく問題なく動作します
     it("should show write form, submit a new post, and clear the form", async () => {
-        const handlePost = vi.fn().mockResolvedValue(undefined);
+        // Promiseをテストコード側で制御するための準備
+        let resolvePost: (value: undefined) => void;
+        const postPromise = new Promise<undefined>((resolve) => {
+            resolvePost = resolve;
+        });
+
+        // handlePostが、制御可能なPromiseを返すようにモックする
+        const handlePost = vi.fn().mockImplementation(() => postPromise);
+
         render(TestHost, { props: { initialPosts: mockPosts, handlePost } });
 
         // 1. 「書き込む」ボタンをクリックしてフォームを表示
@@ -156,15 +164,23 @@ describe("Thread Integration Test", () => {
         // 3. 投稿ボタンをクリック
         await fireEvent.click(submitButton);
 
-        // 4. モック関数が正しい引数で呼ばれたことを確認
+        // 4. handlePostが呼ばれ、UIが「投稿中...」の状態になっていることを確認
         expect(handlePost).toHaveBeenCalledWith({
             name: "",
             mail: "",
             content: "新しい投稿です",
         });
+
+        // findByText を使って、DOMが更新されて "投稿中..." が表示されるのを待つ
+        // これでコンポーネントが非同期処理中の状態であることを確認できる
+        await screen.findByText("投稿中...");
         expect(screen.getByText("投稿中...")).toBeInTheDocument();
 
-        // 5. フォームが消え、新しい投稿がリストに表示されるのを待つ
+        // 5. 非同期処理（投稿）を完了させる
+        // @ts-ignore
+        await resolvePost(undefined);
+
+        // 6. フォームが消え、新しい投稿がリストに表示されるのを待つ
         await waitFor(() => {
             expect(
                 screen.queryByPlaceholderText("書き込み内容（sageはmail欄へ）")
@@ -172,7 +188,7 @@ describe("Thread Integration Test", () => {
             expect(screen.getByText("新しい投稿です")).toBeInTheDocument();
         });
 
-        // 6. 投稿数が4に増えていることを確認
+        // 7. 投稿数が4に増えていることを確認
         expect(screen.getAllByRole("article").length).toBe(4);
     });
 });

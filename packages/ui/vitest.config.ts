@@ -10,6 +10,10 @@ console.log(__filename);
 export default defineConfig({
     test: {
         projects: ["./vitest.config.unit.ts", "./vitest.config.storybook.ts"],
-        reporters: ["verbose"],
+        reporters: [
+            "verbose",
+            ["junit", { outputFile: "test-results/unit-junit.xml" }],
+            ["json", { outputFile: "test-results/unit-report.json" }],
+        ],
     },
 });
