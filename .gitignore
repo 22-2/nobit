@@ -43,3 +43,4 @@ pnpm-lock.yaml
 .husky/pre-commit
 repomix-output.md
 packages/ui/test-results/*
+packages/ui/test-results/
