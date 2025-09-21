@@ -3,32 +3,32 @@
     import type { Post } from "../../types";
     import { formatDate } from "../../utils/idnex";
 
-    type HoverDetail = {
+    export type HoverDetail = {
         targetEl: HTMLElement;
         post: Post;
         index: number;
         event: MouseEvent;
     };
 
-    type ShowReplyTreeDetail = {
+    export type ShowReplyTreeDetail = {
         targetEl: HTMLElement;
         originResNumber: number;
         event: MouseEvent;
     };
 
-    type ShowIdPostsDetail = {
+    export type ShowIdPostsDetail = {
         targetEl: HTMLElement;
         siblingPostNumbers: number[];
         event: MouseEvent;
     };
 
-    type ShowPostContextMenuDetail = {
+    export type ShowPostContextMenuDetail = {
         post: Post;
         index: number;
         event: MouseEvent;
     };
 
-    type ThreadLinkClickDetail = {
+    export type ThreadLinkClickDetail = {
         url: string;
         event: MouseEvent;
     };
@@ -281,6 +281,8 @@
         border-radius: var(--size-4-1);
         overflow: hidden;
         line-height: 0;
+        width: var(--size-4-30);
+        height: var(--size-4-30);
     }
 
     .thumbnail-link:hover {
@@ -288,8 +290,6 @@
     }
 
     .thumbnail-image {
-        width: var(--size-4-30);
-        height: var(--size-4-30);
         object-fit: cover;
     }
 </style>
