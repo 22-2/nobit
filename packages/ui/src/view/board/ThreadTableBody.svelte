@@ -35,7 +35,6 @@
             {thread}
             {visibleColumns}
             onMouseDown={handleMouseDown}
-            {onContextMenu}
         />
     {/each}
 </div>

@@ -7,11 +7,9 @@
         thread: ThreadItem;
         visibleColumns: Record<string, boolean>;
         onMouseDown: (thread: ThreadItem, e: MouseEvent) => void;
-        onContextMenu: (thread: ThreadItem, e: MouseEvent) => void;
     };
 
-    let { thread, visibleColumns, onMouseDown, onContextMenu }: Props =
-        $props();
+    let { thread, visibleColumns, onMouseDown }: Props = $props();
 
     function calculateIkioi(thread: SubjectItem): number {
         const threadTime = parseInt(thread.id, 10);
@@ -32,7 +30,6 @@
     onmousedown={(e) => onMouseDown(thread, e)}
     oncontextmenu={(e) => {
         e.preventDefault();
-        onContextMenu(thread, e);
     }}
 >
     {#if visibleColumns.index}
