@@ -1,4 +1,4 @@
-<script context="module">
+<script>
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import BBSThreadTable from "../../view/board/BBSThreadTable.svelte";
     import CenterDecorator from "../helpers/CenterDecorator.svelte";
