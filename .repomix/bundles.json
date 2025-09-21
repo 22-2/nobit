@@ -1,0 +1,11 @@
+{
+    "bundles": {
+        "nobit/ui-800": {
+            "name": "nobit/ui",
+            "created": "2025-09-21T06:54:18.798Z",
+            "lastUsed": "2025-09-21T06:57:48.693Z",
+            "tags": [],
+            "files": ["packages/ui"]
+        }
+    }
+}
