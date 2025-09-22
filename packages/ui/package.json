@@ -14,9 +14,14 @@
             "import": "./dist/*.mjs",
             "require": "./dist/*.js"
         },
+        "./*.ts": "./src/*.ts",
         "./*.svelte": {
             "types": "./src/*.d.ts",
             "import": "./src/*.svelte"
+        },
+        "./*.svelte.ts": {
+            "types": "./src/*.d.ts",
+            "import": "./src/*.svelte.ts"
         }
     },
     "scripts": {
@@ -59,6 +64,7 @@
         "vitest": "^3.2.4"
     },
     "dependencies": {
+        "@nobit/libch": "workspace:*",
         "@lucide/svelte": "^0.544.0",
         "date-fns": "^4.1.0",
         "loglevel": "^1.9.2"

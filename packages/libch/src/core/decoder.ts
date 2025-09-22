@@ -4,15 +4,15 @@
  */
 
 export interface BufferDecoder {
-  decode(buffer: ArrayBuffer): string;
+    decode(buffer: ArrayBuffer): string;
 }
 /**
  * 標準のTextDecoderを使った具体的なデコーダー実装。
  */
 
 export class DefaultDecoder implements BufferDecoder {
-  public decode(buffer: ArrayBuffer): string {
-    const decoder = new TextDecoder("shift-jis");
-    return decoder.decode(buffer);
-  }
+    public decode(buffer: ArrayBuffer): string {
+        const decoder = new TextDecoder("shift-jis");
+        return decoder.decode(buffer);
+    }
 }

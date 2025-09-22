@@ -8,11 +8,7 @@ import type {
     VisibleColumns,
     ColumnKey,
 } from "../types";
-
-export interface IBBSProvider {
-    getThread(url: string): Promise<Thread>;
-}
-
+import { type BBSProvider } from "@nobit/libch/core/provider";
 export interface IThreadService {
     post(
         threadUrl: string,
@@ -27,16 +23,16 @@ export interface INotifier {
 }
 
 export interface ILogger {
-    info(message: string, ...optionalParams: any[]): void;
-    warn(message: string, ...optionalParams: any[]): void;
-    error(message: string, ...optionalParams: any[]): void;
+    info(message: any): void;
+    warn(message: any): void;
+    error(message: any): void;
 }
 
 // --- ストアごとの依存関係を定義 (新規) ---
 
 export interface ThreadDataStoreDependencies {
     initialThread: ThreadIdentifier;
-    bbsProvider: IBBSProvider;
+    provider: BBSProvider;
     logger: ILogger;
 }
 
@@ -109,7 +105,7 @@ export interface ILogger {
 
 export interface BoardDataStoreDependencies {
     initialUrl: string;
-    boardProvider: IBoardProvider;
+    provider: IBoardProvider;
     logger: ILogger;
 }
 

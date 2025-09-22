@@ -1,5 +1,5 @@
 import { App, Notice, WorkspaceLeaf, type ViewState } from "obsidian";
-import { parseBbsUrl } from "@nobit/libch/core/url";
+import { parseBbsUrl, type ParsedBbsUrl } from "@nobit/libch/core/url";
 import { VIEW_TYPES } from "./constants";
 
 export function notify(message: string, ms = 750) {
@@ -32,24 +32,14 @@ export async function activateView<T = any, U = any>(
 }
 
 // 型定義
-interface ParsedUrl {
-    type: string;
-    board: string;
-    title: string;
-    threadId?: string;
-
-    // compat for obsidian api
-    [key: string]: any;
-}
-
 interface ViewResult {
     type: string;
-    state: ParsedUrl;
+    state: ParsedBbsUrl;
     active: boolean;
 }
 
 // ビュー生成のヘルパー関数
-export function createViewState(type: string, state: ParsedUrl): ViewResult {
+export function createViewState(type: string, state: ParsedBbsUrl): ViewResult {
     return {
         type,
         state: { ...state, type },
@@ -61,9 +51,10 @@ interface OpenWithUrlOptions {
     viewType?: "normal" | "live";
 }
 
-function createBoardViewState(board: string): ViewResult {
+function createBoardViewState(board: string, host: string = ""): ViewResult {
     return createViewState(VIEW_TYPES.BOARD, {
         type: VIEW_TYPES.BOARD,
+        host,
         board,
         title: board,
     });
@@ -94,10 +85,9 @@ export function getViewStateByUrl(
         log("Invalid URL");
         return;
     }
-
     // 掲示板ビューの場合
     if (!result.threadId) {
-        return createBoardViewState(result.board);
+        return createBoardViewState(result.board, result.host);
     }
 
     // スレッドビューの場合

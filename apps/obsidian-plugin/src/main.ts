@@ -6,9 +6,11 @@ import { NobitThreadView, VIEW_TYPE } from "./view/view";
 import { activateView, getViewStateByUrl, notify } from "./utils/obsidian";
 import { showInputDialog } from "./utils/showInputDialog";
 import { isURL } from "./utils/url";
+import { WorkerBBSProvider } from "./utils/WorkerBBSProvider";
 
 export default class Nobit extends Plugin {
     settings: NobitSettings = DEFAULT_SETTINGS;
+    provider: WorkerBBSProvider = new WorkerBBSProvider();
 
     async onload() {
         await this.loadSettings();

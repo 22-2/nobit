@@ -11,7 +11,7 @@ import {
  * @param deps - 外部の依存関係 (BBSプロバイダなど)
  */
 export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
-    const { initialThread, bbsProvider, logger } = deps;
+    const { initialThread, provider: bbsProvider, logger } = deps;
 
     const threadState = $state<ThreadDataState>({
         thread: {

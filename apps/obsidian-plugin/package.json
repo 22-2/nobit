@@ -18,12 +18,13 @@
     "dependencies": {
         "@nobit/libch": "workspace:*",
         "@nobit/ui": "workspace:*",
+        "comlink": "^4.4.2",
         "loglevel": "^1.9.2",
         "svelte": "5.38.6"
     },
     "devDependencies": {
-        "@nobit/typescript-config": "workspace:*",
         "@nobit/esbuild-config": "workspace:*",
+        "@nobit/typescript-config": "workspace:*",
         "@tsconfig/svelte": "5.0.5",
         "@types/node": "24.3.1",
         "builtin-modules": "5.0.0",

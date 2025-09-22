@@ -4,7 +4,7 @@ import type { BoardDataStoreDependencies, BoardDataState } from "./types";
  * 板のスレッド一覧データ取得と状態管理に特化したSvelte 5ストアを作成します。
  */
 export function createBoardDataStore(deps: BoardDataStoreDependencies) {
-    const { initialUrl, boardProvider, logger } = deps;
+    const { initialUrl, provider: boardProvider, logger } = deps;
 
     const state = $state<BoardDataState>({
         title: null,
