@@ -50,7 +50,6 @@ export interface PostFormStoreDependencies {
 
 /** スレッドデータストアの状態 */
 export interface ThreadDataState {
-    thread: Thread | null;
     isLoading: boolean;
     error: string | null;
     autoReload: boolean;

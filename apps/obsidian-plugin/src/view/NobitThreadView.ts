@@ -49,7 +49,7 @@ export class NobitThreadView extends ItemView {
         this.component = mount(ThreadView, {
             target: this.contentEl,
             props: {
-                thread: this.store.thread.thread,
+                thread: this.store.thread,
             },
         });
 

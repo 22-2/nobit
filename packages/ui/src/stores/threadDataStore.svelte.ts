@@ -1,7 +1,7 @@
 import type { Thread } from "@nobit/libch/core/types";
 import {
     type OperationResult,
-    type ThreadDataState,
+    type ThreadDataState as ThreadViewState,
     type ThreadDataStoreDependencies,
     type ThreadIdentifier,
 } from "./types";
@@ -13,17 +13,18 @@ import {
 export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     const { initialThread, provider: bbsProvider, logger } = deps;
 
-    const threadState = $state<ThreadDataState>({
-        thread: {
-            url: initialThread.url,
-            title: initialThread.title ?? "",
-            posts: initialThread.posts ?? [],
-        },
+    const viewState = $state<ThreadViewState>({
         isLoading: false,
         error: null,
         autoReload: false,
         autoReloadInterval: 30000,
         autoScroll: false,
+    });
+
+    let threadState: Thread | null = $state({
+        url: initialThread.url,
+        title: initialThread.title ?? "",
+        posts: initialThread.posts ?? [],
     });
 
     const handleAsyncOperation = async <T>(
@@ -53,37 +54,37 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     };
 
     const loadThread = async (): Promise<void> => {
-        const url = threadState.thread?.url;
+        const url = threadState?.url;
         if (!url) {
             logger.warn("loadThread called with invalid URL.");
-            threadState.error = "スレッドのURLが無効です。";
+            viewState.error = "スレッドのURLが無効です。";
             return;
         }
         logger.info("Loading thread...", { url });
 
         await handleAsyncOperation(() => bbsProvider.getThread(url), {
             onStart: () => {
-                threadState.isLoading = true;
-                threadState.error = null;
+                viewState.isLoading = true;
+                viewState.error = null;
             },
             onSuccess: (threadData) => {
-                if (threadData) threadState.thread = threadData;
+                if (threadData) threadState = threadData;
             },
             onError: (error) => {
-                threadState.error =
+                viewState.error =
                     error.message || "スレッドの取得に失敗しました";
-                threadState.thread = null;
+                threadState = null;
             },
             onFinally: () => {
-                threadState.isLoading = false;
+                viewState.isLoading = false;
             },
         });
     };
 
     const updateAndLoadThread = (threadIdentifier: ThreadIdentifier): void => {
-        if (threadState.thread?.url !== threadIdentifier.url) {
-            threadState.thread = threadIdentifier as Thread;
-            threadState.error = null;
+        if (threadState?.url !== threadIdentifier.url) {
+            threadState = threadIdentifier as Thread;
+            viewState.error = null;
             loadThread().catch((e) =>
                 logger.error("Failed to load thread after update", e)
             );
@@ -91,14 +92,14 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     };
 
     $effect(() => {
-        if (!threadState.autoReload || !threadState.thread?.url) return;
+        if (!viewState.autoReload || !threadState?.url) return;
 
         const timer = setInterval(() => {
             loadThread().catch((e) => logger.error("Auto-reload failed", e));
-        }, threadState.autoReloadInterval);
+        }, viewState.autoReloadInterval);
 
         logger.info(
-            `Auto-reload timer started with interval: ${threadState.autoReloadInterval}ms`
+            `Auto-reload timer started with interval: ${viewState.autoReloadInterval}ms`
         );
         return () => {
             clearInterval(timer);
@@ -113,14 +114,15 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     }
 
     return {
+        viewState,
         thread: threadState,
         loadThread,
         updateAndLoadThread,
         setAutoReload: (enabled: boolean) => {
-            threadState.autoReload = enabled;
+            viewState.autoReload = enabled;
         },
         setAutoScroll: (enabled: boolean) => {
-            threadState.autoScroll = enabled;
+            viewState.autoScroll = enabled;
         },
     };
 }
