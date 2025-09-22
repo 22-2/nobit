@@ -1,12 +1,11 @@
 import { Plugin } from "obsidian";
 import { DEFAULT_SETTINGS } from "./utils/constants";
-import { DirectLogger } from "./utils/logging";
+import log from "loglevel";
 import { type NobitSettings, NobitSettingTab } from "./settings";
 import { SvelteView, VIEW_TYPE } from "./view/view";
 
 export default class Nobit extends Plugin {
     settings: NobitSettings = DEFAULT_SETTINGS;
-    logger!: DirectLogger;
 
     async onload() {
         await this.loadSettings();
@@ -30,7 +29,7 @@ export default class Nobit extends Plugin {
 
     onunload() {
         this.app.workspace.detachLeavesOfType(VIEW_TYPE);
-        this.logger.debug("Plugin unloaded");
+        log.debug("Plugin unloaded");
     }
 
     async activateView() {
@@ -47,11 +46,11 @@ export default class Nobit extends Plugin {
     }
 
     initializeLogger(): void {
-        this.logger = new DirectLogger({
-            level: this.settings.logLevel,
-            name: "Nobit",
-        });
-        this.logger.debug("debug mode enabled");
+        if (this.settings.logLevel === "debug") {
+            log.enableAll();
+        } else {
+            log.disableAll();
+        }
     }
 
     async loadSettings() {

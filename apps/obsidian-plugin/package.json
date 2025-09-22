@@ -16,8 +16,10 @@
     "author": "",
     "license": "MIT",
     "dependencies": {
-        "svelte": "5.38.6",
-        "@nobit/ui": "workspace:*"
+        "@nobit/libch": "workspace:*",
+        "@nobit/ui": "workspace:*",
+        "loglevel": "^1.9.2",
+        "svelte": "5.38.6"
     },
     "devDependencies": {
         "@nobit/typescript-config": "workspace:*",

@@ -1,7 +1,6 @@
 {
     "extends": "@nobit/typescript-config/base",
     "compilerOptions": {
-        "moduleResolution": "node",
         "baseUrl": ".",
         "verbatimModuleSyntax": true,
         "downlevelIteration": true,
