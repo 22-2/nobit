@@ -1,6 +1,6 @@
-<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\view\common\WheelProgressIndicator.svelte -->
 <script lang="ts">
     import type { WheelState } from "../../stores/useWheelRefresh.svelte.ts";
+    import { fade } from "svelte/transition";
 
     let { wheelState, position = "top" } = $props<{
         wheelState: WheelState;
@@ -21,13 +21,13 @@
     );
 </script>
 
-<div
-    class="wheel-progress-indicator"
-    class:bottom={position === "bottom"}
-    class:post-refresh={wheelState.status === "success"}
-    style="visibility: {shouldBeVisible ? 'visible' : 'hidden'};"
->
-    {#if wheelState.status !== "idle"}
+{#if shouldBeVisible}
+    <div
+        class="wheel-progress-indicator"
+        class:bottom={position === "bottom"}
+        class:post-refresh={wheelState.status === "success"}
+        transition:fade={{ duration: 50 }}
+    >
         {label}
         <span class="progress-bar-wrapper">
             <div
@@ -40,8 +40,8 @@
                       )}%;"
             ></div>
         </span>
-    {/if}
-</div>
+    </div>
+{/if}
 
 <style>
     .wheel-progress-indicator {
@@ -63,9 +63,10 @@
         gap: var(--nobit-size-4-2);
         border: var(--nobit-border-width) solid
             var(--nobit-background-modifier-border);
-        transition:
-            opacity 0.2s,
-            visibility 0.2s;
+        /*
+            Svelteのtransitionで制御するため、
+            ここのtransition指定は不要になります
+        */
     }
     /*
     .wheel-progress-indicator[style*="visibility: visible"] {
