@@ -2,7 +2,7 @@ import { Plugin } from "obsidian";
 import { DEFAULT_SETTINGS } from "./utils/constants";
 import log from "loglevel";
 import { type NobitSettings, NobitSettingTab } from "./settings";
-import { SvelteView, VIEW_TYPE } from "./view/view";
+import { NobitThreadView, VIEW_TYPE } from "./view/view";
 import { activateView, getViewStateByUrl, notify } from "./utils/obsidian";
 import { showInputDialog } from "./utils/showInputDialog";
 import { isURL } from "./utils/url";
@@ -15,7 +15,7 @@ export default class Nobit extends Plugin {
         this.addSettingTab(new NobitSettingTab(this));
         this.updateLogger();
 
-        this.registerView(VIEW_TYPE, (leaf) => new SvelteView(leaf, this));
+        this.registerView(VIEW_TYPE, (leaf) => new NobitThreadView(leaf, this));
 
         this.addCommand({
             id: "open-with-url",

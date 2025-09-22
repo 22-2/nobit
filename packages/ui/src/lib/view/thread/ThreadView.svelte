@@ -15,7 +15,7 @@
     import ThreadToolbar from "./ThreadToolbar.svelte";
 
     type Props = {
-        thread: Thread | null;
+        thread: Thread;
         filters: ThreadFilters;
         isWriteFormVisible?: boolean;
         isSubmittingPost?: boolean;

@@ -5,7 +5,7 @@ import ThreadView from "@nobit/ui/view/thread/ThreadView.svelte";
 
 export const VIEW_TYPE = "svelte-view";
 
-export class SvelteView extends ItemView {
+export class NobitThreadView extends ItemView {
     component: ReturnType<typeof mount> | null = null;
     plugin: Nobit;
 
