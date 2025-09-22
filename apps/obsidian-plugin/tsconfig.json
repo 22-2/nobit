@@ -6,6 +6,11 @@
         "downlevelIteration": true,
         "types": ["node", "obsidian-typings"]
     },
-    "include": ["src/**/*", "src/*", "**/*.ts"],
+    "include": [
+        "src/**/*.d.ts",
+        "src/**/*.ts",
+        "src/**/*.js",
+        "src/**/*.svelte"
+    ],
     "exclude": ["node_modules/*"]
 }

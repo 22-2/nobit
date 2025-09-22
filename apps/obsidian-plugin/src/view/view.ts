@@ -1,7 +1,7 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import type Nobit from "../main";
 import { mount, unmount } from "svelte";
-import {} from "@nobit/ui/";
+import ThreadView from "@nobit/ui/view/thread/ThreadView.svelte";
 
 export const VIEW_TYPE = "svelte-view";
 
@@ -23,7 +23,7 @@ export class SvelteView extends ItemView {
     }
 
     async onOpen() {
-        this.component = mount(AppComponent, {
+        this.component = mount(ThreadView, {
             target: this.contentEl,
             props: {},
         });

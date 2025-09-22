@@ -17,10 +17,6 @@ export default class Nobit extends Plugin {
 
         this.registerView(VIEW_TYPE, (leaf) => new SvelteView(leaf, this));
 
-        this.addRibbonIcon("dice", "Activate svelte view", () => {
-            this.activateView();
-        });
-
         this.addCommand({
             id: "open-with-url",
             name: "Open with-url",
@@ -48,19 +44,6 @@ export default class Nobit extends Plugin {
     onunload() {
         this.app.workspace.detachLeavesOfType(VIEW_TYPE);
         log.debug("Plugin unloaded");
-    }
-
-    async activateView() {
-        this.app.workspace.detachLeavesOfType(VIEW_TYPE);
-
-        await this.app.workspace.getRightLeaf(false)?.setViewState({
-            type: VIEW_TYPE,
-            active: true,
-        });
-
-        this.app.workspace.revealLeaf(
-            this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]!
-        );
     }
 
     updateLogger(): void {
