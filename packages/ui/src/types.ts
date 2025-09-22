@@ -17,22 +17,34 @@ export interface ThreadFilters {
 
 export type ColumnKey = keyof VisibleColumns;
 
+/**
+ * @deprecated use @nobit/libch/core/types
+ *  */
 export interface SubjectItem {
     id: string; // スレッドID (unixtime)
     title: string;
     resCount: number;
 }
 
+/**
+ * @deprecated use @nobit/libch/core/types
+ *  */
 export interface Board {
     name: string;
     url: string;
 }
 
+/**
+ * @deprecated use @nobit/libch/core/types
+ *  */
 export interface BBSMenuCategory {
     name: string;
     boards: Board[];
 }
 
+/**
+ * @deprecated use @nobit/libch/core/types
+ *  */
 export type BBSMenu = BBSMenuCategory[];
 
 // export interface Post {
