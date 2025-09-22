@@ -7,8 +7,8 @@ import {
     Component,
     type PopoverService as IPopoverService,
 } from "../view/common/CustomHoverPopover";
-import { Logger } from "../utils/logging";
 import type { Post, Thread } from "../types";
+import log from "loglevel";
 
 export interface UsePopoverReturn {
     handleHover: (
@@ -49,9 +49,7 @@ export function usePopover(): UsePopoverReturn {
     function hidePopoversFrom(fromLevel: number) {
         if (activePopovers.length <= fromLevel) return;
 
-        Logger.debug(
-            `[PopoverService] Hiding popovers from level ${fromLevel}.`
-        );
+        log.debug(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
 
         const toClose = activePopovers.slice(fromLevel);
         const remainingPopovers = activePopovers.slice(0, fromLevel);
@@ -96,7 +94,7 @@ export function usePopover(): UsePopoverReturn {
         event: MouseEvent
     ) {
         if (!popoverContainer) {
-            Logger.error(
+            log.error(
                 "[PopoverService] Popover container is not set. Call init() first."
             );
             return;
@@ -156,7 +154,7 @@ export function usePopover(): UsePopoverReturn {
         event: MouseEvent
     ) {
         if (!popoverContainer || !threadData) {
-            Logger.error(
+            log.error(
                 "[PopoverService] Popover container or thread data is not set. Call init() and setThreadData() first."
             );
             return;
@@ -175,7 +173,7 @@ export function usePopover(): UsePopoverReturn {
                 target,
                 props: {
                     post,
-                    thread: threadData,
+                    thread: threadData!,
                     onHoverPostLink: (detail: {
                         targetEl: HTMLElement;
                         index: number;
@@ -215,7 +213,7 @@ export function usePopover(): UsePopoverReturn {
 
     function showSimplePopup(message: string, event: MouseEvent) {
         if (!popoverContainer) {
-            Logger.error(
+            log.error(
                 "[PopoverService] Popover container is not set. Call init() first."
             );
             return;

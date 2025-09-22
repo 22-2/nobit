@@ -108,11 +108,11 @@ describe("usePopover", () => {
             },
         ];
         popoverService.setThreadData({
-            id: "1234567890",
+            // id: "1234567890",
             title: "test",
             url: "http://example.com/1234567890",
             posts: mockPosts as any,
-            resCount: mockPosts.length,
+            // resCount: mockPosts.length,
         });
     });
 

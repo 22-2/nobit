@@ -23,6 +23,7 @@
     },
     "devDependencies": {
         "@nobit/typescript-config": "workspace:*",
+        "@nobit/esbuild-config": "workspace:*",
         "@tsconfig/svelte": "5.0.5",
         "@types/node": "24.3.1",
         "builtin-modules": "5.0.0",

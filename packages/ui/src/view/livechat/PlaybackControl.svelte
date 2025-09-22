@@ -1,6 +1,6 @@
 <!-- src/lib/components/chat/PlaybackControl.svelte -->
 <script lang="ts">
-    import { IconPlayerPlay, IconPlayerPause } from "@tabler/icons-svelte";
+    import { Play, Pause } from "@lucide/svelte";
 
     // 親からイベントハンドラを直接受け取る
     type Props = {
@@ -57,9 +57,9 @@
         aria-label={isPlaying ? "自動更新を停止" : "自動更新を開始"}
     >
         {#if isPlaying}
-            <IconPlayerPause size={20} />
+            <Pause size={20} />
         {:else}
-            <IconPlayerPlay size={20} />
+            <Play size={20} />
         {/if}
     </button>
 

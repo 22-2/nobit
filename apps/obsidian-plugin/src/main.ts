@@ -3,6 +3,9 @@ import { DEFAULT_SETTINGS } from "./utils/constants";
 import log from "loglevel";
 import { type NobitSettings, NobitSettingTab } from "./settings";
 import { SvelteView, VIEW_TYPE } from "./view/view";
+import { activateView, getViewStateByUrl, notify } from "./utils/obsidian";
+import { showInputDialog } from "./utils/showInputDialog";
+import { isURL } from "./utils/url";
 
 export default class Nobit extends Plugin {
     settings: NobitSettings = DEFAULT_SETTINGS;
@@ -19,10 +22,25 @@ export default class Nobit extends Plugin {
         });
 
         this.addCommand({
-            id: "open-svelte-view",
-            name: "Open Svelte View",
-            callback: () => {
-                this.activateView();
+            id: "open-with-url",
+            name: "Open with-url",
+            callback: async () => {
+                const inputUrl = await showInputDialog(this.app, {
+                    message: "URLを入力してください",
+                    placeholder: "URLを入力してください",
+                });
+
+                if (!inputUrl || !isURL(inputUrl)) {
+                    return;
+                }
+
+                const state = getViewStateByUrl(inputUrl, log.debug);
+
+                if (!state) {
+                    return notify("Invalid URL");
+                }
+
+                activateView(this.app, state);
             },
         });
     }

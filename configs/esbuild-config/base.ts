@@ -18,7 +18,7 @@ if you want to view the source, please visit the github repository of this plugi
  * @returns {'production' | 'development'} ビルドモード
  */
 const getBuildMode = (): "production" | "development" => {
-  return process.argv[2] === "production" ? "production" : "development";
+    return process.argv[2] === "production" ? "production" : "development";
 };
 
 /**
@@ -27,14 +27,14 @@ const getBuildMode = (): "production" | "development" => {
  * @returns esbuildの共通設定オブジェクト
  */
 const createBaseConfig = (mode: "production" | "development"): BuildOptions => {
-  const isProd = mode === "production";
-  return {
-    banner: { js: banner },
-    logLevel: "info",
-    minify: isProd,
-    sourcemap: isProd ? false : "inline",
-    treeShaking: true,
-  };
+    const isProd = mode === "production";
+    return {
+        banner: { js: banner },
+        logLevel: "info",
+        minify: isProd,
+        sourcemap: isProd ? false : "inline",
+        treeShaking: true,
+    };
 };
 
 // --- メインビルドスクリプト ---
@@ -43,14 +43,14 @@ const createBaseConfig = (mode: "production" | "development"): BuildOptions => {
  * ビルドスクリプトのオプション
  */
 export interface RunBuildOptions {
-  /** エントリーポイント (globパターンまたはファイルパスの配列) */
-  entryPoints: string | string[];
-  /** 出力先ディレクトリ (デフォルト: 'dist') */
-  outdir?: string;
-  /** ビルドモード (デフォルト: process.argvから決定) */
-  mode?: "production" | "development";
-  /** esbuildのビルドオプションを上書き・追加する */
-  override?: BuildOptions;
+    /** エントリーポイント (globパターンまたはファイルパスの配列) */
+    entryPoints: string | string[];
+    /** 出力先ディレクトリ (デフォルト: 'dist') */
+    outdir?: string;
+    /** ビルドモード (デフォルト: process.argvから決定) */
+    mode?: "production" | "development";
+    /** esbuildのビルドオプションを上書き・追加する */
+    override?: BuildOptions;
 }
 
 /**
@@ -61,74 +61,74 @@ export interface RunBuildOptions {
  * @param options ビルドオプション
  */
 export async function runBuild({
-  entryPoints: entryPointsPattern,
-  outdir = "dist",
-  mode = getBuildMode(),
-  override = {},
+    entryPoints: entryPointsPattern,
+    outdir = "dist",
+    mode = getBuildMode(),
+    override = {},
 }: RunBuildOptions) {
-  try {
-    const isProd = mode === "production";
-    const baseConfig = createBaseConfig(mode);
+    try {
+        const isProd = mode === "production";
+        const baseConfig = createBaseConfig(mode);
 
-    // エントリーポイントをglobパターンから解決
-    const entryPoints = Array.isArray(entryPointsPattern)
-      ? entryPointsPattern
-      : await glob(entryPointsPattern);
+        // エントリーポイントをglobパターンから解決
+        const entryPoints = Array.isArray(entryPointsPattern)
+            ? entryPointsPattern
+            : await glob(entryPointsPattern);
 
-    if (entryPoints.length === 0) {
-      console.log("ℹ️ No entry points found. Exiting.");
-      return; // プロセスを終了する代わりに正常にリターン
+        if (entryPoints.length === 0) {
+            console.log("ℹ️ No entry points found. Exiting.");
+            return; // プロセスを終了する代わりに正常にリターン
+        }
+
+        console.log(`📦 Building for ${mode}...`);
+        console.log("📂 Entry points:", entryPoints);
+        console.log("📤 Output directory:", outdir);
+
+        // 全てのビルド形式で共通の設定
+        const sharedConfig: BuildOptions = {
+            ...baseConfig,
+            entryPoints,
+            bundle: true,
+            target: "esnext",
+            ...override, // ユーザーによる上書きを適用
+        };
+
+        // ビルドターゲット（CJS, ESM）ごとの個別設定
+        const targets: BuildOptions[] = [
+            {
+                format: "cjs",
+                outdir,
+                outExtension: { ".js": ".js" },
+            },
+            {
+                format: "esm",
+                outdir,
+                outExtension: { ".js": ".mjs" },
+            },
+        ];
+
+        // 各ターゲットのビルドコンテキストを並行して作成
+        const contexts = await Promise.all(
+            targets.map((targetOptions) =>
+                esbuild.context({ ...sharedConfig, ...targetOptions })
+            )
+        );
+
+        if (isProd) {
+            // 本番ビルド：1回だけ実行して終了
+            console.log("🚀 Running production build...");
+            await Promise.all(contexts.map((ctx) => ctx.rebuild()));
+            await Promise.all(contexts.map((ctx) => ctx.dispose()));
+            console.log("✅ Build complete.");
+        } else {
+            // 開発ビルド：watchモードで起動
+            console.log("👀 Watching for changes...");
+            await Promise.all(contexts.map((ctx) => ctx.watch()));
+        }
+    } catch (e) {
+        console.error("❌ Build failed:", e);
+        process.exit(1);
     }
-
-    console.log(`📦 Building for ${mode}...`);
-    console.log("📂 Entry points:", entryPoints);
-    console.log("📤 Output directory:", outdir);
-
-    // 全てのビルド形式で共通の設定
-    const sharedConfig: BuildOptions = {
-      ...baseConfig,
-      entryPoints,
-      bundle: true,
-      target: "esnext",
-      ...override, // ユーザーによる上書きを適用
-    };
-
-    // ビルドターゲット（CJS, ESM）ごとの個別設定
-    const targets: BuildOptions[] = [
-      {
-        format: "cjs",
-        outdir,
-        outExtension: { ".js": ".js" },
-      },
-      {
-        format: "esm",
-        outdir,
-        outExtension: { ".js": ".mjs" },
-      },
-    ];
-
-    // 各ターゲットのビルドコンテキストを並行して作成
-    const contexts = await Promise.all(
-      targets.map((targetOptions) =>
-        esbuild.context({ ...sharedConfig, ...targetOptions }),
-      ),
-    );
-
-    if (isProd) {
-      // 本番ビルド：1回だけ実行して終了
-      console.log("🚀 Running production build...");
-      await Promise.all(contexts.map((ctx) => ctx.rebuild()));
-      await Promise.all(contexts.map((ctx) => ctx.dispose()));
-      console.log("✅ Build complete.");
-    } else {
-      // 開発ビルド：watchモードで起動
-      console.log("👀 Watching for changes...");
-      await Promise.all(contexts.map((ctx) => ctx.watch()));
-    }
-  } catch (e) {
-    console.error("❌ Build failed:", e);
-    process.exit(1);
-  }
 }
 
 // --- 使用例 ---

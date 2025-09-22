@@ -1,7 +1,7 @@
 <!-- src/components/ThreadToolbar.svelte -->
 <script lang="ts">
     // Tabler Icons
-    import { IconRefresh, IconPencil } from "@tabler/icons-svelte";
+    import { RefreshCw, Pencil } from "@lucide/svelte";
 
     let { isCoolingDown, isLoading, onRefresh, onWriteButtonClick } = $props<{
         isCoolingDown?: boolean;
@@ -19,7 +19,7 @@
             onclick={onRefresh}
             disabled={isCoolingDown || isLoading}
         >
-            <IconRefresh size={16} />
+            <RefreshCw size={16} />
         </button>
     {/if}
 
@@ -29,7 +29,7 @@
             aria-label="このスレッドに書き込む"
             onclick={onWriteButtonClick}
         >
-            <IconPencil size={16} />
+            <Pencil size={16} />
         </button>
     {/if}
 </div>

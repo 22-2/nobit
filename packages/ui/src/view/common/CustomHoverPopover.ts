@@ -1,5 +1,5 @@
+import log from "loglevel";
 import { mount, unmount } from "svelte";
-import { Logger } from "../../utils/logging";
 
 // A minimal Component class to replicate Obsidian's lifecycle management
 // without the dependency on Obsidian itself.
@@ -79,7 +79,7 @@ export class CustomHoverPopover extends Component {
         if (this.isShown) return;
         this.isShown = true;
 
-        Logger.debug(
+        log.debug(
             `[CustomHoverPopover] show() called for level ${this.level}.`
         );
 
@@ -95,7 +95,7 @@ export class CustomHoverPopover extends Component {
 
     override onload() {
         super.onload();
-        Logger.debug(
+        log.debug(
             `[CustomHoverPopover] onload() called. Appending hoverEl to parentContainer.`,
             {
                 hoverEl: this.hoverEl,

@@ -1,4 +1,4 @@
-import { App, Notice, WorkspaceLeaf } from "obsidian";
+import { App, Notice, WorkspaceLeaf, type ViewState } from "obsidian";
 import { parseBbsUrl } from "@nobit/libch/core/url";
 import { VIEW_TYPES } from "./constants";
 
@@ -32,21 +32,24 @@ export async function activateView<T = any, U = any>(
 }
 
 // 型定義
-interface ViewState {
+interface ParsedUrl {
     type: string;
     board: string;
     title: string;
     threadId?: string;
+
+    // compat for obsidian api
+    [key: string]: any;
 }
 
 interface ViewResult {
     type: string;
-    state: ViewState;
+    state: ParsedUrl;
     active: boolean;
 }
 
 // ビュー生成のヘルパー関数
-export function createView(type: string, state: ViewState): ViewResult {
+export function createViewState(type: string, state: ParsedUrl): ViewResult {
     return {
         type,
         state: { ...state, type },
@@ -58,15 +61,15 @@ interface OpenWithUrlOptions {
     viewType?: "normal" | "live";
 }
 
-function createBoardView(board: string): ViewResult {
-    return createView(VIEW_TYPES.BOARD, {
+function createBoardViewState(board: string): ViewResult {
+    return createViewState(VIEW_TYPES.BOARD, {
         type: VIEW_TYPES.BOARD,
         board,
         title: board,
     });
 }
 
-function createThreadView(
+function createThreadViewState(
     result: any,
     viewType: "normal" | "live" = "normal"
 ): ViewResult {
@@ -77,14 +80,14 @@ function createThreadView(
 
     const type = viewType === "live" ? VIEW_TYPES.LIVE_CHAT : VIEW_TYPES.THREAD;
 
-    return createView(type, state);
+    return createViewState(type, state);
 }
 
-export async function openWithUrl(
+export function getViewStateByUrl(
     url: string,
     log: (message: string) => void,
     options?: OpenWithUrlOptions
-): Promise<ViewResult | void> {
+): ViewResult | void {
     const result = parseBbsUrl(url);
 
     if (!result?.board) {
@@ -94,11 +97,11 @@ export async function openWithUrl(
 
     // 掲示板ビューの場合
     if (!result.threadId) {
-        return createBoardView(result.board);
+        return createBoardViewState(result.board);
     }
 
     // スレッドビューの場合
     // スレッド情報を事前に取得せず、ビューを即座に開く
     // ビュー自体がデータの読み込みとタイトルの更新を担当する
-    return createThreadView(result, options?.viewType);
+    return createThreadViewState(result, options?.viewType);
 }

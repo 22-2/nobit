@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import type Nobit from "../main";
 import { mount, unmount } from "svelte";
+import {} from "@nobit/ui/";
 
 export const VIEW_TYPE = "svelte-view";
 

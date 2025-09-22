@@ -3,12 +3,7 @@
     import type { ThreadFilters } from "../../types";
 
     // Tabler Icons
-    import {
-        IconHeart,
-        IconPhoto,
-        IconVideo,
-        IconSearch,
-    } from "@tabler/icons-svelte";
+    import { Heart, Image, Video, Search } from "@lucide/svelte";
 
     let {
         filters = $bindable({
@@ -29,19 +24,19 @@
         {
             key: "popular",
             label: "人気",
-            icon: IconHeart,
+            icon: Heart,
             ariaLabel: "人気レスで絞り込む",
         },
         {
             key: "image",
             label: "画像",
-            icon: IconPhoto,
+            icon: Image,
             ariaLabel: "画像を含むレスで絞り込む",
         },
         {
             key: "video",
             label: "動画",
-            icon: IconVideo,
+            icon: Video,
             ariaLabel: "動画を含むレスで絞り込む",
         },
         {
@@ -95,7 +90,7 @@
         </div>
 
         <div class="search-input-wrapper">
-            <IconSearch size={16} class="search-icon" />
+            <Search size={16} class="search-icon" />
             <input
                 type="text"
                 value={filters.searchText}
