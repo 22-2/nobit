@@ -1,9 +1,10 @@
+// E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stores\helpers.ts
 import log from "loglevel";
-import type { OperationResult } from "./types";
+import type { AsyncOperationOptions } from "./types";
 
 export const handleAsyncOperation = async <T>(
     operation: () => Promise<T>,
-    options: OperationResult<T> = {}
+    options: AsyncOperationOptions<T> = {}
 ): Promise<T | null> => {
     const {
         errorMessage = "操作に失敗しました",

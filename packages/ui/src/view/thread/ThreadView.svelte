@@ -1,53 +1,34 @@
-<!-- src/view/thread/ThreadView.svelte -->
+<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\view\thread\ThreadView.svelte -->
 <script lang="ts">
-    import type { PostData, ThreadFilters } from "../../types";
+    import type { ThreadFilters, PostData } from "../../types";
     import InlineWriteForm from "./InlineWriteForm.svelte";
     import PostItem from "./PostItem.svelte";
     import ThreadFiltersComponent from "./ThreadFilters.svelte";
-    import { type Thread } from "@nobit/libch/core/types";
-
-    import type {
-        ShowIdPostsDetail,
-        ShowPostContextMenuDetail,
-        ShowReplyTreeDetail,
-        ThreadLinkClickDetail,
-    } from "./PostItem.svelte";
     import LoadingSpinner from "../common/LoadingSpinner.svelte";
+    import LoadingOverlay from "../common/LoadingOverlay.svelte";
     import ThreadToolbar from "./ThreadToolbar.svelte";
+    import type { createThreadDataStore } from "../../stores/threadDataStore.svelte.ts";
 
     type Props = {
-        thread?: Thread | null;
-        filters: ThreadFilters;
-        isWriteFormVisible?: boolean;
-        isSubmittingPost?: boolean;
-        onPost: (postData: PostData) => Promise<void>;
-        onJumpToPost?: (resNumber: number) => void;
-        onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
-        onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
-        onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
-        onThreadLinkClick?: (detail: ThreadLinkClickDetail) => void;
+        store: ReturnType<typeof createThreadDataStore>;
     };
+    let { store }: Props = $props();
 
-    let {
-        thread,
-        filters = $bindable(),
-        isWriteFormVisible = $bindable(false),
-        isSubmittingPost = $bindable(false),
-        onPost,
-        onJumpToPost,
-        onShowReplyTree,
-        onShowIdPosts,
-        onShowPostContextMenu,
-        onThreadLinkClick,
-    }: Props = $props();
+    // フォームの表示状態やフィルタはViewのローカルな状態として管理
+    let isWriteFormVisible = $state(false);
+    let filters: ThreadFilters = $state({
+        searchText: "",
+        image: false,
+        video: false,
+        external: false,
+        internal: false,
+        popular: false,
+    });
 
-    // フィルタリングロジックはViewの内部で行う
     const filteredPosts = $derived(() => {
-        if (!thread?.posts) return [];
-
-        return thread.posts.filter((post) => {
+        if (!store.thread?.posts) return [];
+        return store.thread.posts.filter((post) => {
             if (!post) return false;
-
             const searchText = filters.searchText.toLowerCase().trim();
             if (
                 searchText &&
@@ -61,60 +42,65 @@
             ) {
                 return false;
             }
-            // TODO: 他のフィルタ条件(video, externalなど)もここに追加
             return true;
         });
     });
 
     async function handlePost(postData: PostData) {
-        await onPost(postData);
-        // 投稿成功後、親の状態を更新してフォームを閉じる
-        isWriteFormVisible = false;
+        const result = await store.postMessage(postData);
+        if (result.success) {
+            isWriteFormVisible = false; // 成功時のみフォームを閉じる
+        }
     }
 </script>
 
 <div class="thread-view">
-    {#if thread}
-        <ThreadFiltersComponent bind:filters isVisible={true} />
+    <ThreadFiltersComponent bind:filters isVisible={true} />
 
-        <div class="posts-list" role="feed">
-            {#each filteredPosts() as post (post.resNum)}
-                <PostItem
-                    {post}
-                    index={post.resNum - 1}
-                    {onJumpToPost}
-                    {onShowReplyTree}
-                    {onShowIdPosts}
-                    {onShowPostContextMenu}
-                    {onThreadLinkClick}
-                />
-            {/each}
-        </div>
-
-        {#if isWriteFormVisible}
-            <InlineWriteForm
-                {handlePost}
-                onCancel={() => (isWriteFormVisible = false)}
-                bind:isSubmitting={isSubmittingPost}
-            />
-        {:else}
-            <!-- <div class="write-form-trigger">
-                <button
-                    class="mod-cta"
-                    onclick={() => (isWriteFormVisible = true)}
-                >
-                    書き込む
-                </button>
-            </div> -->
-            <ThreadToolbar
-                onRefresh={() => {}}
-                onWriteButtonClick={() => (isWriteFormVisible = true)}
-            />
+    <div class="content-wrapper">
+        <!-- 更新中のローディングオーバーレイ -->
+        {#if store.viewState.isLoading && store.thread}
+            <LoadingOverlay transparent={true} />
         {/if}
+
+        <!-- メインコンテンツ -->
+        {#if !store.thread}
+            {#if store.viewState.isLoading}
+                <!-- 初回ロード中 -->
+                <div class="indicator-container">
+                    <LoadingSpinner />
+                </div>
+            {:else if store.viewState.error}
+                <!-- エラー表示 -->
+                <div class="indicator-container error-indicator">
+                    <p>エラー: {store.viewState.error}</p>
+                    <button class="mod-cta" onclick={() => store.loadThread()}>
+                        リトライ
+                    </button>
+                </div>
+            {/if}
+        {:else}
+            <!-- スレッドコンテンツ表示 -->
+            <div class="posts-list" role="feed">
+                {#each filteredPosts() as post (post.resNum)}
+                    <PostItem {post} index={post.resNum - 1} />
+                {/each}
+            </div>
+        {/if}
+    </div>
+
+    <!-- 投稿フォームまたはツールバー -->
+    {#if isWriteFormVisible}
+        <InlineWriteForm
+            {handlePost}
+            onCancel={() => (isWriteFormVisible = false)}
+            isSubmitting={store.viewState.isSubmitting}
+        />
     {:else}
-        <div class="loading-indicator">
-            <LoadingSpinner />
-        </div>
+        <ThreadToolbar
+            onRefresh={() => store.loadThread()}
+            onWriteButtonClick={() => (isWriteFormVisible = true)}
+        />
     {/if}
 </div>
 
@@ -123,13 +109,30 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        overflow: hidden; /* 親コンテナでスクロールを制御 */
+    }
+    .content-wrapper {
+        position: relative; /* オーバーレイの基準点 */
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: hidden; /* スクロールはposts-listで行う */
     }
     .posts-list {
         flex: 1;
         overflow-y: auto; /* 投稿リスト部分をスクロール可能にする */
     }
-    .write-form-trigger {
-        padding: 1em 0;
-        border-top: 1px solid var(--background-modifier-border);
+    .indicator-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 1em;
+        padding: 1em;
+        text-align: center;
+    }
+    .error-indicator p {
+        color: var(--text-error);
     }
 </style>

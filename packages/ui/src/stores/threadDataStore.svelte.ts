@@ -1,11 +1,13 @@
+// E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stores\threadDataStore.svelte.ts
 import type { Thread } from "@nobit/libch/core/types";
 import {
-    type OperationResult,
-    type ThreadDataState as ThreadViewState,
+    type SimpleOperationResult,
+    type ThreadDataState,
     type ThreadDataStoreDependencies,
     type ThreadIdentifier,
 } from "./types";
 import { handleAsyncOperation } from "./helpers";
+import type { PostData } from "@nobit/libch/core/types";
 
 /**
  * スレッドデータの取得と状態管理に特化したSvelte 5ストアを作成します。
@@ -14,12 +16,13 @@ import { handleAsyncOperation } from "./helpers";
 export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     const { initialThread, provider: bbsProvider, logger } = deps;
 
-    const viewState = $state<ThreadViewState>({
+    const viewState = $state<ThreadDataState>({
         isLoading: false,
         error: null,
         autoReload: false,
         autoReloadInterval: 30000,
         autoScroll: false,
+        isSubmitting: false, // 投稿中の状態を追加
     });
 
     let threadState: Thread | null = $state({
@@ -48,12 +51,59 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
             onError: (error) => {
                 viewState.error =
                     error.message || "スレッドの取得に失敗しました";
+                // 取得失敗時に古いデータを残さないようにクリアする
                 threadState = null;
             },
             onFinally: () => {
                 viewState.isLoading = false;
             },
         });
+    };
+
+    const postMessage = async (
+        postData: PostData
+    ): Promise<SimpleOperationResult> => {
+        const url = threadState?.url;
+        if (!url) {
+            const errorMsg = "投稿先のURLが無効です。";
+            logger.warn(errorMsg);
+            return { success: false, error: errorMsg };
+        }
+
+        let result: SimpleOperationResult = { success: false };
+
+        await handleAsyncOperation(() => bbsProvider.post(url, postData), {
+            onStart: () => {
+                viewState.isSubmitting = true;
+                viewState.error = null;
+            },
+            onSuccess: async (postResult) => {
+                switch (postResult.kind) {
+                    case "success":
+                        result = { success: true };
+                        await loadThread(); // 投稿成功後にスレッドを再読み込み
+                        break;
+                    case "error":
+                        viewState.error = postResult.message;
+                        result = { success: false, error: postResult.message };
+                        break;
+                    case "confirmation":
+                        // 確認画面は現在未サポートのため、エラーとして扱う
+                        const confirmError = `確認画面が必要です: ${postResult.message}`;
+                        viewState.error = confirmError;
+                        result = { success: false, error: confirmError };
+                        break;
+                }
+            },
+            onError: (error) => {
+                viewState.error = error.message || "投稿に失敗しました";
+                result = { success: false, error: viewState.error };
+            },
+            onFinally: () => {
+                viewState.isSubmitting = false;
+            },
+        });
+        return result;
     };
 
     const updateAndLoadThread = (threadIdentifier: ThreadIdentifier): void => {
@@ -92,6 +142,7 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
         viewState,
         thread: threadState,
         loadThread,
+        postMessage, // 返り値に追加
         updateAndLoadThread,
         setAutoReload: (enabled: boolean) => {
             viewState.autoReload = enabled;

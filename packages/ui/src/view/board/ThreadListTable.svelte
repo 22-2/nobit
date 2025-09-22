@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { fade } from "svelte/transition";
     import { type SorterState } from "../../stores/types";
     import { useSorter } from "../../stores/useSorter.svelte";
     import { useWheelRefresh } from "../../stores/useWheelRefresh.svelte";
@@ -7,6 +6,7 @@
     import WheelProgressIndicator from "../common/WheelProgressIndicator.svelte";
     import ThreadTableBody from "./ThreadTableBody.svelte";
     import ThreadTableHeader from "./ThreadTableHeader.svelte";
+    import LoadingOverlay from "../common/LoadingOverlay.svelte";
 
     type ThreadItem = SubjectItem & { index: number };
 
@@ -100,12 +100,7 @@
           データがある場合（リフレッシュ時）は背景が透けるオーバーレイ(transparent)
           データがない場合（初回ロード時）は背景をしっかり覆うオーバーレイ
         -->
-        <div
-            class:loading-overlay={isRefreshing}
-            transition:fade={{ duration: 150 }}
-        >
-            <!-- <LoadingSpinner size="large" /> -->
-        </div>
+        <LoadingOverlay />
     {/if}
 
     <div class="thread-table" role="table">
@@ -134,28 +129,6 @@
         flex-direction: column;
         flex-grow: 1;
         overflow: hidden;
-    }
-
-    .loading-overlay,
-    .loading-overlay-transparent {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10;
-        backdrop-filter: blur(1px);
-    }
-    .loading-overlay {
-        /* データがない時の初期ロード用 */
-        background-color: var(--nobit-background-overlay);
-    }
-    .loading-overlay-transparent {
-        /* データがある時のリフレッシュ用。
-           背景が transparent だとオーバーレイの意味がないため修正。
-           背景のテーブルがうっすら見えるようにする。 */
-        background-color: var(--nobit-background-overlay);
-        opacity: 0.8;
     }
 
     .thread-table {

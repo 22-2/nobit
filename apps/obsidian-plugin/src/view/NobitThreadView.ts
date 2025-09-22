@@ -1,3 +1,4 @@
+// E:\Desktop\coding\my-projects-02\nobit-test\apps\obsidian-plugin\src\view\NobitThreadView.ts
 import { createThreadDataStore } from "@nobit/ui/stores/threadDataStore.svelte.ts";
 import ThreadView from "@nobit/ui/view/thread/ThreadView.svelte";
 import log from "loglevel";
@@ -28,6 +29,16 @@ export class NobitThreadView extends ItemView {
     async onOpen() {}
 
     async setState(state: ParsedBbsUrl, result: unknown): Promise<void> {
+        // 既存のストアがあれば、新しいスレッド情報で更新する
+        if (this.store) {
+            this.store.updateAndLoadThread({
+                title: state.threadId || "",
+                url: getURL(state),
+            });
+            return;
+        }
+
+        // ストアがなければ新規作成
         this.store = createThreadDataStore({
             logger: {
                 error: log.error,
@@ -38,22 +49,18 @@ export class NobitThreadView extends ItemView {
             initialThread: {
                 title: state.threadId || "",
                 url: getURL(state),
-                posts: [],
             },
         });
-
-        await this.store.loadThread();
 
         this.component && unmount(this.component);
 
         this.component = mount(ThreadView, {
             target: this.contentEl,
             props: {
-                thread: this.store.thread,
+                // storeをそのまま渡す
+                store: this.store,
             },
         });
-
-        await this.store.loadThread();
     }
 
     async onClose() {
