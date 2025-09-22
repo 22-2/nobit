@@ -20,7 +20,6 @@
         openThread: (thread: ThreadItem, e: MouseEvent) => void;
         onContextMenu: (thread: ThreadItem, e: MouseEvent) => void;
         openHeaderContextMenu: (e: MouseEvent) => void;
-        networkDelay?: number;
     };
 
     let {
@@ -33,7 +32,6 @@
         openThread,
         onContextMenu,
         openHeaderContextMenu,
-        networkDelay = 0,
     }: Props = $props();
 
     let tableContainerEl: HTMLDivElement | undefined = $state();
@@ -42,12 +40,7 @@
         getScrollElement: () => tableContainerEl,
         isEnabled: () => !isLoading, // ローディング中は無効化
         up: {
-            onRefresh: async () => {
-                await new Promise((resolve) =>
-                    setTimeout(resolve, networkDelay)
-                );
-                onRefresh?.();
-            },
+            onRefresh,
         },
     });
 
