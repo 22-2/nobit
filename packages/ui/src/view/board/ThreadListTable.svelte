@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type { SubjectItem } from "../../types";
-    import { useSorter } from "../../stores/useSorter.svelte";
+    import { fade } from "svelte/transition";
     import { type SorterState } from "../../stores/types";
-    import ThreadTableHeader from "./ThreadTableHeader.svelte";
-    import ThreadTableBody from "./ThreadTableBody.svelte";
-    import LoadingSpinner from "../common/LoadingSpinner.svelte";
+    import { useSorter } from "../../stores/useSorter.svelte";
     import { useWheelRefresh } from "../../stores/useWheelRefresh.svelte";
+    import type { SubjectItem } from "../../types";
     import WheelProgressIndicator from "../common/WheelProgressIndicator.svelte";
+    import ThreadTableBody from "./ThreadTableBody.svelte";
+    import ThreadTableHeader from "./ThreadTableHeader.svelte";
 
     type ThreadItem = SubjectItem & { index: number };
 
@@ -101,10 +101,10 @@
           データがない場合（初回ロード時）は背景をしっかり覆うオーバーレイ
         -->
         <div
-            class:loading-overlay={threads.length === 0}
-            class:loading-overlay-transparent={threads.length > 0}
+            class:loading-overlay={isRefreshing}
+            transition:fade={{ duration: 150 }}
         >
-            <LoadingSpinner size="large" />
+            <!-- <LoadingSpinner size="large" /> -->
         </div>
     {/if}
 
