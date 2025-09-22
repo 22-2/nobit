@@ -1,7 +1,7 @@
 <!-- src/components/PostItem.svelte -->
 <script lang="ts">
-    import type { Post } from "../../types";
     import { formatDate } from "../../utils/index";
+    import { type Post } from "@nobit/libch/core/types";
 
     export type HoverDetail = {
         targetEl: HTMLElement;

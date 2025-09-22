@@ -1,4 +1,4 @@
-import type { Thread } from "../types";
+import type { Thread } from "@nobit/libch/core/types";
 import {
     type OperationResult,
     type ThreadDataState,

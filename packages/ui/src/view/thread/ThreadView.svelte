@@ -1,9 +1,10 @@
 <!-- src/view/thread/ThreadView.svelte -->
 <script lang="ts">
-    import type { PostData, Thread, ThreadFilters } from "../../types";
+    import type { PostData, ThreadFilters } from "../../types";
     import InlineWriteForm from "./InlineWriteForm.svelte";
     import PostItem from "./PostItem.svelte";
     import ThreadFiltersComponent from "./ThreadFilters.svelte";
+    import { type Thread } from "@nobit/libch/core/types";
 
     import type {
         ShowIdPostsDetail,
@@ -15,7 +16,7 @@
     import ThreadToolbar from "./ThreadToolbar.svelte";
 
     type Props = {
-        thread: Thread;
+        thread?: Thread | null;
         filters: ThreadFilters;
         isWriteFormVisible?: boolean;
         isSubmittingPost?: boolean;

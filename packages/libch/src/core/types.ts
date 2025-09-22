@@ -1,7 +1,7 @@
 // packages/libch/src/types.ts
 
 export interface Post {
-    res_num: number;
+    resNum: number;
 
     authorName: string;
     mail: string;
@@ -33,7 +33,7 @@ export interface OldThread {
     title: string;
     posts: Post[];
     url: string;
-    id: string;
+    // id: string;
 }
 
 export interface Thread extends OldThread {

@@ -5,6 +5,7 @@ import type {
     PostResult,
     SubjectItem,
     OldThread,
+    Thread,
 } from "./types";
 
 /**
@@ -49,7 +50,7 @@ export interface BBSProvider {
      * @param threadUrl - 投稿一覧を取得するスレッドのURL
      * @returns 投稿のリストを含むオブジェクト
      */
-    getThread(threadUrl: string): Promise<OldThread>;
+    getThread(threadUrl: string): Promise<Thread>;
 
     /**
      * 指定されたスレッドに新しい投稿を書き込みます。

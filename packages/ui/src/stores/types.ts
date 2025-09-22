@@ -1,7 +1,7 @@
 // --- 依存関係のインターフェース定義
 
+import type { Thread } from "@nobit/libch/core/types";
 import type {
-    Thread,
     PostData,
     PostResult,
     SubjectItem,
