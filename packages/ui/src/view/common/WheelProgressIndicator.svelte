@@ -82,6 +82,8 @@
 
     .icon {
         line-height: 1;
+        height: var(--nobit-size-4-4);
+        width: var(--nobit-size-4-4);
     }
 
     .progress-bar-wrapper {

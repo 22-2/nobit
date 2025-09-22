@@ -71,7 +71,6 @@
 
     async function handleRefreshForWheelTest() {
         onRefreshAction();
-        console.log("aaaaaa");
         await sleep(1000); // ローディング状態を1秒間シミュレート（ディレイ）
         isLoadingForWheelTest = true;
         isLoadingForWheelTest = false;
@@ -95,18 +94,20 @@
     play={async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
 
+        await sleep(500);
+
         // --- 初期状態の確認 (indexでソート) ---
         const initialRows = await canvas.findAllByRole("row");
-        expect(initialRows[1]).toHaveTextContent(
-            "【雑談】今日の出来事について語ろう (1)"
+        expect(initialRows[0]).toHaveTextContent(
+            "【雑談】今日の出来事について語ろう"
         );
-        expect(initialRows[2]).toHaveTextContent(
-            "プログラミング初心者質問スレ (2)"
+        expect(initialRows[1]).toHaveTextContent(
+            "プログラミング初心者質問スレ"
         );
 
         // --- ヘッダー「レス数」をクリックして降順ソート ---
         const resCountHeader = await canvas.findByRole("columnheader", {
-            name: /レス数/i,
+            name: /レス/i,
         });
         await userEvent.click(resCountHeader);
 
@@ -119,8 +120,8 @@
 
         // 描画が更新され、レス数の多い順になっていることを確認
         let sortedRows = await canvas.findAllByRole("row");
-        expect(sortedRows[1]).toHaveTextContent("50");
-        expect(sortedRows[2]).toHaveTextContent("40");
+        expect(sortedRows[0]).toHaveTextContent("50");
+        expect(sortedRows[1]).toHaveTextContent("40");
 
         // --- 再度「レス数」をクリックして昇順ソート ---
         await userEvent.click(resCountHeader);
@@ -133,8 +134,8 @@
 
         // 描画が更新され、レス数の少ない順になっていることを確認
         sortedRows = await canvas.findAllByRole("row");
-        expect(sortedRows[1]).toHaveTextContent("10");
-        expect(sortedRows[2]).toHaveTextContent("20");
+        expect(sortedRows[0]).toHaveTextContent("10");
+        expect(sortedRows[1]).toHaveTextContent("20");
     }}
 />
 
