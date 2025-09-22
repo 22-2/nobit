@@ -83,8 +83,8 @@
                     Direction: {wheelState.direction ?? "none"}
                 </p>
                 <p data-testid="state-count">Count: {wheelState.count}</p>
-                <p data-testid="state-cooldown">
-                    isCoolingDown: {wheelState.isCoolingDown}
+                <p data-testid="state-status">
+                    Status: {wheelState.status}
                 </p>
                 <p data-testid="state-refreshing">
                     isRefreshing: {isRefreshing}
@@ -114,8 +114,8 @@
                     Direction: {wheelState.direction ?? "none"}
                 </p>
                 <p data-testid="state-count">Count: {wheelState.count}</p>
-                <p data-testid="state-cooldown">
-                    isCoolingDown: {wheelState.isCoolingDown}
+                <p data-testid="state-status">
+                    Status: {wheelState.status}
                 </p>
                 <p data-testid="state-refreshing">
                     isRefreshing: {isRefreshing}
