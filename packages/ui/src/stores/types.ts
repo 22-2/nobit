@@ -23,9 +23,9 @@ export interface INotifier {
 }
 
 export interface ILogger {
-    info(message: any): void;
-    warn(message: any): void;
-    error(message: any): void;
+    info(...message: any): void;
+    warn(...message: any): void;
+    error(...message: any): void;
 }
 
 // --- ストアごとの依存関係を定義 (新規) ---
