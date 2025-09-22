@@ -6,11 +6,6 @@
         "downlevelIteration": true,
         "types": ["node", "obsidian-typings"]
     },
-    "include": [
-        "src/**/*.d.ts",
-        "src/**/*.ts",
-        "src/**/*.js",
-        "src/**/*.svelte"
-    ],
+    "include": ["src/**/*.ts", "./esbuild.config.mts"],
     "exclude": ["node_modules/*"]
 }

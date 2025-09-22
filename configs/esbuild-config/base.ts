@@ -71,9 +71,7 @@ export async function runBuild({
         const baseConfig = createBaseConfig(mode);
 
         // エントリーポイントをglobパターンから解決
-        const entryPoints = Array.isArray(entryPointsPattern)
-            ? entryPointsPattern
-            : await glob(entryPointsPattern);
+        const entryPoints = await getEntryPoints(entryPointsPattern);
 
         if (entryPoints.length === 0) {
             console.log("ℹ️ No entry points found. Exiting.");
@@ -142,3 +140,16 @@ export async function runBuild({
 //     entryPoints: ["src/index.ts"],
 //   });
 // }
+
+export async function getEntryPoints(
+    pattarns: string[] | string
+): Promise<string[]> {
+    if (Array.isArray(pattarns)) {
+        const results = await Promise.all(
+            pattarns.map((pat) => getEntryPoints(pat))
+        );
+        return results.flat();
+    } else {
+        return glob(pattarns);
+    }
+}
