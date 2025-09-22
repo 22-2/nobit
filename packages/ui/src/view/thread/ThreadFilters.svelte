@@ -2,8 +2,8 @@
 <script lang="ts">
     import type { ThreadFilters } from "../../types";
 
-    // Tabler Icons
-    import { Heart, Image, Video, Search } from "@lucide/svelte";
+    import "@lucide/svelte";
+    import { Heart, Image, Video, Search } from "lucide-svelte";
 
     let {
         filters = $bindable({

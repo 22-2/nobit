@@ -64,9 +64,10 @@
         "vitest": "^3.2.4"
     },
     "dependencies": {
-        "@nobit/libch": "workspace:*",
         "@lucide/svelte": "^0.544.0",
+        "@nobit/libch": "workspace:*",
         "date-fns": "^4.1.0",
-        "loglevel": "^1.9.2"
+        "loglevel": "^1.9.2",
+        "lucide-svelte": "^0.544.0"
     }
 }
