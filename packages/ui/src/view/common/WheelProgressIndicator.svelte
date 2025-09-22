@@ -9,6 +9,7 @@
 
     let shouldBeVisible = $derived(
         (wheelState.count > 0 && wheelState.status === "wheeling") ||
+            wheelState.status === "refreshing" ||
             wheelState.status === "success"
     );
 
@@ -35,13 +36,11 @@
         }
     }
 
-    // ▼▼▼ ここからが変更点 ▼▼▼
     // コンポーネントが画面から完全に消えた後に呼ばれる関数
     function handleOutroEnd() {
         // 次の表示に備えて、ここで初めてロックを解除する
         lockedDirection = null;
     }
-    // ▲▲▲ ここまでが変更点 ▲▲▲
 
     let label = $derived(
         isSuccessAnimationDone
@@ -65,7 +64,8 @@
     <span class="progress-bar-wrapper">
         <div
             class="progress-bar"
-            style="width: {wheelState.status === 'success'
+            style="width: {wheelState.status === 'success' ||
+            wheelState.status === 'refreshing'
                 ? '100%'
                 : Math.min(
                       (wheelState.count / wheelState.threshold) * 100,

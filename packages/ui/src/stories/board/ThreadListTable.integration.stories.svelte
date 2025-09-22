@@ -13,11 +13,6 @@
     } from "storybook/test";
     import { sleep } from "../helpers/utils";
 
-    const onRefreshSlow = async (viFn = fn) => {
-        await sleep(3000);
-        viFn();
-    };
-
     // サンプルデータの生成（ソート結果が明確になるよう resCount を調整）
     const generateSampleThreads = (count = 20) => {
         const titles = [
@@ -70,6 +65,18 @@
     });
 </script>
 
+<script>
+    let isLoadingForWheelTest = $state(false);
+    const onRefreshAction = fn();
+
+    async function handleRefreshForWheelTest() {
+        onRefreshAction();
+        isLoadingForWheelTest = true;
+        await sleep(1500); // ローディング状態をシミュレート
+        isLoadingForWheelTest = false;
+    }
+</script>
+
 <!-- 1. ソート機能のインタラクションテスト -->
 <Story
     name="Sorting Interaction"
@@ -79,7 +86,7 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: false,
         onSortChange: fn(),
-        onRefresh: onRefreshSlow,
+        onRefresh: fn(),
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
@@ -139,7 +146,7 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: false,
         onSortChange: fn(),
-        onRefresh: onRefreshSlow,
+        onRefresh: fn(),
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
@@ -187,7 +194,7 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: true,
         onSortChange: fn(),
-        onRefresh: onRefreshSlow,
+        onRefresh: fn(),
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
@@ -212,7 +219,7 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: true,
         onSortChange: fn(),
-        onRefresh: onRefreshSlow,
+        onRefresh: fn(),
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
@@ -239,7 +246,7 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: false,
         onSortChange: fn(),
-        onRefresh: onRefreshSlow,
+        onRefresh: fn(),
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
@@ -261,7 +268,7 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: false,
         onSortChange: fn(),
-        onRefresh: onRefreshSlow,
+        onRefresh: onRefreshAction, // onRefreshAction を args に渡す
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
@@ -269,26 +276,43 @@
     play={async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
         const table = canvas.getByRole("table");
-        // ThreadTableBodyコンポーネント内のスクロール可能要素を取得
         const scrollContainer = table.lastElementChild;
 
-        // scrollTop を 0 に設定して一番上にいる状態をシミュレート
         scrollContainer.scrollTop = 0;
 
-        // onRefreshが呼ばれるまで上にスクロールするホイールイベントを発生させる
-        // デフォルトのしきい値は7回
         for (let i = 0; i < 7; i++) {
             fireEvent.wheel(scrollContainer, { deltaY: -100 });
         }
-
-        // リフレッシュインジケータが表示されるのを待つ
-        await waitFor(() => {
-            expect(canvas.getByText("↑")).toBeInTheDocument();
-        });
 
         // onRefreshコールバックが1回呼ばれたことを確認
         await waitFor(() => {
             expect(args.onRefresh).toHaveBeenCalledTimes(1);
         });
+
+        // ローディングスピナーが表示されるのを待つ
+        await waitFor(() => {
+            expect(
+                canvas.getByRole("status", { name: /読み込み中/i })
+            ).toBeInTheDocument();
+        });
+
+        // ローディング完了後、成功インジケータが表示されるのを待つ
+        await waitFor(
+            () => {
+                expect(canvas.getByText("✅️")).toBeInTheDocument();
+            },
+            { timeout: 2000 }
+        ); // handleRefresh の sleep より長く待つ
+
+        // スピナーが消えていることも確認
+        expect(
+            canvas.queryByRole("status", { name: /読み込み中/i })
+        ).not.toBeInTheDocument();
     }}
-/>
+>
+    <ThreadListTable
+        {...args}
+        isLoading={isLoadingForWheelTest}
+        onRefresh={handleRefreshForWheelTest}
+    />
+</Story>

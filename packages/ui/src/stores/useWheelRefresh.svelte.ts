@@ -13,8 +13,7 @@ interface WheelRefreshOptions {
     down?: DirectionalRefreshConfig;
 }
 
-type WheelDirection = "up" | "down";
-type WheelStatus = "idle" | "wheeling" | "success";
+export type WheelStatus = "idle" | "wheeling" | "refreshing" | "success";
 
 export interface WheelState {
     status: WheelStatus;
@@ -30,6 +29,8 @@ interface ScrollInfo {
     isAtTop: boolean;
     isAtBottom: boolean;
 }
+
+type WheelDirection = "up" | "down";
 
 export function useWheelRefresh({
     getScrollElement,
@@ -58,6 +59,8 @@ export function useWheelRefresh({
 
     function startSuccessDisplay(): void {
         wheelState.status = "success";
+        wheelState.count = 0;
+        wheelState.direction = null;
         clearTimer(successTimer);
         successTimer = setTimeout(() => {
             // 成功表示後、直接 idle に移行
@@ -69,9 +72,13 @@ export function useWheelRefresh({
     }
 
     function resetWheelState(): void {
-        if (wheelState.status !== "success") {
-            wheelState.status = "idle";
+        if (
+            wheelState.status === "success" ||
+            wheelState.status === "refreshing"
+        ) {
+            return;
         }
+        wheelState.status = "idle";
         wheelState.count = 0;
         wheelState.direction = null;
         wheelState.threshold = DEFAULT_WHEEL_THRESHOLD;
@@ -145,39 +152,43 @@ export function useWheelRefresh({
         resetTimer = setTimeout(resetWheelState, RESET_DELAY);
     }
 
-    function triggerRefresh(config: DirectionalRefreshConfig): void {
+    async function triggerRefresh(
+        config: DirectionalRefreshConfig
+    ): Promise<void> {
         clearTimer(resetTimer);
         resetTimer = null;
 
-        wheelState.count = 0;
-        wheelState.direction = null;
+        wheelState.status = "refreshing";
 
-        config.onRefresh().finally(() => {
+        try {
+            await config.onRefresh();
+        } finally {
             startSuccessDisplay();
-        });
+        }
     }
 
-    function handleWheelAtEdge(
+    async function handleWheelAtEdge(
         e: WheelEvent,
         direction: WheelDirection,
         config: DirectionalRefreshConfig,
         scrollInfo: ScrollInfo
-    ): void {
+    ): Promise<void> {
         e.preventDefault();
         scheduleReset();
         updateWheelStateForWheeling(direction, config);
 
         if (shouldTriggerRefresh(direction, scrollInfo, wheelState.threshold)) {
-            triggerRefresh(config);
+            await triggerRefresh(config);
         }
     }
 
-    const handleWheel = (e: WheelEvent) => {
+    const handleWheel = async (e: WheelEvent) => {
         const scrollContainerEl = getScrollElement();
         if (
             !scrollContainerEl ||
             !isEnabled() ||
-            wheelState.status === "success"
+            wheelState.status === "success" ||
+            wheelState.status === "refreshing"
         ) {
             return;
         }
@@ -192,7 +203,7 @@ export function useWheelRefresh({
         const scrollInfo = getScrollInfo(scrollContainerEl);
 
         if (isAtScrollEdge(direction, scrollInfo)) {
-            handleWheelAtEdge(e, direction, config, scrollInfo);
+            await handleWheelAtEdge(e, direction, config, scrollInfo);
         } else if (wheelState.status === "wheeling") {
             // ホイール中にスクロール端から離れたらリセット
             resetWheelState();
@@ -210,7 +221,13 @@ export function useWheelRefresh({
                 scrollContainerEl.removeEventListener("wheel", handleWheel);
             };
         } else {
-            resetWheelState();
+            // リフレッシュ処理中はリセットしない
+            if (
+                wheelState.status !== "refreshing" &&
+                wheelState.status !== "success"
+            ) {
+                resetWheelState();
+            }
         }
     });
 
