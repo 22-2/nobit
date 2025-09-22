@@ -3,14 +3,14 @@
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import { userEvent, within, expect, fn } from "storybook/test";
     import ThreadView from "../../view/thread/ThreadView.svelte";
-    import { createThreadDataStore } from "../../stores/threadDataStore.svelte";
+    import { createThreadDataStore } from "../../stores/threadDataStore.svelte.ts";
     import type {
         Thread,
         Post,
         PostData,
         PostResult,
     } from "@nobit/libch/core/types";
-    import type { BbsProvider } from "@nobit/libch/core/provider";
+    import type { BbsProvider } from "@nobit/libch/provider";
 
     // --- モックデータとヘルパー関数 ---
 
@@ -82,7 +82,7 @@
 
     const { Story } = defineMeta({
         title: "Thread/ThreadView",
-        component: ThreadView,
+        component: ThreadView, // ここでレンダリングするコンポーネントを指定
         tags: ["autodocs"],
         parameters: {
             layout: "fullscreen",
@@ -91,68 +91,88 @@
 </script>
 
 <!-- 正常に読み込み、スレッドが表示されるデフォルトの状態 -->
-<Story name="Default">
-    {@const provider = {
-        getThread: fn(async (url: string) => {
-            await new Promise((r) => setTimeout(r, 500));
-            return generateSampleThread(50);
+<Story
+    name="Default"
+    args={{
+        store: createMockStore({
+            getThread: fn(async (url: string) => {
+                await new Promise((r) => setTimeout(r, 500));
+                return generateSampleThread(50);
+            }),
+            post: fn(),
         }),
-        post: fn(),
     }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- 初回データ読み込み中の状態 -->
-<Story name="Loading">
-    {@const provider = {
-        getThread: fn((url: string) => new Promise(() => {})), // 解決しないPromise
-        post: fn(),
+<Story
+    name="Loading"
+    args={{
+        store: createMockStore({
+            getThread: fn((url: string) => new Promise(() => {})), // 解決しないPromise
+            post: fn(),
+        }),
     }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- データ読み込みに失敗した状態 -->
-<Story name="Error">
-    {@const provider = {
-        getThread: fn(async (url: string) => {
-            await new Promise((r) => setTimeout(r, 500));
-            throw new Error("ネットワークエラーが発生しました。");
+<Story
+    name="Error"
+    args={{
+        store: createMockStore({
+            getThread: fn(async (url: string) => {
+                await new Promise((r) => setTimeout(r, 500));
+                throw new Error("ネットワークエラーが発生しました。");
+            }),
+            post: fn(),
         }),
-        post: fn(),
     }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- データ表示中に再読み込みしている状態 -->
-<Story name="Refreshing">
-    {@const provider = {
-        getThread: fn((url: string) => new Promise(() => {})), // 再読み込みが終わらない
-        post: fn(),
+<Story
+    name="Refreshing"
+    args={{
+        store: createMockStore(
+            {
+                getThread: fn((url: string) => new Promise(() => {})), // 再読み込みが終わらない
+                post: fn(),
+            },
+            generateSampleThread(15)
+        ),
     }}
-    {@const store = createMockStore(provider, generateSampleThread(15))}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- ポストが一つもない空のスレッドの状態 -->
-<Story name="EmptyThread">
-    {@const provider = {
-        getThread: fn(async (url: string) => {
-            await new Promise((r) => setTimeout(r, 500));
-            const thread = generateSampleThread(0);
-            return { ...thread, posts: [] };
+<Story
+    name="EmptyThread"
+    args={{
+        store: createMockStore({
+            getThread: fn(async (url: string) => {
+                await new Promise((r) => setTimeout(r, 500));
+                const thread = generateSampleThread(0);
+                return { ...thread, posts: [] };
+            }),
+            post: fn(),
         }),
-        post: fn(),
     }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- ツールバーから投稿フォームを開いた状態 (インタラクションテスト) -->
 <Story
     name="WithWriteForm"
+    args={{
+        store: createMockStore({
+            getThread: fn(async (url: string) => generateSampleThread(5)),
+            post: fn(async (url: string, data: PostData) => {
+                await new Promise((r) => setTimeout(r, 1000));
+                return {
+                    kind: "success",
+                    message: "書き込みました。",
+                } as PostResult;
+            }),
+        }),
+    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         const writeButton = await canvas.getByRole("button", {
@@ -163,24 +183,17 @@
             canvas.getByRole("textbox", { name: "Content" })
         ).toBeInTheDocument();
     }}
->
-    {@const provider = {
-        getThread: fn(async (url: string) => generateSampleThread(5)),
-        post: fn(async (url: string, data: PostData) => {
-            await new Promise((r) => setTimeout(r, 1000));
-            return {
-                kind: "success",
-                message: "書き込みました。",
-            } as PostResult;
-        }),
-    }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- 投稿処理中の状態 (インタラクションテスト) -->
 <Story
     name="Submitting"
+    args={{
+        store: createMockStore({
+            getThread: fn(async (url: string) => generateSampleThread(5)),
+            post: fn((url: string, data: PostData) => new Promise(() => {})), // 解決しない
+        }),
+    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         // フォームを開く
@@ -199,18 +212,23 @@
         // 投稿中状態（無効化）を確認
         await expect(submitButton).toBeDisabled();
     }}
->
-    {@const provider = {
-        getThread: fn(async (url: string) => generateSampleThread(5)),
-        post: fn((url: string, data: PostData) => new Promise(() => {})), // 解決しない
-    }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>
 
 <!-- 投稿に失敗した状態 (インタラクションテスト) -->
 <Story
     name="PostError"
+    args={{
+        store: createMockStore({
+            getThread: fn(async (url: string) => generateSampleThread(5)),
+            post: fn(async (url: string, data: PostData) => {
+                await new Promise((r) => setTimeout(r, 500));
+                return {
+                    kind: "error",
+                    message: "書き込みが規制されています。",
+                } as PostResult;
+            }),
+        }),
+    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         const writeButton = await canvas.getByRole("button", {
@@ -228,22 +246,12 @@
         await expect(submitButton).not.toBeDisabled();
         // フォームが閉じずにまだ表示されていることを確認
         await expect(contentBox).toBeInTheDocument();
-        // エラーメッセージが背景に表示されることを確認 (store.viewState.error)
+
+        // エラーメッセージはstoreで管理され、ThreadViewの内部で表示される
+        // ここでは、特定のUI要素としてエラーメッセージを探す
+        // 例: <p>エラー: {store.viewState.error}</p>
         await expect(
             await canvas.findByText(/エラー: 書き込みが規制されています。/)
         ).toBeInTheDocument();
     }}
->
-    {@const provider = {
-        getThread: fn(async (url: string) => generateSampleThread(5)),
-        post: fn(async (url: string, data: PostData) => {
-            await new Promise((r) => setTimeout(r, 500));
-            return {
-                kind: "error",
-                message: "書き込みが規制されています。",
-            } as PostResult;
-        }),
-    }}
-    {@const store = createMockStore(provider)}
-    <ThreadView {store} />
-</Story>
+/>

@@ -1,6 +1,6 @@
 <!-- src/lib/components/chat/PlaybackControl.svelte -->
 <script lang="ts">
-    import { Play, Pause } from "@lucide/svelte";
+    import { Play, Pause } from "lucide-svelte";
 
     // 親からイベントハンドラを直接受け取る
     type Props = {

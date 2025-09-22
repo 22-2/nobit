@@ -2,7 +2,6 @@
 <script lang="ts">
     import type { ThreadFilters } from "../../types";
 
-    import "@lucide/svelte";
     import { Heart, Image, Video, Search } from "lucide-svelte";
 
     let {

@@ -1,7 +1,7 @@
 <!-- src/components/ThreadToolbar.svelte -->
 <script lang="ts">
     // Tabler Icons
-    import { RefreshCw, Pencil } from "@lucide/svelte";
+    import { RefreshCw, Pencil } from "lucide-svelte";
 
     let { isCoolingDown, isLoading, onRefresh, onWriteButtonClick } = $props<{
         isCoolingDown?: boolean;

@@ -14,6 +14,8 @@
     };
     let { store }: Props = $props();
 
+    console.log(store);
+
     // フォームの表示状態やフィルタはViewのローカルな状態として管理
     let isWriteFormVisible = $state(false);
     let filters: ThreadFilters = $state({
