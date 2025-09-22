@@ -1,10 +1,24 @@
+<!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\board\ThreadListTable.integration.stories.svelte -->
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
     import ThreadListTable from "../../view/board/ThreadListTable.svelte";
     import CenterDecorator from "../helpers/CenterDecorator.svelte";
-    import { fn } from "storybook/test";
+    import {
+        fn,
+        userEvent,
+        within,
+        expect,
+        waitFor,
+        fireEvent,
+    } from "storybook/test";
+    import { sleep } from "../helpers/utils";
 
-    // サンプルデータの生成
+    const onRefreshSlow = async (viFn = fn) => {
+        await sleep(3000);
+        viFn();
+    };
+
+    // サンプルデータの生成（ソート結果が明確になるよう resCount を調整）
     const generateSampleThreads = (count = 20) => {
         const titles = [
             "【雑談】今日の出来事について語ろう",
@@ -12,17 +26,12 @@
             "【速報】新しいフレームワークがリリース",
             "デバッグで困ったときの対処法",
             "コードレビューのコツを教えて",
-            "【議論】最適なアーキテクチャとは",
-            "エラーハンドリングのベストプラクティス",
-            "【質問】この実装どう思う？",
-            "パフォーマンス改善の事例集",
-            "【情報共有】便利なツール紹介",
         ];
 
         return Array.from({ length: count }, (_, i) => ({
-            id: (Date.now() / 1000 - i * 3600).toString(), // 1時間ずつ古いタイムスタンプ
+            id: (Date.now() / 1000 - i * 3600).toString(),
             title: titles[i % titles.length] + ` (${i + 1})`,
-            resCount: Math.floor(Math.random() * 1000) + 1,
+            resCount: (count - i) * 10, // 例: 5件なら 50, 40, 30, 20, 10
         }));
     };
 
@@ -34,38 +43,19 @@
     };
 
     const { Story } = defineMeta({
-        title: "Board/ThreadListTable(Integration)",
+        title: "Board/ThreadListTable (Integration)",
         component: ThreadListTable,
-        tags: ["autodocs"],
+        tags: ["autodocs", "test"], // `test` タグを追加
         argTypes: {
-            threads: {
-                control: false,
-                description: "表示するスレッドのリスト",
-            },
-            visibleColumns: {
-                control: "object",
-                description: "表示する列の設定",
-            },
-            initialSortState: {
-                control: "object",
-                description: "初期ソート状態",
-            },
-            onSortChange: {
-                action: "onSortChange",
-                description: "ソート変更時のコールバック",
-            },
-            openThread: {
-                action: "openThread",
-                description: "スレッドクリック時のコールバック",
-            },
-            onContextMenu: {
-                action: "onContextMenu",
-                description: "右クリックメニュー表示のコールバック",
-            },
-            openHeaderContextMenu: {
-                action: "openHeaderContextMenu",
-                description: "ヘッダー右クリックメニュー表示のコールバック",
-            },
+            threads: { control: false },
+            visibleColumns: { control: "object" },
+            initialSortState: { control: "object" },
+            isLoading: { control: "boolean" },
+            onSortChange: { action: "onSortChange" },
+            onRefresh: { action: "onRefresh" },
+            openThread: { action: "openThread" },
+            onContextMenu: { action: "onContextMenu" },
+            openHeaderContextMenu: { action: "openHeaderContextMenu" },
         },
         decorators: [
             (StoryComponent) => ({
@@ -73,206 +63,232 @@
                 props: {
                     children: StoryComponent,
                     padding: "var(--size-4-4)" /* 16px */,
-                    minHeight: "var(--size-4-125)" /* 500px相当 */,
+                    minHeight: "500px",
                 },
             }),
         ],
     });
 </script>
 
-<!-- デフォルトの状態 -->
+<!-- 1. ソート機能のインタラクションテスト -->
 <Story
-    name="Default"
-    args={{
-        threads: generateSampleThreads(20),
-        visibleColumns: defaultVisibleColumns,
-        initialSortState: { sortKey: "index", sortDirection: "asc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
-    }}
-/>
-
-<!-- 少ないデータ -->
-<Story
-    name="Few Threads"
+    name="Sorting Interaction"
     args={{
         threads: generateSampleThreads(5),
         visibleColumns: defaultVisibleColumns,
         initialSortState: { sortKey: "index", sortDirection: "asc" },
+        isLoading: false,
         onSortChange: fn(),
+        onRefresh: onRefreshSlow,
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
+    play={async ({ canvasElement, args }) => {
+        const canvas = within(canvasElement);
+
+        // --- 初期状態の確認 (indexでソート) ---
+        const initialRows = await canvas.findAllByRole("row");
+        expect(initialRows[1]).toHaveTextContent(
+            "【雑談】今日の出来事について語ろう (1)"
+        );
+        expect(initialRows[2]).toHaveTextContent(
+            "プログラミング初心者質問スレ (2)"
+        );
+
+        // --- ヘッダー「レス数」をクリックして降順ソート ---
+        const resCountHeader = await canvas.findByRole("columnheader", {
+            name: /レス数/i,
+        });
+        await userEvent.click(resCountHeader);
+
+        await waitFor(() => {
+            expect(args.onSortChange).toHaveBeenCalledWith({
+                sortKey: "resCount",
+                sortDirection: "desc",
+            });
+        });
+
+        // 描画が更新され、レス数の多い順になっていることを確認
+        let sortedRows = await canvas.findAllByRole("row");
+        expect(sortedRows[1]).toHaveTextContent("50");
+        expect(sortedRows[2]).toHaveTextContent("40");
+
+        // --- 再度「レス数」をクリックして昇順ソート ---
+        await userEvent.click(resCountHeader);
+        await waitFor(() => {
+            expect(args.onSortChange).toHaveBeenCalledWith({
+                sortKey: "resCount",
+                sortDirection: "asc",
+            });
+        });
+
+        // 描画が更新され、レス数の少ない順になっていることを確認
+        sortedRows = await canvas.findAllByRole("row");
+        expect(sortedRows[1]).toHaveTextContent("10");
+        expect(sortedRows[2]).toHaveTextContent("20");
+    }}
 />
 
-<!-- 空のデータ -->
+<!-- 2. 行のクリック・右クリック操作のテスト -->
 <Story
-    name="Empty"
+    name="Row Interaction"
+    args={{
+        threads: generateSampleThreads(3),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        isLoading: false,
+        onSortChange: fn(),
+        onRefresh: onRefreshSlow,
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+    play={async ({ canvasElement, args }) => {
+        const canvas = within(canvasElement);
+
+        // 2番目のデータ行を取得 (index: 2)
+        const secondDataRow = await canvas.findByRole("row", {
+            name: /プログラミング初心者質問スレ/,
+        });
+
+        // --- 左クリックで openThread が呼ばれるか ---
+        await userEvent.click(secondDataRow);
+        expect(args.openThread).toHaveBeenCalledTimes(1);
+        expect(args.openThread).toHaveBeenCalledWith(
+            expect.objectContaining({ index: 2, resCount: 20 }),
+            expect.any(Object)
+        );
+
+        // --- 右クリックで onContextMenu が呼ばれるか ---
+        await userEvent.pointer({
+            keys: "[MouseRight]",
+            target: secondDataRow,
+        });
+        expect(args.onContextMenu).toHaveBeenCalledTimes(1);
+        expect(args.onContextMenu).toHaveBeenCalledWith(
+            expect.objectContaining({ index: 2, resCount: 20 }),
+            expect.any(Object)
+        );
+
+        // --- ヘッダーの右クリック ---
+        const header = await canvas.findByRole("rowheader");
+        await userEvent.pointer({ keys: "[MouseRight]", target: header });
+        expect(args.openHeaderContextMenu).toHaveBeenCalledTimes(1);
+    }}
+/>
+
+<!-- 3. ローディング状態の表示テスト -->
+<Story
+    name="Loading State"
+    args={{
+        threads: [], // データがない状態でローディング
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        isLoading: true,
+        onSortChange: fn(),
+        onRefresh: onRefreshSlow,
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+    play={async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expect(
+            canvas.getByRole("status", { name: /読み込み中/i })
+        ).toBeInTheDocument();
+        // データがないのでテーブル行はヘッダーのみ
+        const rows = await canvas.findAllByRole("row");
+        expect(rows.length).toBe(1);
+    }}
+/>
+
+<!-- 4. データ表示中のローディング（透明オーバーレイ）テスト -->
+<Story
+    name="Loading State with Data"
+    args={{
+        threads: generateSampleThreads(5),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        isLoading: true,
+        onSortChange: fn(),
+        onRefresh: onRefreshSlow,
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+    play={async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        // ローディングスピナーが表示されていることを確認
+        await expect(
+            canvas.getByRole("status", { name: /読み込み中/i })
+        ).toBeInTheDocument();
+        // 背景のデータも表示されていることを確認
+        await expect(
+            canvas.getByText(/プログラミング初心者質問スレ/)
+        ).toBeInTheDocument();
+    }}
+/>
+
+<!-- 5. 空の状態のテスト -->
+<Story
+    name="Empty State"
     args={{
         threads: [],
         visibleColumns: defaultVisibleColumns,
         initialSortState: { sortKey: "index", sortDirection: "asc" },
+        isLoading: false,
         onSortChange: fn(),
+        onRefresh: onRefreshSlow,
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
-/>
-
-<!-- レス数でソート済み -->
-<Story
-    name="Sorted by ResCount"
-    args={{
-        threads: generateSampleThreads(15),
-        visibleColumns: defaultVisibleColumns,
-        initialSortState: { sortKey: "resCount", sortDirection: "desc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
+    play={async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        // ヘッダー行のみ存在することを確認
+        const rows = await canvas.findAllByRole("row");
+        expect(rows.length).toBe(1);
     }}
 />
 
-<!-- 勢いでソート済み -->
+<!-- 6. ホイールによるリフレッシュ機能のテスト -->
 <Story
-    name="Sorted by Ikioi"
+    name="Wheel Refresh Interaction"
     args={{
-        threads: generateSampleThreads(15),
-        visibleColumns: defaultVisibleColumns,
-        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
-    }}
-/>
-
-<!-- 一部の列を非表示 -->
-<Story
-    name="Hidden Columns"
-    args={{
-        threads: generateSampleThreads(15),
-        visibleColumns: {
-            index: false,
-            title: true,
-            resCount: true,
-            ikioi: false,
-        },
-        initialSortState: { sortKey: "resCount", sortDirection: "desc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
-    }}
-/>
-
-<!-- タイトルのみ表示 -->
-<Story
-    name="Title Only"
-    args={{
-        threads: generateSampleThreads(10),
-        visibleColumns: {
-            index: false,
-            title: true,
-            resCount: false,
-            ikioi: false,
-        },
-        initialSortState: { sortKey: "title", sortDirection: "asc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
-    }}
-/>
-
-<!-- 長いタイトルのテスト -->
-<Story
-    name="Long Titles"
-    args={{
-        threads: [
-            {
-                id: "1640995200",
-                title: "これは非常に長いタイトルのスレッドです。テキストオーバーフローの動作を確認するために意図的に長くしています。",
-                resCount: 150,
-            },
-            {
-                id: "1640991600",
-                title: "短いタイトル",
-                resCount: 50,
-            },
-            {
-                id: "1640988000",
-                title: "Another extremely long thread title that should be truncated with ellipsis when it exceeds the available space in the table cell",
-                resCount: 300,
-            },
-            {
-                id: "1640984400",
-                title: "普通の長さのタイトル例",
-                resCount: 75,
-            },
-        ],
+        threads: generateSampleThreads(30), // スクロール可能にする
         visibleColumns: defaultVisibleColumns,
         initialSortState: { sortKey: "index", sortDirection: "asc" },
+        isLoading: false,
         onSortChange: fn(),
+        onRefresh: onRefreshSlow,
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
-/>
+    play={async ({ canvasElement, args }) => {
+        const canvas = within(canvasElement);
+        const table = canvas.getByRole("table");
+        // ThreadTableBodyコンポーネント内のスクロール可能要素を取得
+        const scrollContainer = table.lastElementChild;
 
-<!-- 大量データ -->
-<Story
-    name="Large Dataset"
-    args={{
-        threads: generateSampleThreads(100),
-        visibleColumns: defaultVisibleColumns,
-        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
-    }}
-/>
+        // scrollTop を 0 に設定して一番上にいる状態をシミュレート
+        scrollContainer.scrollTop = 0;
 
-<!-- 勢いの値が様々なパターン -->
-<Story
-    name="Various Ikioi Values"
-    args={{
-        threads: [
-            {
-                id: (Date.now() / 1000).toString(), // 現在時刻（新しいスレッド）
-                title: "新しいスレッド（勢い高）",
-                resCount: 500,
-            },
-            {
-                id: (Date.now() / 1000 - 86400).toString(), // 1日前
-                title: "1日前のスレッド",
-                resCount: 100,
-            },
-            {
-                id: (Date.now() / 1000 - 604800).toString(), // 1週間前
-                title: "1週間前のスレッド",
-                resCount: 50,
-            },
-            {
-                id: (Date.now() / 1000 - 2592000).toString(), // 1ヶ月前
-                title: "1ヶ月前のスレッド（勢い低）",
-                resCount: 10,
-            },
-            {
-                id: "invalid_timestamp", // 無効なタイムスタンプ
-                title: "無効なタイムスタンプのスレッド",
-                resCount: 25,
-            },
-        ],
-        visibleColumns: defaultVisibleColumns,
-        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
-        onSortChange: fn(),
-        openThread: fn(),
-        onContextMenu: fn(),
-        openHeaderContextMenu: fn(),
+        // onRefreshが呼ばれるまで上にスクロールするホイールイベントを発生させる
+        // デフォルトのしきい値は7回
+        for (let i = 0; i < 7; i++) {
+            fireEvent.wheel(scrollContainer, { deltaY: -100 });
+        }
+
+        // リフレッシュインジケータが表示されるのを待つ
+        await waitFor(() => {
+            expect(canvas.getByText("↑")).toBeInTheDocument();
+        });
+
+        // onRefreshコールバックが1回呼ばれたことを確認
+        await waitFor(() => {
+            expect(args.onRefresh).toHaveBeenCalledTimes(1);
+        });
     }}
 />

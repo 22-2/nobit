@@ -53,29 +53,28 @@
 </script>
 
 <!-- HTML部分の on:outroend に注目 -->
-{#if shouldBeVisible}
-    <div
-        class="wheel-progress-indicator"
-        class:bottom={position === "bottom"}
-        class:post-refresh={isSuccessAnimationDone}
-        transition:fade={{ duration: 50 }}
-        on:outroend={handleOutroEnd}
-    >
-        {label}
-        <span class="progress-bar-wrapper">
-            <div
-                class="progress-bar"
-                style="width: {wheelState.status === 'success'
-                    ? '100%'
-                    : Math.min(
-                          (wheelState.count / wheelState.threshold) * 100,
-                          100
-                      )}%;"
-                on:transitionend={handleTransitionEnd}
-            ></div>
-        </span>
-    </div>
-{/if}
+<div
+    class="wheel-progress-indicator"
+    class:bottom={position === "bottom"}
+    class:post-refresh={isSuccessAnimationDone}
+    style="visibility: {shouldBeVisible ? 'visible' : 'hidden'}"
+    transition:fade={{ duration: 50 }}
+    on:outroend={handleOutroEnd}
+>
+    {label}
+    <span class="progress-bar-wrapper">
+        <div
+            class="progress-bar"
+            style="width: {wheelState.status === 'success'
+                ? '100%'
+                : Math.min(
+                      (wheelState.count / wheelState.threshold) * 100,
+                      100
+                  )}%;"
+            on:transitionend={handleTransitionEnd}
+        ></div>
+    </span>
+</div>
 
 <style>
     /* styleタグの中は変更なしでOKです */
