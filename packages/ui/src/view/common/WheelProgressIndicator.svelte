@@ -16,39 +16,40 @@
     );
 </script>
 
-<div
-    class="wheel-progress-indicator"
-    class:bottom={position === "bottom"}
-    style="visibility: {shouldBeVisible ? 'visible' : 'hidden'}"
-    transition:fade={{ duration: 150 }}
->
-    <div class="indicator-content">
-        {#if wheelState.status === "refreshing"}
-            <LoadingSpinner size="small" strokeWidth={2.5} />
-        {:else if wheelState.status === "success"}
-            <span class="icon">✅️</span>
-        {:else if wheelState.status === "error"}
-            <span class="icon">❌</span>
-        {:else if wheelState.direction === "up"}
-            <span class="icon">↑</span>
-        {:else if wheelState.direction === "down"}
-            <span class="icon">↓</span>
-        {/if}
+{#if shouldBeVisible}
+    <div
+        class="wheel-progress-indicator"
+        class:bottom={position === "bottom"}
+        transition:fade={{ duration: 100 }}
+    >
+        <div class="indicator-content">
+            {#if wheelState.status === "refreshing"}
+                <LoadingSpinner size="small" strokeWidth={2.5} />
+            {:else if wheelState.status === "success"}
+                <span class="icon">✅️</span>
+            {:else if wheelState.status === "error"}
+                <span class="icon">❌</span>
+            {:else if wheelState.direction === "up"}
+                <span class="icon">↑</span>
+            {:else if wheelState.direction === "down"}
+                <span class="icon">↓</span>
+            {/if}
 
-        <span class="progress-bar-wrapper">
-            <div
-                class="progress-bar"
-                style="
+            <span class="progress-bar-wrapper">
+                <div
+                    class="progress-bar"
+                    style="
                 width: {wheelState.status === 'success'
-                    ? '100%'
-                    : Math.min(
-                          (wheelState.count / wheelState.threshold) * 100,
-                          100
-                      )}%;"
-            ></div>
-        </span>
+                        ? '100%'
+                        : Math.min(
+                              (wheelState.count / wheelState.threshold) * 100,
+                              100
+                          )}%;"
+                ></div>
+            </span>
+        </div>
     </div>
-</div>
+{/if}
 
 <style>
     .wheel-progress-indicator {
