@@ -44,6 +44,9 @@
         },
     });
 
+    // 最終的なローディング状態を、外部propのみから算出する
+    const shouldShowLoading = $derived(isLoading);
+
     // Helper function for ikioi calculation
     function calculateIkioi(thread: SubjectItem): number {
         const threadTime = parseInt(thread.id, 10);
@@ -85,12 +88,8 @@
         position="top"
     />
 
-    {#if isLoading && threads.length === 0}
+    {#if shouldShowLoading}
         <div class="loading-overlay">
-            <LoadingSpinner size="large" />
-        </div>
-    {:else if isLoading}
-        <div class="loading-overlay-transparent">
             <LoadingSpinner size="large" />
         </div>
     {/if}

@@ -72,7 +72,7 @@
     async function handleRefreshForWheelTest() {
         onRefreshAction();
         isLoadingForWheelTest = true;
-        await sleep(1500); // ローディング状態をシミュレート
+        await sleep(1000); // ローディング状態を1秒間シミュレート（ディレイ）
         isLoadingForWheelTest = false;
     }
 </script>
@@ -280,6 +280,7 @@
 
         scrollContainer.scrollTop = 0;
 
+        // リフレッシュの閾値（デフォルトは7）までホイールイベントを発火
         for (let i = 0; i < 7; i++) {
             fireEvent.wheel(scrollContainer, { deltaY: -100 });
         }
@@ -289,22 +290,23 @@
             expect(args.onRefresh).toHaveBeenCalledTimes(1);
         });
 
-        // ローディングスピナーが表示されるのを待つ
+        // onRefreshが呼ばれ、isLoading=trueになることでローディングスピナーが表示されるのを待つ
+        // これが「ディレイ」中にスピナーが表示されている状態のテスト
         await waitFor(() => {
             expect(
                 canvas.getByRole("status", { name: /読み込み中/i })
             ).toBeInTheDocument();
         });
 
-        // ローディング完了後、成功インジケータが表示されるのを待つ
+        // ローディング完了後（sleep後）、成功インジケータが表示されるのを待つ
         await waitFor(
             () => {
                 expect(canvas.getByText("✅️")).toBeInTheDocument();
             },
-            { timeout: 2000 }
-        ); // handleRefresh の sleep より長く待つ
+            { timeout: 2000 } // handleRefresh の sleep(1000ms) より長く待つ
+        );
 
-        // スピナーが消えていることも確認
+        // 成功インジケータが表示された後、スピナーが消えていることも確認
         expect(
             canvas.queryByRole("status", { name: /読み込み中/i })
         ).not.toBeInTheDocument();

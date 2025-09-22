@@ -13,7 +13,12 @@ interface WheelRefreshOptions {
     down?: DirectionalRefreshConfig;
 }
 
-export type WheelStatus = "idle" | "wheeling" | "refreshing" | "success";
+export type WheelStatus =
+    | "idle"
+    | "wheeling"
+    | "refreshing"
+    | "success"
+    | "error";
 
 export interface WheelState {
     status: WheelStatus;
@@ -41,7 +46,8 @@ export function useWheelRefresh({
     const DEFAULT_WHEEL_THRESHOLD = 7;
     const RESET_DELAY = 800;
     const EDGE_BUFFER = 10;
-    const SUCCESS_DISPLAY_DURATION = 800; // 成功インジケータの表示時間
+    const SUCCESS_DISPLAY_DURATION = 800;
+    const ERROR_DISPLAY_DURATION = 1500;
 
     let wheelState = $state<WheelState>({
         status: "idle",
@@ -50,31 +56,35 @@ export function useWheelRefresh({
         threshold: DEFAULT_WHEEL_THRESHOLD,
     });
     let resetTimer: ReturnType<typeof setTimeout> | null = null;
-    let successTimer: ReturnType<typeof setTimeout> | null = null;
+    let transitionTimer: ReturnType<typeof setTimeout> | null = null;
     let refreshTriggerLineEl = $state<HTMLElement | undefined>();
 
     function clearTimer(timer: ReturnType<typeof setTimeout> | null): void {
         if (timer) clearTimeout(timer);
     }
 
-    function startSuccessDisplay(): void {
-        wheelState.status = "success";
+    function startTransitionToIdle(
+        newStatus: "success" | "error",
+        duration: number
+    ): void {
+        wheelState.status = newStatus;
         wheelState.count = 0;
         wheelState.direction = null;
-        clearTimer(successTimer);
-        successTimer = setTimeout(() => {
-            // 成功表示後、直接 idle に移行
-            if (wheelState.status === "success") {
+
+        clearTimer(transitionTimer);
+        transitionTimer = setTimeout(() => {
+            if (wheelState.status === newStatus) {
                 wheelState.status = "idle";
             }
-            successTimer = null;
-        }, SUCCESS_DISPLAY_DURATION);
+            transitionTimer = null;
+        }, duration);
     }
 
     function resetWheelState(): void {
         if (
             wheelState.status === "success" ||
-            wheelState.status === "refreshing"
+            wheelState.status === "refreshing" ||
+            wheelState.status === "error"
         ) {
             return;
         }
@@ -162,8 +172,10 @@ export function useWheelRefresh({
 
         try {
             await config.onRefresh();
-        } finally {
-            startSuccessDisplay();
+            startTransitionToIdle("success", SUCCESS_DISPLAY_DURATION);
+        } catch (err) {
+            console.error("Refresh action failed:", err);
+            startTransitionToIdle("error", ERROR_DISPLAY_DURATION);
         }
     }
 
@@ -187,8 +199,9 @@ export function useWheelRefresh({
         if (
             !scrollContainerEl ||
             !isEnabled() ||
+            wheelState.status === "refreshing" ||
             wheelState.status === "success" ||
-            wheelState.status === "refreshing"
+            wheelState.status === "error"
         ) {
             return;
         }
@@ -205,7 +218,6 @@ export function useWheelRefresh({
         if (isAtScrollEdge(direction, scrollInfo)) {
             await handleWheelAtEdge(e, direction, config, scrollInfo);
         } else if (wheelState.status === "wheeling") {
-            // ホイール中にスクロール端から離れたらリセット
             resetWheelState();
         }
     };
@@ -221,10 +233,10 @@ export function useWheelRefresh({
                 scrollContainerEl.removeEventListener("wheel", handleWheel);
             };
         } else {
-            // リフレッシュ処理中はリセットしない
             if (
                 wheelState.status !== "refreshing" &&
-                wheelState.status !== "success"
+                wheelState.status !== "success" &&
+                wheelState.status !== "error"
             ) {
                 resetWheelState();
             }
@@ -233,7 +245,7 @@ export function useWheelRefresh({
 
     onDestroy(() => {
         clearTimer(resetTimer);
-        clearTimer(successTimer);
+        clearTimer(transitionTimer);
     });
 
     return {
