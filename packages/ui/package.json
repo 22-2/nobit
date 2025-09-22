@@ -14,7 +14,10 @@
             "import": "./dist/*.mjs",
             "require": "./dist/*.js"
         },
-        "./*.svelte": "./src/*.svelte"
+        "./*.svelte": {
+            "types": "./src/*.d.ts",
+            "import": "./src/*.svelte"
+        }
     },
     "scripts": {
         "build": "svelte-package -o ./dist",

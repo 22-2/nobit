@@ -1,9 +1,10 @@
 {
-    "extends": "@nobit/typescript-config/base",
+    "extends": "@tsconfig/svelte/tsconfig.json",
     "compilerOptions": {
         "baseUrl": ".",
         "verbatimModuleSyntax": true,
         "downlevelIteration": true,
+        "allowArbitraryExtensions": true,
         "types": ["node", "obsidian-typings"]
     },
     "include": ["src/**/*.ts", "./esbuild.config.mts"],
