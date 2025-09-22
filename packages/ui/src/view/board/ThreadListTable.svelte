@@ -138,7 +138,7 @@
     }
     .loading-overlay-transparent {
         background-color: transparent;
-        align-items: flex-start;
+        /* align-items: flex-start; */
         padding-top: var(--nobit-size-4-10);
     }
 

@@ -55,7 +55,7 @@
     name="Default"
     args={{
         size: "medium",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -66,7 +66,7 @@
     name="Small"
     args={{
         size: "small",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -77,7 +77,7 @@
     name="Large"
     args={{
         size: "large",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -88,7 +88,7 @@
     name="Extra Large"
     args={{
         size: "extra-large",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -99,7 +99,7 @@
     name="Success Color"
     args={{
         size: "medium",
-        color: "var(--color-green)",
+        color: "var(--nobit-color-green)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -110,7 +110,7 @@
     name="Warning Color"
     args={{
         size: "medium",
-        color: "var(--color-orange)",
+        color: "var(--nobit-color-orange)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -121,7 +121,7 @@
     name="Error Color"
     args={{
         size: "medium",
-        color: "var(--color-red)",
+        color: "var(--nobit-color-red)",
         strokeWidth: 2,
         speed: "normal",
     }}
@@ -132,7 +132,7 @@
     name="Thick Stroke"
     args={{
         size: "medium",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 4,
         speed: "normal",
     }}
@@ -143,7 +143,7 @@
     name="Thin Stroke"
     args={{
         size: "medium",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 1,
         speed: "normal",
     }}
@@ -154,7 +154,7 @@
     name="Fast Animation"
     args={{
         size: "medium",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 2,
         speed: "fast",
     }}
@@ -165,7 +165,7 @@
     name="Slow Animation"
     args={{
         size: "medium",
-        color: "var(--interactive-accent)",
+        color: "var(--nobit-interactive-accent)",
         strokeWidth: 2,
         speed: "slow",
     }}
@@ -270,7 +270,7 @@
         "
         >
             <div style="text-align: center;">
-                <LoadingSpinner color="var(--interactive-accent)" />
+                <LoadingSpinner color="var(--nobit-interactive-accent)" />
                 <p
                     style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
                 >
@@ -278,7 +278,7 @@
                 </p>
             </div>
             <div style="text-align: center;">
-                <LoadingSpinner color="var(--text-normal)" />
+                <LoadingSpinner color="var(--nobit-text-normal)" />
                 <p
                     style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
                 >
@@ -286,7 +286,7 @@
                 </p>
             </div>
             <div style="text-align: center;">
-                <LoadingSpinner color="var(--text-muted)" />
+                <LoadingSpinner color="var(--nobit-text-muted)" />
                 <p
                     style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
                 >
@@ -294,7 +294,7 @@
                 </p>
             </div>
             <div style="text-align: center;">
-                <LoadingSpinner color="var(--color-green)" />
+                <LoadingSpinner color="var(--nobit-color-green)" />
                 <p
                     style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
                 >
@@ -302,7 +302,7 @@
                 </p>
             </div>
             <div style="text-align: center;">
-                <LoadingSpinner color="var(--color-orange)" />
+                <LoadingSpinner color="var(--nobit-color-orange)" />
                 <p
                     style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
                 >
@@ -310,7 +310,7 @@
                 </p>
             </div>
             <div style="text-align: center;">
-                <LoadingSpinner color="var(--color-red)" />
+                <LoadingSpinner color="var(--nobit-color-red)" />
                 <p
                     style="margin-top: var(--size-4-1); font-size: var(--font-ui-smaller);"
                 >
