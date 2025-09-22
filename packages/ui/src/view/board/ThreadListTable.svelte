@@ -20,7 +20,7 @@
         openThread: (thread: ThreadItem, e: MouseEvent) => void;
         onContextMenu: (thread: ThreadItem, e: MouseEvent) => void;
         openHeaderContextMenu: (e: MouseEvent) => void;
-        networkDelay: number;
+        networkDelay?: number;
     };
 
     let {

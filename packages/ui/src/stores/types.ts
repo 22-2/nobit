@@ -146,10 +146,16 @@ export interface TableHeaderItem {
 export type SortDirection = "asc" | "desc";
 /** ソーターの状態 */
 
-export type SorterState = {
+export type SorterState<T = any> = {
     sortKey: ColumnKey | null;
     sortDirection: SortDirection;
 };
+
+export type SorterStore<T = any> = SorterState<T> & {
+    sortedItems: () => T[];
+    setSort: (newKey: string) => void;
+};
+
 /**
  * ソート可能なカラムの設定
  * @template T - ソート対象のアイテムの型

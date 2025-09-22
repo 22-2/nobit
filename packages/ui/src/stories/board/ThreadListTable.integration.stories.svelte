@@ -34,7 +34,7 @@
     };
 
     const { Story } = defineMeta({
-        title: "Board/ThreadListTable",
+        title: "Board/ThreadListTable(Integration)",
         component: ThreadListTable,
         tags: ["autodocs"],
         argTypes: {
@@ -86,7 +86,7 @@
     args={{
         threads: generateSampleThreads(20),
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "index", direction: "asc" },
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -100,7 +100,7 @@
     args={{
         threads: generateSampleThreads(5),
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "index", direction: "asc" },
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -114,7 +114,7 @@
     args={{
         threads: [],
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "index", direction: "asc" },
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -128,7 +128,7 @@
     args={{
         threads: generateSampleThreads(15),
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "resCount", direction: "desc" },
+        initialSortState: { sortKey: "resCount", sortDirection: "desc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -142,7 +142,7 @@
     args={{
         threads: generateSampleThreads(15),
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "ikioi", direction: "desc" },
+        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -161,7 +161,7 @@
             resCount: true,
             ikioi: false,
         },
-        initialSortState: { key: "resCount", direction: "desc" },
+        initialSortState: { sortKey: "resCount", sortDirection: "desc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -180,7 +180,7 @@
             resCount: false,
             ikioi: false,
         },
-        initialSortState: { key: "title", direction: "asc" },
+        initialSortState: { sortKey: "title", sortDirection: "asc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -215,7 +215,7 @@
             },
         ],
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "index", direction: "asc" },
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -229,7 +229,7 @@
     args={{
         threads: generateSampleThreads(100),
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "ikioi", direction: "desc" },
+        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),
@@ -269,7 +269,7 @@
             },
         ],
         visibleColumns: defaultVisibleColumns,
-        initialSortState: { key: "ikioi", direction: "desc" },
+        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
         onSortChange: fn(),
         openThread: fn(),
         onContextMenu: fn(),

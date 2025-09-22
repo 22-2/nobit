@@ -1,4 +1,4 @@
-import type { SorterColumns, SorterState } from "./types";
+import type { SorterColumns, SorterState, SorterStore } from "./types";
 
 /**
  * Svelte 5 runes を利用して、配列のソート状態を管理するコンポーザブル関数。
@@ -13,9 +13,9 @@ import type { SorterColumns, SorterState } from "./types";
 export function useSorter<T>(
     getItems: () => T[],
     columns: SorterColumns<T>,
-    initialState: SorterState,
-    onSortChange: (newState: SorterState) => void
-) {
+    initialState: SorterState<T>,
+    onSortChange: (newState: SorterState<T>) => void
+): SorterStore<T> {
     let sortKey = $state(initialState.sortKey);
     let sortDirection = $state(initialState.sortDirection);
 
@@ -45,7 +45,12 @@ export function useSorter<T>(
         }
 
         // Notify callback
-        onSortChange({ sortKey: sortKey, sortDirection: sortDirection });
+        onSortChange({
+            sortKey,
+            sortDirection,
+            // sortedItems: getItems,
+            // setSort,
+        });
     }
 
     const sortedItems = $derived(() => {

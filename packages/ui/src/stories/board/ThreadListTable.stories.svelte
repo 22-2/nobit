@@ -1,49 +1,29 @@
-<script module lang="ts">
+<script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
-    import { createBoardDataStore } from "../../stores/boardDataStore.svelte";
-    import type { IBoardProvider, ILogger } from "../../stores/types";
     import ThreadListTable from "../../view/board/ThreadListTable.svelte";
-    import { fn, userEvent, within } from "storybook/test";
+    import CenterDecorator from "../helpers/CenterDecorator.svelte";
+    import { fn } from "storybook/test";
 
-    // --- Mock Data and Services ---
+    // サンプルデータの生成
+    const generateSampleThreads = (count = 20) => {
+        const titles = [
+            "【雑談】今日の出来事について語ろう",
+            "プログラミング初心者質問スレ",
+            "【速報】新しいフレームワークがリリース",
+            "デバッグで困ったときの対処法",
+            "コードレビューのコツを教えて",
+            "【議論】最適なアーキテクチャとは",
+            "エラーハンドリングのベストプラクティス",
+            "【質問】この実装どう思う？",
+            "パフォーマンス改善の事例集",
+            "【情報共有】便利なツール紹介",
+        ];
 
-    const mockThreads = Array.from({ length: 50 }, (_, i) => ({
-        id: (Date.now() / 1000 - i * 3600 - 1000).toString(),
-        title: `【テスト】スレッドのタイトル${i + 1}`,
-        resCount: Math.floor(Math.random() * 1000) + 1,
-    }));
-
-    const createMockBoardProvider = ({
-        networkDelay = 0,
-        shouldFail = false,
-        isEmpty = false,
-    } = {}): IBoardProvider => ({
-        getThreads: async (url: string) => {
-            console.log(
-                `[Mock] Fetching threads from ${url} with ${networkDelay}ms delay...`
-            );
-            await new Promise((resolve) => setTimeout(resolve, networkDelay));
-            if (shouldFail) {
-                throw new Error("モック: スレッド一覧の取得に失敗しました。");
-            }
-            return isEmpty ? [] : mockThreads;
-        },
-        getBoardTitle: async (url: string) => {
-            console.log(`[Mock] Fetching board title from ${url}...`);
-            await new Promise((resolve) =>
-                setTimeout(resolve, networkDelay / 2)
-            );
-            if (shouldFail) {
-                throw new Error("モック: 板タイトルの取得に失敗しました。");
-            }
-            return "テスト用掲示板";
-        },
-    });
-
-    const mockLogger: ILogger = {
-        info: console.info,
-        warn: console.warn,
-        error: console.error,
+        return Array.from({ length: count }, (_, i) => ({
+            id: (Date.now() / 1000 - i * 3600).toString(), // 1時間ずつ古いタイムスタンプ
+            title: titles[i % titles.length] + ` (${i + 1})`,
+            resCount: Math.floor(Math.random() * 1000) + 1,
+        }));
     };
 
     const defaultVisibleColumns = {
@@ -53,139 +33,246 @@
         ikioi: true,
     };
 
-    const defaultSortState = { sortKey: "index", sortDirection: "asc" };
-
-    // --- Storybook Meta ---
-
-    const { Story, meta } = defineMeta({
-        title: "Board/ThreadListTable (Integration)",
+    const { Story } = defineMeta({
+        title: "Board/ThreadListTable",
         component: ThreadListTable,
         tags: ["autodocs"],
         argTypes: {
-            networkDelay: {
-                control: { type: "range", min: 0, max: 5000, step: 100 },
-                description: "データ取得の擬似的な遅延 (ms)",
+            threads: {
+                control: false,
+                description: "表示するスレッドのリスト",
             },
-            shouldFail: {
-                control: "boolean",
-                description: "データ取得を強制的に失敗させるか",
+            visibleColumns: {
+                control: "object",
+                description: "表示する列の設定",
             },
-            isEmpty: {
-                control: "boolean",
-                description: "空のスレッド一覧を返すか",
+            initialSortState: {
+                control: "object",
+                description: "初期ソート状態",
+            },
+            onSortChange: {
+                action: "onSortChange",
+                description: "ソート変更時のコールバック",
+            },
+            openThread: {
+                action: "openThread",
+                description: "スレッドクリック時のコールバック",
+            },
+            onContextMenu: {
+                action: "onContextMenu",
+                description: "右クリックメニュー表示のコールバック",
+            },
+            openHeaderContextMenu: {
+                action: "openHeaderContextMenu",
+                description: "ヘッダー右クリックメニュー表示のコールバック",
             },
         },
+        decorators: [
+            (StoryComponent) => ({
+                Component: CenterDecorator,
+                props: {
+                    children: StoryComponent,
+                    padding: "var(--size-4-4)" /* 16px */,
+                    minHeight: "var(--size-4-125)" /* 500px相当 */,
+                },
+            }),
+        ],
     });
 </script>
 
-<script lang="ts">
-    type Args = {
-        networkDelay?: number;
-        shouldFail?: boolean;
-        isEmpty?: boolean;
-    };
-    let { args }: { args: Args } = $props();
-
-    // ストーリーが再描画されるたびにストアを再生成
-    const store = $derived(
-        createBoardDataStore({
-            initialUrl: "https://example.com/test/board/",
-            boardProvider: createMockBoardProvider(args),
-            logger: mockLogger,
-        })
-    );
-</script>
-
-<div class="story-container">
-    <div class="story-controls">
-        <p>
-            <strong>テスト用コントロール:</strong>
-            <button onclick={() => store.loadThreads()}>手動更新</button>
-            <button
-                onclick={() =>
-                    store.updateUrl("https://example.com/test/newboard/")}
-            >
-                URL更新
-            </button>
-        </p>
-        {#if store.state.error}
-            <p class="error-message">エラー: {store.state.error}</p>
-        {/if}
-    </div>
-
-    <ThreadListTable
-        threads={store.state.threads}
-        isLoading={store.state.isLoading}
-        visibleColumns={defaultVisibleColumns}
-        initialSortState={defaultSortState}
-        onRefresh={store.loadThreads}
-        onSortChange={fn()}
-        openThread={fn()}
-        onContextMenu={fn()}
-        openHeaderContextMenu={fn()}
-    />
-</div>
-
+<!-- デフォルトの状態 -->
 <Story
     name="Default"
     args={{
-        networkDelay: 500,
-        shouldFail: false,
-        isEmpty: false,
+        threads: generateSampleThreads(20),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
     }}
 />
 
+<!-- 少ないデータ -->
 <Story
-    name="Loading"
+    name="Few Threads"
     args={{
-        networkDelay: 100000, // ローディング状態を長く表示するために大きな値を設定
-        shouldFail: false,
-        isEmpty: false,
-    }}
-    play={async ({ canvasElement, step }) => {
-        const canvas = within(canvasElement);
-        await step(
-            "ローディングスピナーが表示されていることを確認",
-            async () => {
-                await canvas.findByRole("status");
-            }
-        );
+        threads: generateSampleThreads(5),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
     }}
 />
 
-<Story
-    name="Error"
-    args={{
-        networkDelay: 500,
-        shouldFail: true,
-        isEmpty: false,
-    }}
-/>
-
+<!-- 空のデータ -->
 <Story
     name="Empty"
     args={{
-        networkDelay: 500,
-        shouldFail: false,
-        isEmpty: true,
+        threads: [],
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
     }}
 />
 
-<style>
-    .story-container {
-        height: 600px;
-        width: 100%;
-        border: 1px solid var(--nobit-background-modifier-border);
-        display: flex;
-        flex-direction: column;
-    }
-    .story-controls {
-        padding: var(--nobit-size-4-2) var(--nobit-size-4-4);
-        border-bottom: 1px solid var(--nobit-background-modifier-border);
-        background-color: var(--nobit-background-secondary);
-    }
-    .error-message {
-        color: var(--nobit-text-danger);
-        font-weight: var(--nobit-font-semibold);
-    }
-</style>
+<!-- レス数でソート済み -->
+<Story
+    name="Sorted by ResCount"
+    args={{
+        threads: generateSampleThreads(15),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "resCount", sortDirection: "desc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
+
+<!-- 勢いでソート済み -->
+<Story
+    name="Sorted by Ikioi"
+    args={{
+        threads: generateSampleThreads(15),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
+
+<!-- 一部の列を非表示 -->
+<Story
+    name="Hidden Columns"
+    args={{
+        threads: generateSampleThreads(15),
+        visibleColumns: {
+            index: false,
+            title: true,
+            resCount: true,
+            ikioi: false,
+        },
+        initialSortState: { sortKey: "resCount", sortDirection: "desc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
+
+<!-- タイトルのみ表示 -->
+<Story
+    name="Title Only"
+    args={{
+        threads: generateSampleThreads(10),
+        visibleColumns: {
+            index: false,
+            title: true,
+            resCount: false,
+            ikioi: false,
+        },
+        initialSortState: { sortKey: "title", sortDirection: "asc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
+
+<!-- 長いタイトルのテスト -->
+<Story
+    name="Long Titles"
+    args={{
+        threads: [
+            {
+                id: "1640995200",
+                title: "これは非常に長いタイトルのスレッドです。テキストオーバーフローの動作を確認するために意図的に長くしています。",
+                resCount: 150,
+            },
+            {
+                id: "1640991600",
+                title: "短いタイトル",
+                resCount: 50,
+            },
+            {
+                id: "1640988000",
+                title: "Another extremely long thread title that should be truncated with ellipsis when it exceeds the available space in the table cell",
+                resCount: 300,
+            },
+            {
+                id: "1640984400",
+                title: "普通の長さのタイトル例",
+                resCount: 75,
+            },
+        ],
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "index", sortDirection: "asc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
+
+<!-- 大量データ -->
+<Story
+    name="Large Dataset"
+    args={{
+        threads: generateSampleThreads(100),
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
+
+<!-- 勢いの値が様々なパターン -->
+<Story
+    name="Various Ikioi Values"
+    args={{
+        threads: [
+            {
+                id: (Date.now() / 1000).toString(), // 現在時刻（新しいスレッド）
+                title: "新しいスレッド（勢い高）",
+                resCount: 500,
+            },
+            {
+                id: (Date.now() / 1000 - 86400).toString(), // 1日前
+                title: "1日前のスレッド",
+                resCount: 100,
+            },
+            {
+                id: (Date.now() / 1000 - 604800).toString(), // 1週間前
+                title: "1週間前のスレッド",
+                resCount: 50,
+            },
+            {
+                id: (Date.now() / 1000 - 2592000).toString(), // 1ヶ月前
+                title: "1ヶ月前のスレッド（勢い低）",
+                resCount: 10,
+            },
+            {
+                id: "invalid_timestamp", // 無効なタイムスタンプ
+                title: "無効なタイムスタンプのスレッド",
+                resCount: 25,
+            },
+        ],
+        visibleColumns: defaultVisibleColumns,
+        initialSortState: { sortKey: "ikioi", sortDirection: "desc" },
+        onSortChange: fn(),
+        openThread: fn(),
+        onContextMenu: fn(),
+        openHeaderContextMenu: fn(),
+    }}
+/>
