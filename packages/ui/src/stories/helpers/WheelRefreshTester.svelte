@@ -24,7 +24,7 @@
     }>();
 
     let scrollContainerEl: HTMLElement | undefined = $state();
-    let isRefreshing = $state(false);
+    let isPerformingRefreshAction = $state(false); // コールバック実行中のみtrue
 
     const createRefreshHandler = (
         callback?: () => Promise<void>,
@@ -34,11 +34,18 @@
 
         return {
             onRefresh: async () => {
-                isRefreshing = true;
-                await callback();
-                setTimeout(() => {
-                    isRefreshing = false;
-                }, 1000);
+                isPerformingRefreshAction = true;
+                try {
+                    await callback();
+                } finally {
+                    // コールバックが完了したら false に戻す
+                    // useWheelRefresh 内部で success -> coolingDown の遷移が制御されるため、
+                    // ここで isRefreshing を直接制御する必要はなくなる。
+                    // ただし、Storybookのテストで onUpRefresh/onDownRefresh が呼ばれたことを確認するための一時的な状態。
+                    setTimeout(() => {
+                        isPerformingRefreshAction = false;
+                    }, 500); // わずかな遅延
+                }
             },
             threshold: isUp ? upThreshold : downThreshold,
         };
@@ -47,7 +54,7 @@
     // useWheelRefresh から wheelState と bindRefreshTriggerLine を取得
     const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
         getScrollElement: () => scrollContainerEl,
-        isEnabled: () => isEnabled && !isRefreshing,
+        isEnabled: () => isEnabled && !isPerformingRefreshAction, // コールバック実行中はホイールリフレッシュを無効化
         up: createRefreshHandler(onUpRefresh, true),
         down: createRefreshHandler(onDownRefresh, false),
     });
@@ -86,11 +93,8 @@
                 <p data-testid="state-status">
                     Status: {wheelState.status}
                 </p>
-                <p data-testid="state-refreshing">
-                    isRefreshing: {isRefreshing}
-                </p>
-                <p data-testid="state-post-refresh">
-                    isShowingPostRefresh: {wheelState.isShowingPostRefresh}
+                <p data-testid="state-performing-refresh-action">
+                    isPerformingRefreshAction: {isPerformingRefreshAction}
                 </p>
             </div>
         {/if}
@@ -117,11 +121,8 @@
                 <p data-testid="state-status">
                     Status: {wheelState.status}
                 </p>
-                <p data-testid="state-refreshing">
-                    isRefreshing: {isRefreshing}
-                </p>
-                <p data-testid="state-post-refresh">
-                    isShowingPostRefresh: {wheelState.isShowingPostRefresh}
+                <p data-testid="state-performing-refresh-action">
+                    isPerformingRefreshAction: {isPerformingRefreshAction}
                 </p>
             </div>
         {/if}

@@ -53,7 +53,6 @@
             count: 4,
             threshold: 7,
             direction: "down",
-            isShowingPostRefresh: false,
         },
         position: "top",
     }}
@@ -68,7 +67,6 @@
             count: 7,
             threshold: 7,
             direction: "down",
-            isShowingPostRefresh: false,
         },
         position: "top",
     }}
@@ -85,7 +83,6 @@
                 count: 3,
                 threshold: 7,
                 direction: "up",
-                isShowingPostRefresh: false,
             },
         },
     }}
@@ -100,37 +97,20 @@
             count: 5,
             threshold: 7,
             direction: "down",
-            isShowingPostRefresh: false,
         },
         position: "bottom",
     }}
 />
 
-<!-- 5. status が 'coolingDown' で非表示になる状態 -->
+<!-- 5. リフレッシュ後の成功表示 (✅️) -->
 <Story
-    name="Hidden (Cooling Down)"
+    name="Success Indicator (Checkmark)"
     args={{
         wheelState: {
-            status: "coolingDown",
-            count: 4,
-            threshold: 7,
-            direction: "down",
-            isShowingPostRefresh: false,
-        },
-        position: "top",
-    }}
-/>
-
-<!-- 6. リフレッシュ後のインジケーター表示 (✅️) -->
-<Story
-    name="Post Refresh (Checkmark)"
-    args={{
-        wheelState: {
-            status: "coolingDown",
+            status: "success",
             count: 0,
             threshold: 7,
             direction: null,
-            isShowingPostRefresh: true,
         },
         position: "top",
     }}

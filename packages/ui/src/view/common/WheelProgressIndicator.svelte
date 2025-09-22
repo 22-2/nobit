@@ -7,14 +7,13 @@
         position?: "top" | "bottom";
     }>();
 
-    // isCoolingDown の代わりに status をチェック
     let shouldBeVisible = $derived(
-        (wheelState.count > 0 && wheelState.status !== "coolingDown") ||
-            wheelState.isShowingPostRefresh
+        (wheelState.count > 0 && wheelState.status === "wheeling") ||
+            wheelState.status === "success"
     );
 
     let label = $derived(
-        wheelState.isShowingPostRefresh
+        wheelState.status === "success"
             ? "✅️"
             : wheelState.direction === "up"
               ? "↑"
@@ -25,15 +24,15 @@
 <div
     class="wheel-progress-indicator"
     class:bottom={position === "bottom"}
+    class:post-refresh={wheelState.status === "success"}
     style="visibility: {shouldBeVisible ? 'visible' : 'hidden'};"
 >
-    <!-- isCoolingDown の代わりに status をチェック。isShowingPostRefresh が true の場合は表示を許可 -->
-    {#if wheelState.status !== "coolingDown" || wheelState.isShowingPostRefresh}
+    {#if wheelState.status !== "idle"}
         {label}
         <span class="progress-bar-wrapper">
             <div
                 class="progress-bar"
-                style="width: {wheelState.isShowingPostRefresh
+                style="width: {wheelState.status === 'success'
                     ? '100%'
                     : Math.min(
                           (wheelState.count / wheelState.threshold) * 100,

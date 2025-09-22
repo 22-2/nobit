@@ -1,5 +1,4 @@
 // E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stores\useWheelRefresh.svelte.ts
-
 import { onDestroy } from "svelte";
 
 interface DirectionalRefreshConfig {
@@ -15,14 +14,13 @@ interface WheelRefreshOptions {
 }
 
 type WheelDirection = "up" | "down";
-type WheelStatus = "idle" | "wheeling" | "coolingDown";
+type WheelStatus = "idle" | "wheeling" | "success";
 
 export interface WheelState {
     status: WheelStatus;
     count: number;
     direction: WheelDirection | null;
     threshold: number;
-    isShowingPostRefresh: boolean;
 }
 
 interface ScrollInfo {
@@ -40,38 +38,40 @@ export function useWheelRefresh({
     down,
 }: WheelRefreshOptions) {
     const DEFAULT_WHEEL_THRESHOLD = 7;
-    const COOLDOWN_PERIOD = 1000;
     const RESET_DELAY = 800;
     const EDGE_BUFFER = 10;
-    const INDICATOR_DISPLAY_DELAY = 500; // リフレッシュ後のインジケータ表示延長時間
+    const SUCCESS_DISPLAY_DURATION = 800; // 成功インジケータの表示時間
 
     let wheelState = $state<WheelState>({
         status: "idle",
         count: 0,
         direction: null,
         threshold: DEFAULT_WHEEL_THRESHOLD,
-        isShowingPostRefresh: false,
     });
     let resetTimer: ReturnType<typeof setTimeout> | null = null;
-    let cooldownTimer: ReturnType<typeof setTimeout> | null = null;
-    let postRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+    let successTimer: ReturnType<typeof setTimeout> | null = null;
     let refreshTriggerLineEl = $state<HTMLElement | undefined>();
 
     function clearTimer(timer: ReturnType<typeof setTimeout> | null): void {
         if (timer) clearTimeout(timer);
     }
 
-    function startPostRefreshDisplay(): void {
-        wheelState.isShowingPostRefresh = true;
-        clearTimer(postRefreshTimer);
-        postRefreshTimer = setTimeout(() => {
-            wheelState.isShowingPostRefresh = false;
-            postRefreshTimer = null;
-        }, INDICATOR_DISPLAY_DELAY);
+    function startSuccessDisplay(): void {
+        wheelState.status = "success";
+        clearTimer(successTimer);
+        successTimer = setTimeout(() => {
+            // 成功表示後、直接 idle に移行
+            if (wheelState.status === "success") {
+                wheelState.status = "idle";
+            }
+            successTimer = null;
+        }, SUCCESS_DISPLAY_DURATION);
     }
 
     function resetWheelState(): void {
-        wheelState.status = "idle";
+        if (wheelState.status !== "success") {
+            wheelState.status = "idle";
+        }
         wheelState.count = 0;
         wheelState.direction = null;
         wheelState.threshold = DEFAULT_WHEEL_THRESHOLD;
@@ -108,7 +108,9 @@ export function useWheelRefresh({
         direction: WheelDirection,
         config: DirectionalRefreshConfig
     ): void {
-        wheelState.status = "wheeling";
+        if (wheelState.status === "idle") {
+            wheelState.status = "wheeling";
+        }
         if (wheelState.direction !== direction) {
             wheelState.direction = direction;
             wheelState.count = 1;
@@ -138,17 +140,6 @@ export function useWheelRefresh({
         return false;
     }
 
-    function startCooldown(): void {
-        wheelState.status = "coolingDown";
-        clearTimer(cooldownTimer);
-        cooldownTimer = setTimeout(() => {
-            if (wheelState.status === "coolingDown") {
-                wheelState.status = "idle";
-            }
-            cooldownTimer = null;
-        }, COOLDOWN_PERIOD);
-    }
-
     function scheduleReset(): void {
         clearTimer(resetTimer);
         resetTimer = setTimeout(resetWheelState, RESET_DELAY);
@@ -158,13 +149,12 @@ export function useWheelRefresh({
         clearTimer(resetTimer);
         resetTimer = null;
 
-        // 状態をリセットし、クールダウンと事後表示を開始
         wheelState.count = 0;
         wheelState.direction = null;
 
-        startPostRefreshDisplay();
-        config.onRefresh();
-        startCooldown();
+        config.onRefresh().finally(() => {
+            startSuccessDisplay();
+        });
     }
 
     function handleWheelAtEdge(
@@ -187,7 +177,7 @@ export function useWheelRefresh({
         if (
             !scrollContainerEl ||
             !isEnabled() ||
-            wheelState.status === "coolingDown"
+            wheelState.status === "success"
         ) {
             return;
         }
@@ -226,8 +216,7 @@ export function useWheelRefresh({
 
     onDestroy(() => {
         clearTimer(resetTimer);
-        clearTimer(cooldownTimer);
-        clearTimer(postRefreshTimer);
+        clearTimer(successTimer);
     });
 
     return {

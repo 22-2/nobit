@@ -69,48 +69,32 @@
                 expect(args.onUpRefresh).toHaveBeenCalledTimes(1);
             });
             await waitFor(() => {
-                expect(
-                    canvas.getByText("status: coolingDown")
-                ).toBeInTheDocument();
-                expect(canvas.queryByText("↑")).not.toBeInTheDocument();
+                expect(canvas.getByText("status: success")).toBeInTheDocument();
+                expect(canvas.getByText("✅️")).toBeInTheDocument();
             });
         });
 
-        await step("Should be in cooldown period", async () => {
-            await waitFor(() => {
-                expect(
-                    canvas.getByText("status: coolingDown")
-                ).toBeInTheDocument();
-            });
+        await step("Should be blocked during success display", async () => {
+            // success 中はホイールしても何も起こらない
             await fireEvent.wheel(scrollContainer, { deltaY: -100 });
-            // クールダウン中はインジケータは出ない
             expect(canvas.queryByText("↑")).not.toBeInTheDocument();
+            // 2回目のリフレッシュは呼ばれない
+            expect(args.onUpRefresh).toHaveBeenCalledTimes(1);
         });
 
         await step(
-            "Post-refresh indicator should disappear after delay",
+            "Should return to idle status after success display",
             async () => {
                 await waitFor(
                     () => {
                         expect(
-                            canvas.getByText("isShowingPostRefresh: false")
+                            canvas.getByText("status: idle")
                         ).toBeInTheDocument();
                     },
-                    { timeout: 1000 }
+                    { timeout: 1000 } // SUCCESS_DISPLAY_DURATION + アルファ
                 );
             }
         );
-
-        await step("Should return to idle status after cooldown", async () => {
-            await waitFor(
-                () => {
-                    expect(
-                        canvas.getByText("status: idle")
-                    ).toBeInTheDocument();
-                },
-                { timeout: 1500 }
-            );
-        });
     }}
 >
     <WheelRefreshTester {...args} />
@@ -146,33 +130,29 @@
                 expect(args.onDownRefresh).toHaveBeenCalledTimes(1);
             });
             await waitFor(() => {
-                expect(
-                    canvas.getByText("status: coolingDown")
-                ).toBeInTheDocument();
-                expect(canvas.queryByText("↓")).not.toBeInTheDocument();
+                expect(canvas.getByText("status: success")).toBeInTheDocument();
+                expect(canvas.getByText("✅️")).toBeInTheDocument();
             });
         });
 
-        await step("Should be in cooldown period", async () => {
-            await waitFor(() => {
-                expect(
-                    canvas.getByText("status: coolingDown")
-                ).toBeInTheDocument();
-            });
+        await step("Should be blocked during success display", async () => {
             await fireEvent.wheel(scrollContainer, { deltaY: 100 });
             expect(canvas.queryByText("↓")).not.toBeInTheDocument();
+            expect(canvas.queryByText("✅️")).toBeInTheDocument(); // まだ表示されている
+            // 2回目のリフレッシュは呼ばれない
+            expect(args.onDownRefresh).toHaveBeenCalledTimes(1);
         });
 
         await step(
-            "Post-refresh indicator should disappear after delay",
+            "Should return to idle status after success display",
             async () => {
                 await waitFor(
                     () => {
                         expect(
-                            canvas.getByText("isShowingPostRefresh: false")
+                            canvas.getByText("status: idle")
                         ).toBeInTheDocument();
                     },
-                    { timeout: 1000 }
+                    { timeout: 1000 } // SUCCESS_DISPLAY_DURATION + アルファ
                 );
             }
         );
@@ -210,7 +190,7 @@
 
 <!-- リフレッシュ後のインジケータ表示をテストするストーリー -->
 <Story
-    name="PostRefreshIndicator"
+    name="SuccessIndicator"
     args={{
         onUpRefresh: fn(),
         upThreshold: 3,
@@ -230,30 +210,28 @@
             });
         });
 
-        await step("Check post-refresh indicator appears", async () => {
+        await step("Check success indicator appears", async () => {
             await waitFor(() => {
-                expect(
-                    canvas.getByText("isShowingPostRefresh: true")
-                ).toBeInTheDocument();
+                expect(canvas.getByText("status: success")).toBeInTheDocument();
             });
-            // isShowingPostRefreshがtrueの間はstatusはcoolingDown
-            expect(canvas.getByText("status: coolingDown")).toBeInTheDocument();
-
             const checkmark = await canvas.findByText("✅️");
             expect(checkmark).toBeInTheDocument();
         });
 
-        await step("Check indicator disappears after delay", async () => {
-            await waitFor(
-                () => {
-                    expect(
-                        canvas.getByText("isShowingPostRefresh: false")
-                    ).toBeInTheDocument();
-                },
-                { timeout: 1000 }
-            );
-            expect(canvas.queryByText("✅️")).not.toBeInTheDocument();
-        });
+        await step(
+            "Check indicator disappears after delay and goes to idle",
+            async () => {
+                await waitFor(
+                    () => {
+                        expect(
+                            canvas.getByText("status: idle")
+                        ).toBeInTheDocument();
+                    },
+                    { timeout: 1000 }
+                );
+                expect(canvas.queryByText("✅️")).not.toBeInTheDocument();
+            }
+        );
     }}
 >
     <WheelRefreshTester {...args} />
