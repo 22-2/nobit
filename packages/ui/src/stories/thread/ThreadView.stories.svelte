@@ -321,7 +321,7 @@
     args={{
         provider: {
             getThread: fn(async (url: string) => {
-                await new Promise((r) => setTimeout(r, 500));
+                await new Promise((r) => setTimeout(r, 1500));
                 return generateSampleThread(30); // スクロール可能にする
             }),
             post: fn(),

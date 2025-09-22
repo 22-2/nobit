@@ -8,6 +8,7 @@ import {
 } from "./types";
 import { handleAsyncOperation } from "./helpers";
 import type { PostData } from "@nobit/libch/core/types";
+import log from "loglevel";
 
 /**
  * スレッドデータの取得と状態管理に特化したSvelte 5ストアを作成します。
@@ -34,11 +35,11 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
     const loadThread = async (): Promise<void> => {
         const url = threadState?.url;
         if (!url) {
-            logger.warn("loadThread called with invalid URL.");
+            log.warn("loadThread called with invalid URL.");
             viewState.error = "スレッドのURLが無効です。";
             return;
         }
-        logger.info("Loading thread...", { url });
+        log.info("Loading thread...", { url });
 
         await handleAsyncOperation(() => bbsProvider.getThread(url), {
             onStart: () => {
@@ -46,6 +47,7 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
                 viewState.error = null;
             },
             onSuccess: (threadData) => {
+                log.debug("success", threadData);
                 if (threadData) threadState = threadData;
             },
             onError: (error) => {
