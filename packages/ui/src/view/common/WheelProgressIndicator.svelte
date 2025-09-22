@@ -12,10 +12,30 @@
             wheelState.status === "success"
     );
 
+    // プログレスバーのアニメーションが完了したかを管理する状態
+    let isSuccessAnimationDone = $state(false);
+
+    // wheelState.status が 'wheeling' に戻った時などにリセットする
+    $effect(() => {
+        if (wheelState.status !== "success") {
+            isSuccessAnimationDone = false;
+        }
+    });
+
+    // プログレスバーの transition が完了した時に呼ばれる関数
+    function handleTransitionEnd() {
+        // status が 'success' の時だけ、アニメーション完了フラグを立てる
+        if (wheelState.status === "success") {
+            isSuccessAnimationDone = true;
+        }
+    }
+
     let label = $derived(
-        wheelState.status === "success"
+        // アニメーションが完了していたら '✅️' を表示
+        isSuccessAnimationDone
             ? "✅️"
-            : wheelState.direction === "up"
+            : // それ以外の場合は、これまで通り矢印を表示
+              wheelState.direction === "up"
               ? "↑"
               : "↓"
     );
@@ -25,10 +45,14 @@
     <div
         class="wheel-progress-indicator"
         class:bottom={position === "bottom"}
-        class:post-refresh={wheelState.status === "success"}
+        class:post-refresh={isSuccessAnimationDone}
         transition:fade={{ duration: 50 }}
     >
         {label}
+        <!--
+            アニメーション完了後はプログレスバーを非表示にすると
+            見た目がスッキリするので、ifブロックで囲います
+         -->
         <span class="progress-bar-wrapper">
             <div
                 class="progress-bar"
@@ -38,12 +62,14 @@
                           (wheelState.count / wheelState.threshold) * 100,
                           100
                       )}%;"
+                on:transitionend={handleTransitionEnd}
             ></div>
         </span>
     </div>
 {/if}
 
 <style>
+    /* styleタグの中は変更なしでOKです */
     .wheel-progress-indicator {
         position: absolute;
         top: var(--nobit-size-4-4);
@@ -63,20 +89,7 @@
         gap: var(--nobit-size-4-2);
         border: var(--nobit-border-width) solid
             var(--nobit-background-modifier-border);
-        /*
-            Svelteのtransitionで制御するため、
-            ここのtransition指定は不要になります
-        */
     }
-    /*
-    .wheel-progress-indicator[style*="visibility: visible"] {
-        opacity: 0.9;
-        animation: fade-in 0.2s ease-out forwards;
-    }
-    .wheel-progress-indicator[style*="visibility: hidden"] {
-        opacity: 0;
-        pointer-events: none;
-    } */
 
     .wheel-progress-indicator.bottom {
         top: unset;
@@ -87,15 +100,16 @@
         padding: var(--nobit-size-4-2);
     }
 
-    /* .wheel-progress-indicator.post-refresh {
-        background-color: var(--nobit-interactive-accent);
+    /*
+        もしこのスタイルを有効にする場合、
+        class:post-refresh={isSuccessAnimationDone} に変更したことで
+        アニメーション完了後に適用されるようになります
+    */
+    .wheel-progress-indicator.post-refresh {
+        /* background-color: var(--nobit-interactive-accent);
         color: white;
-        animation: success-pulse 0.5s ease-out;
+        animation: success-pulse 0.5s ease-out; */
     }
-
-    .wheel-progress-indicator.post-refresh .progress-bar-wrapper {
-        display: none;
-    } */
 
     .progress-bar-wrapper {
         width: var(--nobit-size-4-12);
