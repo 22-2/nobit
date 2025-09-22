@@ -9,9 +9,7 @@
 
     const mockThreads = Array.from({ length: 50 }, (_, i) => ({
         id: (Date.now() / 1000 - i * 3600 - 1000).toString(),
-        title: `【テスト】スレッドのタイトル${i + 1}【レス${
-            Math.floor(Math.random() * 999) + 1
-        }】`,
+        title: `【テスト】スレッドのタイトル${i + 1}`,
         resCount: Math.floor(Math.random() * 1000) + 1,
     }));
 
@@ -98,8 +96,6 @@
     );
 </script>
 
-//
-E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\board\ThreadListTable.stories.svelte
 <div class="story-container">
     <div class="story-controls">
         <p>
@@ -179,7 +175,6 @@ E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\board\Thread
     .story-container {
         height: 600px;
         width: 100%;
-        max-width: 800px;
         border: 1px solid var(--nobit-background-modifier-border);
         display: flex;
         flex-direction: column;
