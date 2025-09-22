@@ -10,7 +10,7 @@ export default class Nobit extends Plugin {
     async onload() {
         await this.loadSettings();
         this.addSettingTab(new NobitSettingTab(this));
-        this.initializeLogger();
+        this.updateLogger();
 
         this.registerView(VIEW_TYPE, (leaf) => new SvelteView(leaf, this));
 
@@ -45,7 +45,7 @@ export default class Nobit extends Plugin {
         );
     }
 
-    initializeLogger(): void {
+    updateLogger(): void {
         if (this.settings.logLevel === "debug") {
             log.enableAll();
         } else {
