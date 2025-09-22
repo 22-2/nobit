@@ -86,7 +86,7 @@
         padding: var(--nobit-size-4-2);
     }
 
-    .wheel-progress-indicator.post-refresh {
+    /* .wheel-progress-indicator.post-refresh {
         background-color: var(--nobit-interactive-accent);
         color: white;
         animation: success-pulse 0.5s ease-out;
@@ -94,7 +94,7 @@
 
     .wheel-progress-indicator.post-refresh .progress-bar-wrapper {
         display: none;
-    }
+    } */
 
     .progress-bar-wrapper {
         width: var(--nobit-size-4-12);
