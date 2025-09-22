@@ -8,13 +8,13 @@
     import LoadingOverlay from "../common/LoadingOverlay.svelte";
     import ThreadToolbar from "./ThreadToolbar.svelte";
     import type { createThreadDataStore } from "../../stores/threadDataStore.svelte.ts";
+    import { useWheelRefresh } from "../../stores/useWheelRefresh.svelte";
+    import WheelProgressIndicator from "../common/WheelProgressIndicator.svelte";
 
     type Props = {
         store: ReturnType<typeof createThreadDataStore>;
     };
     let { store }: Props = $props();
-
-    console.log(store);
 
     // フォームの表示状態やフィルタはViewのローカルな状態として管理
     let isWriteFormVisible = $state(false);
@@ -26,6 +26,21 @@
         internal: false,
         popular: false,
     });
+    let postsListEl: HTMLDivElement | undefined = $state();
+
+    const wheelRefresh = useWheelRefresh({
+        getScrollElement: () => postsListEl,
+        isEnabled: () =>
+            !store.viewState.isLoading && !store.viewState.isSubmitting,
+        down: {
+            onRefresh: store.loadThread,
+        },
+    });
+
+    // use:action for binding trigger line
+    const bindTriggerLineAction = (node: HTMLElement) => {
+        wheelRefresh.bindRefreshTriggerLine(node);
+    };
 
     const filteredPosts = $derived(() => {
         if (!store.thread?.posts) return [];
@@ -83,10 +98,11 @@
             {/if}
         {:else}
             <!-- スレッドコンテンツ表示 -->
-            <div class="posts-list" role="feed">
+            <div class="posts-list" role="feed" bind:this={postsListEl}>
                 {#each filteredPosts() as post (post.resNum)}
                     <PostItem {post} index={post.resNum - 1} />
                 {/each}
+                <div class="refresh-trigger-line" use:bindTriggerLineAction />
             </div>
         {/if}
     </div>
@@ -104,6 +120,11 @@
             onWriteButtonClick={() => (isWriteFormVisible = true)}
         />
     {/if}
+
+    <WheelProgressIndicator
+        wheelState={wheelRefresh.wheelState}
+        position="bottom"
+    />
 </div>
 
 <style>
@@ -136,5 +157,8 @@
     }
     .error-indicator p {
         color: var(--text-error);
+    }
+    .refresh-trigger-line {
+        height: 1px; /* 視覚的には見えないが、レイアウト上の位置を持つ */
     }
 </style>
