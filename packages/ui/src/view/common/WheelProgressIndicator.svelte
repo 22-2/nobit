@@ -12,11 +12,17 @@
             wheelState.status === "success"
     );
 
-    // プログレスバーのアニメーションが完了したかを管理する状態
     let isSuccessAnimationDone = $state(false);
+    let lockedDirection = $state<"up" | "down" | null>(null);
 
-    // wheelState.status が 'wheeling' に戻った時などにリセットする
+    // wheelState の変化に応じて状態を更新する
     $effect(() => {
+        // wheeling 状態が始まったら、方向をロックするだけ
+        if (wheelState.status === "wheeling" && lockedDirection === null) {
+            lockedDirection = wheelState.direction;
+        }
+
+        // success 状態から抜けたらアニメーション完了フラグをリセット
         if (wheelState.status !== "success") {
             isSuccessAnimationDone = false;
         }
@@ -24,35 +30,38 @@
 
     // プログレスバーの transition が完了した時に呼ばれる関数
     function handleTransitionEnd() {
-        // status が 'success' の時だけ、アニメーション完了フラグを立てる
         if (wheelState.status === "success") {
             isSuccessAnimationDone = true;
         }
     }
 
+    // ▼▼▼ ここからが変更点 ▼▼▼
+    // コンポーネントが画面から完全に消えた後に呼ばれる関数
+    function handleOutroEnd() {
+        // 次の表示に備えて、ここで初めてロックを解除する
+        lockedDirection = null;
+    }
+    // ▲▲▲ ここまでが変更点 ▲▲▲
+
     let label = $derived(
-        // アニメーションが完了していたら '✅️' を表示
         isSuccessAnimationDone
             ? "✅️"
-            : // それ以外の場合は、これまで通り矢印を表示
-              wheelState.direction === "up"
+            : (lockedDirection ?? wheelState.direction) === "up"
               ? "↑"
               : "↓"
     );
 </script>
 
+<!-- HTML部分の on:outroend に注目 -->
 {#if shouldBeVisible}
     <div
         class="wheel-progress-indicator"
         class:bottom={position === "bottom"}
         class:post-refresh={isSuccessAnimationDone}
         transition:fade={{ duration: 50 }}
+        on:outroend={handleOutroEnd}
     >
         {label}
-        <!--
-            アニメーション完了後はプログレスバーを非表示にすると
-            見た目がスッキリするので、ifブロックで囲います
-         -->
         <span class="progress-bar-wrapper">
             <div
                 class="progress-bar"
