@@ -44,8 +44,15 @@
         },
     });
 
-    // 最終的なローディング状態を、外部propのみから算出する
-    const shouldShowLoading = $derived(isLoading);
+    // isRefreshing は wheelRefresh の内部状態に連動させる
+    const isRefreshing = $derived(
+        console.log(new Date().toISOString(), wheelRefresh.wheelState.status) ||
+            wheelRefresh.wheelState.status === "refreshing"
+    );
+
+    // 外部からの isLoading と、ホイールリフレッシュ起因の isRefreshing の両方を考慮してローディング状態を決定する。
+    // これにより、リフレッシュが開始された瞬間に確実かつ即座にローディング画面が表示される。
+    const shouldShowLoading = $derived(isLoading || isRefreshing);
 
     // Helper function for ikioi calculation
     function calculateIkioi(thread: SubjectItem): number {
@@ -89,7 +96,14 @@
     />
 
     {#if shouldShowLoading}
-        <div class="loading-overlay">
+        <!--
+          データがある場合（リフレッシュ時）は背景が透けるオーバーレイ(transparent)
+          データがない場合（初回ロード時）は背景をしっかり覆うオーバーレイ
+        -->
+        <div
+            class:loading-overlay={threads.length === 0}
+            class:loading-overlay-transparent={threads.length > 0}
+        >
             <LoadingSpinner size="large" />
         </div>
     {/if}
@@ -133,12 +147,15 @@
         backdrop-filter: blur(1px);
     }
     .loading-overlay {
+        /* データがない時の初期ロード用 */
         background-color: var(--nobit-background-overlay);
     }
     .loading-overlay-transparent {
-        background-color: transparent;
-        /* align-items: flex-start; */
-        padding-top: var(--nobit-size-4-10);
+        /* データがある時のリフレッシュ用。
+           背景が transparent だとオーバーレイの意味がないため修正。
+           背景のテーブルがうっすら見えるようにする。 */
+        background-color: var(--nobit-background-overlay);
+        opacity: 0.8;
     }
 
     .thread-table {

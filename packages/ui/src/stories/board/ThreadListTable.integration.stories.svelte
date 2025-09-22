@@ -71,8 +71,9 @@
 
     async function handleRefreshForWheelTest() {
         onRefreshAction();
-        isLoadingForWheelTest = true;
+        console.log("aaaaaa");
         await sleep(1000); // ローディング状態を1秒間シミュレート（ディレイ）
+        isLoadingForWheelTest = true;
         isLoadingForWheelTest = false;
     }
 </script>
@@ -268,12 +269,13 @@
         initialSortState: { sortKey: "index", sortDirection: "asc" },
         isLoading: false,
         onSortChange: fn(),
-        onRefresh: onRefreshAction, // onRefreshAction を args に渡す
+        onRefresh: handleRefreshForWheelTest,
         openThread: fn(),
         onContextMenu: fn(),
         openHeaderContextMenu: fn(),
     }}
-    play={async ({ canvasElement, args }) => {
+    play={async ({ canvasElement }) => {
+        // `args` はテストに不要なので削除
         const canvas = within(canvasElement);
         const table = canvas.getByRole("table");
         const scrollContainer = table.lastElementChild;
@@ -285,9 +287,10 @@
             fireEvent.wheel(scrollContainer, { deltaY: -100 });
         }
 
-        // onRefreshコールバックが1回呼ばれたことを確認
+        // onRefreshActionコールバックが1回呼ばれたことを確認
         await waitFor(() => {
-            expect(args.onRefresh).toHaveBeenCalledTimes(1);
+            // args.onRefresh の代わりに、<script>スコープの onRefreshAction を直接参照
+            expect(onRefreshAction).toHaveBeenCalledTimes(1);
         });
 
         // onRefreshが呼ばれ、isLoading=trueになることでローディングスピナーが表示されるのを待つ
