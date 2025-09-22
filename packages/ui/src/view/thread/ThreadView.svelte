@@ -132,6 +132,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        min-height: 100vh;
         overflow: hidden; /* 親コンテナでスクロールを制御 */
     }
     .content-wrapper {
@@ -139,7 +140,7 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        overflow-y: hidden; /* スクロールはposts-listで行う */
+        overflow: hidden; /* スクロールはposts-listで行う */
     }
     .posts-list {
         flex: 1;
