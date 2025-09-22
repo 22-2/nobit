@@ -5,6 +5,7 @@ import {
     type ThreadDataStoreDependencies,
     type ThreadIdentifier,
 } from "./types";
+import { handleAsyncOperation } from "./helpers";
 
 /**
  * スレッドデータの取得と状態管理に特化したSvelte 5ストアを作成します。
@@ -26,32 +27,6 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
         title: initialThread.title ?? "",
         posts: initialThread.posts ?? [],
     });
-
-    const handleAsyncOperation = async <T>(
-        operation: () => Promise<T>,
-        options: OperationResult<T> = {}
-    ): Promise<T | null> => {
-        const {
-            errorMessage = "操作に失敗しました",
-            onStart,
-            onSuccess,
-            onError,
-            onFinally,
-        } = options;
-        try {
-            onStart?.();
-            const result = await operation();
-            onSuccess?.(result);
-            return result;
-        } catch (err) {
-            const error = err instanceof Error ? err : new Error(String(err));
-            logger.error(errorMessage, error);
-            onError?.(error);
-            return null;
-        } finally {
-            onFinally?.();
-        }
-    };
 
     const loadThread = async (): Promise<void> => {
         const url = threadState?.url;
