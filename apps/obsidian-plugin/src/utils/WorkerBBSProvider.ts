@@ -9,8 +9,8 @@ import type {
 } from "@nobit/ui/types.ts";
 import type { BBSProviderWorker } from "./fetcher.worker";
 // @ts-expect-error
-import FetcherWorker from "../fetcher.worker";
-import Comlink from "comlink";
+import FetcherWorker from "./fetcher.worker";
+import * as Comlink from "comlink";
 import { ObsidianFetcher } from "./client";
 
 export class WorkerBBSProvider implements BBSProvider {

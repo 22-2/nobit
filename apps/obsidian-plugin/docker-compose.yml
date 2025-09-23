@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+    playwright-tests:
+        build:
+            context: ../../ # ビルドコンテキストをモノレポのルートに変更
+            dockerfile: ./apps/obsidian-plugin/Dockerfile # Dockerfileのパスをルートから指定
+        volumes:
+            # ホストマシンのパスをルートからの相対パスで指定
+            - ./playwright-report:/app/playwright-report
+            - ./test-results:/app/test-results
+        ipc: host
+        shm_size: "2gb"
+        cap_add:
+            - SYS_ADMIN

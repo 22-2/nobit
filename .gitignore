@@ -45,3 +45,6 @@ repomix-output.md
 packages/ui/test-results/*
 packages/ui/test-results/
 repomix-output.xmlnobit/*
+test-results
+.obsidian
+.obsidian-unpacked

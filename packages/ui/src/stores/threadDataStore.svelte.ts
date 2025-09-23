@@ -34,6 +34,7 @@ export function createThreadDataStore(deps: ThreadDataStoreDependencies) {
 
     const loadThread = async (): Promise<void> => {
         const url = threadState?.url;
+
         if (!url) {
             log.warn("loadThread called with invalid URL.");
             viewState.error = "スレッドのURLが無効です。";

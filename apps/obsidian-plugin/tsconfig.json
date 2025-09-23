@@ -4,9 +4,11 @@
         "baseUrl": ".",
         "verbatimModuleSyntax": true,
         "downlevelIteration": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
         "allowArbitraryExtensions": true,
         "types": ["node", "obsidian-typings"]
     },
-    "include": ["src/**/*.ts", "./esbuild.config.mts"],
+    "include": ["src/**/*.ts", "e2e/**/*.ts", "./esbuild.config.mts"],
     "exclude": ["node_modules/*"]
 }

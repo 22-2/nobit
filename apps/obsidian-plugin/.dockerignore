@@ -1,0 +1,32 @@
+# デフォルトで全てを無視
+**/*
+
+# pnpmのロックファイルをコピーするために除外
+!pnpm-lock.yaml
+
+# ルートのpackage.jsonをコピーするために除外
+!package.json
+
+# --- apps/obsidian-plugin のファイルを除外解除 ---
+# プラグインのpackage.json
+!apps/obsidian-plugin/package.json
+# プラグインのソースコード
+!apps/obsidian-plugin/src/
+# プラグインのビルド済みファイル
+!apps/obsidian-plugin/main.js
+!apps/obsidian-plugin/manifest.json
+!apps/obsidian-plugin/styles.css
+# テスト関連のファイル
+!apps/obsidian-plugin/e2e/
+!apps/obsidian-plugin/playwright.config.ts
+
+# --- 他のワークスペースの package.json を除外解除 ---
+# (pnpm installのために必要。実際のプロジェクトに合わせて追加・修正してください)
+!packages/ui/package.json
+!packages/libch/package.json
+!configs/esbuild-config/package.json
+!configs/typescript-config/package.json
+
+# --- Dockerfileで必要なその他のファイルを除外解除 ---
+!esbuild.config.mts # ビルドに必要であれば
+!tsconfig.json # ビルドに必要であれば

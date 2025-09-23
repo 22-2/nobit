@@ -1,7 +1,7 @@
 import type { HttpFetcher } from "@nobit/libch/core/fetcher";
 import { DefaultBBSProvider } from "@nobit/libch/providers/DefaultBBSProvider";
 import type { PostData } from "@nobit/ui/types.ts";
-import Comlink from "comlink";
+import * as Comlink from "comlink";
 
 /**
  * A class that wraps the DefaultBBSProvider and is exposed to the main thread via Comlink.
