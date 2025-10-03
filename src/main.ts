@@ -1,10 +1,11 @@
 import log from "loglevel";
 import { Plugin } from "obsidian";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, VIEW_TYPE_BROWSER } from "./utils/constants";
+import { DEFAULT_SETTINGS, VIEW_TYPE_BROWSER, VIEW_TYPE_THREAD } from "./utils/constants";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView } from "./utils/obsidian";
 import { BrowserView } from "./view/view";
+import { ThreadView } from "./view/ThreadView";
 
 export const logger = log.getLogger("nobit.main");
 
@@ -21,6 +22,11 @@ export default class NobitPlugin extends Plugin {
 			(leaf) => new BrowserView(leaf, this)
 		);
 
+		this.registerView(
+			VIEW_TYPE_THREAD,
+			(leaf) => new ThreadView(leaf, this)
+		);
+
 		this.addRibbonIcon("dice", "Activate browser view", () => {
 			this.activateView();
 		});
@@ -30,6 +36,14 @@ export default class NobitPlugin extends Plugin {
 			name: "Open Browser View",
 			callback: () => {
 				this.activateView();
+			},
+		});
+
+		this.addCommand({
+			id: "open-nobit-test-thread",
+			name: "Open Nobit Test Thread",
+			callback: () => {
+				this.activateThreadView();
 			},
 		});
 		logger.debug("Plugin loaded");
@@ -42,6 +56,12 @@ export default class NobitPlugin extends Plugin {
 	private activateView() {
 		activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
 			type: VIEW_TYPE_BROWSER,
+		});
+	}
+
+	private activateThreadView() {
+		activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
+			type: VIEW_TYPE_THREAD,
 		});
 	}
 

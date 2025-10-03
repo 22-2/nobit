@@ -57,14 +57,21 @@
   - Test jumpToPost navigation logic
   - _Requirements: 6.1_
 
-- [ ] 3. Create ThreadView ItemView class
+- [x] 3. Create ThreadView ItemView class
+
+
+
+
+
   - Extend Obsidian's ItemView class for ThreadView
   - Initialize ThreadManager in constructor with this.app
   - Implement getViewType() and getDisplayText() methods
   - Add proper Svelte component mounting/unmounting in onOpen/onClose
   - _Requirements: 2.1, 2.3, 2.4, 8.1, 8.2, 8.3_
 
-- [ ] 3.1 Set up Svelte context injection in ThreadView
+- [x] 3.1 Set up Svelte context injection in ThreadView
+
+
   - Use setContext to inject ThreadManager into Svelte component tree
   - Ensure ThreadManager is available to child components via getContext
   - Implement proper context cleanup on view close
