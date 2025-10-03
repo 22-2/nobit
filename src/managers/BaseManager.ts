@@ -1,6 +1,7 @@
 import log from "loglevel";
 import type { App } from "obsidian";
 import { ObsidianFetcher } from "src/lib/ObsidianFetcher";
+import { TestFetcher } from "src/lib/TestFetcher";
 import { DefaultDecoder } from "src/lib/libch/decoder";
 import { HttpError } from "src/lib/libch/fetcher";
 import {
@@ -45,7 +46,7 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
 
 export abstract class BaseManager {
 	// Protected 5ch infrastructure components
-	protected readonly fetcher: ObsidianFetcher;
+	protected readonly fetcher: ObsidianFetcher | TestFetcher;
 	protected readonly decoder: DefaultDecoder;
 
 	// Retry and timeout configuration
@@ -53,8 +54,10 @@ export abstract class BaseManager {
 	protected readonly enableRetry: boolean;
 
 	constructor(protected app: App, options: BaseManagerOptions = {}) {
-		// Initialize existing 5ch communication components
-		this.fetcher = new ObsidianFetcher(RATE_LIMIT_MS);
+		// Initialize 5ch communication components - use TestFetcher in test environment
+		this.fetcher = isTestEnvironment() 
+			? new TestFetcher(RATE_LIMIT_MS)
+			: new ObsidianFetcher(RATE_LIMIT_MS);
 		this.decoder = new DefaultDecoder();
 
 		// Configure retry behavior - disable in test environments

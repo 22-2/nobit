@@ -10,4 +10,5 @@ export function toggleLoggerBy(
 		.forEach((logger) => {
 			logger.setLevel(level);
 		});
+	console.log("log level changed ->", level);
 }

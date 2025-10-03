@@ -19,6 +19,7 @@ const logger = log.getLogger("obsidianSetup");
 export const test = base.extend<TestFixtures, WorkerFixtures>({
 	vaultOptions: {
 		useSandbox: true,
+		showLoggerOnNode: true,
 		plugins: [],
 	},
 
@@ -63,7 +64,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
 				if (!process.env.CI) {
 					logger.debug(testInfo.errors);
-					// await setup.getCurrentPage()?.pause();
+					await setup.getCurrentPage()?.pause();
 				}
 				// エラーログをより詳細に出力
 				if (testInfo.error) {
@@ -76,7 +77,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			// フィクスチャ自体のセットアップ中にエラーが発生した場合
 			logger.error(`Error during fixture setup: ${err.message || err}`);
 			if (!process.env.CI) {
-				// await setup.getCurrentPage()?.pause();
+				await setup.getCurrentPage()?.pause();
 			}
 			throw err;
 		} finally {
@@ -94,12 +95,48 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			? await obsidianSetup.openSandbox(vaultOptions)
 			: await obsidianSetup.openVault(vaultOptions);
 		if (vaultOptions.showLoggerOnNode) {
+			logger.debug("enable browser console");
+			
+			// Enhanced console logging with more details
 			context.window.on("console", (msg) => {
-				console.log(
-					`[Browser Console ${msg
-						.type()
-						.toUpperCase()}] ${msg.text()}`
-				);
+				const type = msg.type();
+				const text = msg.text();
+				const location = msg.location();
+				
+				console.log(`🖥️ BROWSER [${type.toUpperCase()}]: ${text}`);
+				if (location.url && location.url !== 'about:blank') {
+					console.log(`   📍 Location: ${location.url}:${location.lineNumber}:${location.columnNumber}`);
+				}
+				
+				// Show args for more complex console calls
+				const args = msg.args();
+				if (args.length > 1) {
+					console.log(`   📋 Args: ${args.length} arguments`);
+				}
+			});
+			
+			// Listen to page errors
+			context.window.on("pageerror", (error) => {
+				console.log(`🖥️ PAGE ERROR: ${error.message}`);
+				if (error.stack) {
+					console.log(`   📚 Stack: ${error.stack}`);
+				}
+			});
+			
+			// Listen to request failures
+			context.window.on("requestfailed", (request) => {
+				console.log(`🖥️ REQUEST FAILED: ${request.url()}`);
+				const failure = request.failure();
+				if (failure) {
+					console.log(`   ❌ Failure: ${failure.errorText}`);
+				}
+			});
+			
+			// Listen to response errors
+			context.window.on("response", (response) => {
+				if (!response.ok()) {
+					console.log(`🖥️ HTTP ERROR: ${response.status()} ${response.statusText()} - ${response.url()}`);
+				}
 			});
 		}
 		const notices = await context.window

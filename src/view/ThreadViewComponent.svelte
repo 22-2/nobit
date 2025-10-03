@@ -8,6 +8,8 @@
 
 	// Get ThreadManager from context (injected by ThreadView ItemView)
 	const threadManager = getContext<ThreadManager>("threadManager");
+	
+	console.log("🔥 ThreadViewComponent: Script loaded, threadManager:", threadManager);
 
 	onMount(async () => {
 		// MVP: Load hardcoded thread URL for initial testing
@@ -26,7 +28,13 @@
 		// This will be replaced with dynamic URL loading in future iterations
 		// when BoardView and thread selection functionality is implemented.
 		const testThreadUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759320900/";
-		await threadManager.loadThread(testThreadUrl);
+		console.log("🔥 ThreadViewComponent: Starting to load thread:", testThreadUrl);
+		try {
+			await threadManager.loadThread(testThreadUrl);
+			console.log("🔥 ThreadViewComponent: Thread loaded successfully");
+		} catch (error) {
+			console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
+		}
 	});
 
 	// Event handlers that delegate to ThreadManager
