@@ -1,9 +1,8 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
+import { VIEW_TYPE_BROWSER } from "src/utils/constants";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
 import AppComponent from "./App.svelte";
-
-export const VIEW_TYPE = "svelte-view";
 
 export class BrowserView extends ItemView {
 	component: ReturnType<typeof mount> | null = null;
@@ -15,7 +14,7 @@ export class BrowserView extends ItemView {
 	}
 
 	getViewType() {
-		return VIEW_TYPE;
+		return VIEW_TYPE_BROWSER;
 	}
 
 	getDisplayText() {
