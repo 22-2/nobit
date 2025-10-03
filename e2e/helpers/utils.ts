@@ -8,8 +8,7 @@ export function getPluginHandleMap(
 	return page.evaluateHandle((plugins) => {
 		const map = new Map<string, Plugin>();
 		plugins.forEach((p) => {
-			// @ts-expect-error
-			map.set(p.pluginId, app?.plugins.getPlugin(p.pluginId)!);
+			map.set(p.pluginId, (globalThis as any).app?.plugins.getPlugin(p.pluginId)!);
 		});
 		return map;
 	}, plugins);
