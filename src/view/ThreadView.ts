@@ -3,13 +3,13 @@ import { VIEW_TYPE_THREAD } from "../utils/constants";
 import { mount, unmount } from "svelte";
 import { setContext } from "svelte";
 import type NobitPlugin from "../main";
-import { ThreadManager } from "../managers/ThreadManager";
-import SimpleThreadViewComponent from "./SimpleThreadViewComponent.svelte";
+import { ThreadManager } from "../managers/ThreadManager.svelte";
+import ThreadViewComponent from "./ThreadViewComponent.svelte";
 
 /**
  * ThreadView extends Obsidian's ItemView to provide a bridge between
  * Obsidian's class-based world and Svelte's reactive UI world.
- * 
+ *
  * This class:
  * - Initializes ThreadManager with Obsidian app instance
  * - Mounts/unmounts Svelte components properly
@@ -43,11 +43,16 @@ export class ThreadView extends ItemView {
 	async onOpen(): Promise<void> {
 		// Clear any existing content
 		this.contentEl.empty();
-		
-		// Mount simple thread view component
-		this.component = mount(SimpleThreadViewComponent, {
+
+		// Create a context map for Svelte component
+		const contextMap = new Map();
+		contextMap.set('threadManager', this.threadManager);
+
+		// Mount Svelte component with ThreadManager injected via context
+		this.component = mount(ThreadViewComponent, {
 			target: this.contentEl,
-			props: {}
+			props: {},
+			context: contextMap
 		});
 	}
 
@@ -57,7 +62,7 @@ export class ThreadView extends ItemView {
 			unmount(this.component);
 			this.component = null;
 		}
-		
+
 		// Clear content element
 		this.contentEl.empty();
 	}

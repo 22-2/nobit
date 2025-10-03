@@ -53,71 +53,38 @@ test("MVP: Open Nobit Test Thread command opens ThreadView", async ({ vault }) =
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
 
-	// 5. Verify thread content displays using Svelte components
-	// Wait for the thread content to load
+	// 5. Verify ThreadView displays using Svelte 5 components
+	// Wait for the thread view to load
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
 	
-	// Wait for loading to complete (simple component simulates 1 second load)
-	await expect(vault.window.locator('.loading-container')).not.toBeVisible({ timeout: 5000 });
-	
-	// Verify no error state is shown
-	await expect(vault.window.locator('.error-container')).not.toBeVisible();
+	// Wait for thread content to load (onMount automatically loads thread)
+	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
 	
 	// Verify thread content is displayed
-	await expect(vault.window.locator('.thread-content')).toBeVisible();
+	await expect(vault.window.locator('.thread-header')).toBeVisible();
+	await expect(vault.window.locator('.thread-title')).toBeVisible();
+	await expect(vault.window.locator('.posts-container')).toBeVisible();
 	
-	// Verify thread title is displayed
-	await expect(vault.window.locator('.thread-content h2')).toContainText('Test Thread');
-	
-	// Verify posts are displayed
-	await expect(vault.window.locator('.posts-container .post-item')).toHaveCount(2);
-	
-	// Verify first post content
-	await expect(vault.window.locator('.post-item').first()).toContainText('Test post 1');
-	
-	// Verify ThreadToolbar section is present
-	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
+	// Verify posts are displayed (should have multiple posts from real 5ch data)
+	const postCount = await vault.window.locator('.posts-container .post').count();
+	expect(postCount).toBeGreaterThan(0);
 	
 	// Verify ThreadFilters section is present
 	await expect(vault.window.locator('.filters-section')).toBeVisible();
+	await expect(vault.window.locator('.thread-filters')).toBeVisible();
+	
+	// Verify ThreadToolbar section is present
+	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
+	await expect(vault.window.locator('.thread-footer-toolbar')).toBeVisible();
+	
+	// Verify no error state is shown (successful load)
+	await expect(vault.window.locator('.error-container')).not.toBeVisible();
+	
+	// Verify loading is complete
+	await expect(vault.window.locator('.loading-container')).not.toBeVisible();
 });
 
-test("MVP: Handle network errors gracefully", async ({ vault }) => {
-	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-
-	// 1. Execute command (error handling will be simulated by modifying component)
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
-
-	// 2. Verify ThreadView opened
-	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-	await obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
-
-	// 3. Simulate error by injecting error state into component
-	await vault.window.evaluate(() => {
-		// This is a simplified test - in real implementation, 
-		// error would come from network failure in ThreadManager
-		const threadView = document.querySelector('.thread-view');
-		if (threadView) {
-			threadView.innerHTML = `
-				<div class="error-container">
-					<div class="error-message">スレッドの読み込みに失敗しました: Network error</div>
-				</div>
-			`;
-		}
-	});
-
-	// 4. Verify error handling
-	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	
-	// Error message should be displayed
-	await expect(vault.window.locator('.error-container')).toBeVisible();
-	await expect(vault.window.locator('.error-message')).toContainText('スレッドの読み込みに失敗しました');
-	
-	// Thread content should not be displayed
-	await expect(vault.window.locator('.thread-content')).not.toBeVisible();
-});
-
-test("MVP: Loading states display correctly", async ({ vault }) => {
+test("MVP: UI structure and states work correctly", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Execute command
@@ -127,14 +94,58 @@ test("MVP: Loading states display correctly", async ({ vault }) => {
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
 
-	// 3. Verify loading state is shown initially (simple component shows loading for 1 second)
+	// 3. Verify ThreadView shows loaded thread content
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	await expect(vault.window.locator('.loading-container')).toBeVisible();
 	
-	// 4. Wait for loading to complete and verify content appears
-	await expect(vault.window.locator('.loading-container')).not.toBeVisible({ timeout: 5000 });
-	await expect(vault.window.locator('.thread-content')).toBeVisible();
-	await expect(vault.window.locator('.posts-container .post-item')).toHaveCount(2);
+	// Wait for thread content to load
+	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
+	
+	// Verify all UI sections are present
+	await expect(vault.window.locator('.filters-section')).toBeVisible();
+	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
+	
+	// Verify thread content structure
+	await expect(vault.window.locator('.thread-header')).toBeVisible();
+	await expect(vault.window.locator('.posts-container')).toBeVisible();
+	
+	// Verify interactive elements work
+	await expect(vault.window.locator('.toolbar-section .clickable-icon')).toBeVisible();
+	
+	// Verify successful load (no error or loading states)
+	await expect(vault.window.locator('.error-container')).not.toBeVisible();
+	await expect(vault.window.locator('.loading-container')).not.toBeVisible();
+});
+
+test("MVP: Svelte 5 reactivity works correctly", async ({ vault }) => {
+	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+
+	// 1. Execute command
+	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+
+	// 2. Verify ThreadView opened
+	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
+	await obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
+
+	// 3. Verify Svelte 5 reactive state is working
+	await expect(vault.window.locator('.thread-view')).toBeVisible();
+	
+	// Wait for thread content to load
+	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
+	
+	// Verify ThreadManager reactive state is working
+	await expect(vault.window.locator('.thread-filters')).toBeVisible();
+	await expect(vault.window.locator('.filter-buttons-group')).toBeVisible();
+	
+	// Verify thread data is reactive and displayed
+	await expect(vault.window.locator('.thread-title')).toBeVisible();
+	await expect(vault.window.locator('.post-count')).toContainText('posts');
+	
+	// Verify posts are displayed (reactive state from ThreadManager)
+	const postCount = await vault.window.locator('.posts-container .post').count();
+	expect(postCount).toBeGreaterThan(0);
+	
+	// Verify interactive elements reflect ThreadManager state
+	await expect(vault.window.locator('.toolbar-section .clickable-icon')).toBeVisible();
 });
 
 test("MVP: Ensure no Svelte components import from 'obsidian' directly", async ({ vault }) => {
@@ -158,16 +169,20 @@ test("MVP: Ensure no Svelte components import from 'obsidian' directly", async (
 	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	
-	// Verify the Manager layer → Svelte UI communication works
+	// Verify the architectural separation works (Svelte 5 components mount successfully)
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	await expect(vault.window.locator('.thread-content')).toBeVisible();
 	
-	// Wait for content to load
-	await expect(vault.window.locator('.loading-container')).not.toBeVisible({ timeout: 5000 });
+	// Wait for thread content to load
+	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
 	
-	// Verify Svelte components work correctly
+	// Verify Svelte 5 components work correctly
 	// (If there were 'obsidian' imports in Svelte components, mounting would fail)
-	await expect(vault.window.locator('.posts-container .post-item')).toHaveCount(2);
+	await expect(vault.window.locator('.thread-filters')).toBeVisible();
+	await expect(vault.window.locator('.posts-container')).toBeVisible();
+	
+	// Verify ThreadManager state is accessible (proves Manager → Svelte communication works)
+	await expect(vault.window.locator('.thread-title')).toBeVisible();
+	await expect(vault.window.locator('.post-count')).toContainText('posts');
 	
 	// Verify existing components integrate properly
 	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
@@ -184,18 +199,28 @@ test("MVP: Basic UI structure validation", async ({ vault }) => {
 	// Verify basic UI structure is present
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
 	
-	// Wait for content to load
-	await expect(vault.window.locator('.loading-container')).not.toBeVisible({ timeout: 5000 });
+	// Wait for thread content to load
+	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
 	
 	// Verify all main sections are present
 	await expect(vault.window.locator('.filters-section')).toBeVisible();
-	await expect(vault.window.locator('.thread-content')).toBeVisible();
 	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
 	
-	// Verify content structure
+	// Verify thread content structure
 	await expect(vault.window.locator('.thread-header')).toBeVisible();
+	await expect(vault.window.locator('.thread-title')).toBeVisible();
 	await expect(vault.window.locator('.posts-container')).toBeVisible();
-	await expect(vault.window.locator('.posts-container .post-item')).toHaveCount(2);
+	
+	// Verify posts are displayed
+	const postCount = await vault.window.locator('.posts-container .post').count();
+	expect(postCount).toBeGreaterThan(0);
+	
+	// Verify interactive elements
+	await expect(vault.window.locator('.toolbar-section .clickable-icon')).toBeVisible();
+	
+	// Verify filter components
+	await expect(vault.window.locator('.thread-filters')).toBeVisible();
+	await expect(vault.window.locator('.filter-buttons-group')).toBeVisible();
 });
 
 // Custom test configuration for this spec

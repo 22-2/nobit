@@ -1,1 +1,1 @@
-export { ThreadManager } from "./ThreadManager";
+export { ThreadManager } from "./ThreadManager.svelte";

@@ -1,4 +1,4 @@
-import { ThreadManager } from "../ThreadManager";
+import { ThreadManager } from "../ThreadManager.svelte";
 import { ObsidianFetcher } from "../../lib/ObsidianFetcher";
 import { DefaultDecoder } from "../../lib/libch/decoder";
 import { DefaultParser } from "../../lib/libch/parser";
@@ -39,7 +39,8 @@ const mockThread: Thread = {
 	],
 };
 
-const mockDatContent = "テストユーザー<><>2024/01/01 12:00:00 ID:TestID123<>テスト投稿です<>テストスレッド";
+const mockDatContent =
+	"テストユーザー<><>2024/01/01 12:00:00 ID:TestID123<>テスト投稿です<>テストスレッド";
 const mockBuffer = new ArrayBuffer(8);
 
 describe("ThreadManager", () => {
@@ -65,9 +66,15 @@ describe("ThreadManager", () => {
 		mockParser.parseThread = jest.fn();
 
 		// Mock the constructors to return our mocked instances
-		(ObsidianFetcher as jest.MockedClass<typeof ObsidianFetcher>).mockImplementation(() => mockFetcher);
-		(DefaultDecoder as jest.MockedClass<typeof DefaultDecoder>).mockImplementation(() => mockDecoder);
-		(DefaultParser as jest.MockedClass<typeof DefaultParser>).mockImplementation(() => mockParser);
+		(
+			ObsidianFetcher as jest.MockedClass<typeof ObsidianFetcher>
+		).mockImplementation(() => mockFetcher);
+		(
+			DefaultDecoder as jest.MockedClass<typeof DefaultDecoder>
+		).mockImplementation(() => mockDecoder);
+		(
+			DefaultParser as jest.MockedClass<typeof DefaultParser>
+		).mockImplementation(() => mockParser);
 
 		// Create ThreadManager instance
 		threadManager = new ThreadManager(mockApp);
@@ -96,7 +103,8 @@ describe("ThreadManager", () => {
 	});
 
 	describe("loadThread", () => {
-		const testUrl = "https://example.5ch.net/test/read.cgi/board/1234567890/";
+		const testUrl =
+			"https://example.5ch.net/test/read.cgi/board/1234567890/";
 
 		beforeEach(() => {
 			// Setup successful mock responses
@@ -111,7 +119,11 @@ describe("ThreadManager", () => {
 			// Verify the loading flow
 			expect(mockFetcher.fetch).toHaveBeenCalledWith(testUrl);
 			expect(mockDecoder.decode).toHaveBeenCalledWith(mockBuffer);
-			expect(mockParser.parseThread).toHaveBeenCalledWith(mockDatContent, "1234567890", testUrl);
+			expect(mockParser.parseThread).toHaveBeenCalledWith(
+				mockDatContent,
+				"1234567890",
+				testUrl
+			);
 
 			// Verify reactive state updates
 			expect(threadManager.thread).toEqual(mockThread);
@@ -161,7 +173,9 @@ describe("ThreadManager", () => {
 			// Verify error handling
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe("スレッドの読み込みに失敗しました: Network connection failed");
+			expect(threadManager.error).toBe(
+				"スレッドの読み込みに失敗しました: Network connection failed"
+			);
 		});
 
 		it("should handle decoder errors gracefully", async () => {
@@ -176,7 +190,9 @@ describe("ThreadManager", () => {
 			// Verify error handling
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe("スレッドの読み込みに失敗しました: Shift-JIS decoding failed");
+			expect(threadManager.error).toBe(
+				"スレッドの読み込みに失敗しました: Shift-JIS decoding failed"
+			);
 		});
 
 		it("should handle parser errors gracefully", async () => {
@@ -192,7 +208,9 @@ describe("ThreadManager", () => {
 			// Verify error handling
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe("スレッドの読み込みに失敗しました: DAT parsing failed");
+			expect(threadManager.error).toBe(
+				"スレッドの読み込みに失敗しました: DAT parsing failed"
+			);
 		});
 
 		it("should handle null parser result gracefully", async () => {
@@ -205,7 +223,9 @@ describe("ThreadManager", () => {
 			// Verify error handling for null result
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe("スレッドの読み込みに失敗しました: Failed to parse thread data");
+			expect(threadManager.error).toBe(
+				"スレッドの読み込みに失敗しました: Failed to parse thread data"
+			);
 		});
 
 		it("should extract thread ID correctly from URL", async () => {
@@ -220,7 +240,7 @@ describe("ThreadManager", () => {
 
 		it("should handle URLs without thread ID gracefully", async () => {
 			const invalidUrl = "https://example.5ch.net/test/read.cgi/board/";
-			
+
 			await threadManager.loadThread(invalidUrl);
 
 			expect(mockParser.parseThread).toHaveBeenCalledWith(
@@ -242,7 +262,7 @@ describe("ThreadManager", () => {
 		it("should reload current thread when thread is loaded", async () => {
 			// First load a thread
 			await threadManager.loadThread(mockThread.url);
-			
+
 			// Clear the mock calls from initial load
 			jest.clearAllMocks();
 			mockFetcher.fetch.mockResolvedValue(mockBuffer);
@@ -270,7 +290,7 @@ describe("ThreadManager", () => {
 			// First load a thread
 			await threadManager.loadThread(mockThread.url);
 			expect(threadManager.thread).toEqual(mockThread);
-			
+
 			// Setup mock for refresh with updated content
 			const updatedThread = {
 				...mockThread,
@@ -313,7 +333,7 @@ describe("ThreadManager", () => {
 			// First load a thread successfully
 			await threadManager.loadThread(mockThread.url);
 			expect(threadManager.thread).toEqual(mockThread);
-			
+
 			// Setup mock to fail on refresh
 			jest.clearAllMocks();
 			const refreshError = new Error("Refresh failed");
@@ -325,13 +345,15 @@ describe("ThreadManager", () => {
 			// Verify error handling - thread should be cleared and error set
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe("スレッドの読み込みに失敗しました: Refresh failed");
+			expect(threadManager.error).toBe(
+				"スレッドの読み込みに失敗しました: Refresh failed"
+			);
 		});
 
 		it("should set loading state during refresh operation", async () => {
 			// First load a thread
 			await threadManager.loadThread(mockThread.url);
-			
+
 			// Create a controllable promise for refresh
 			let resolveRefresh: (value: ArrayBuffer) => void;
 			const refreshPromise = new Promise<ArrayBuffer>((resolve) => {
@@ -357,13 +379,14 @@ describe("ThreadManager", () => {
 		});
 
 		it("should preserve thread URL during refresh", async () => {
-			const customUrl = "https://custom.5ch.net/test/read.cgi/board/9876543210/";
+			const customUrl =
+				"https://custom.5ch.net/test/read.cgi/board/9876543210/";
 			const customThread = { ...mockThread, url: customUrl };
-			
+
 			// Load thread with custom URL
 			mockParser.parseThread.mockReturnValue(customThread);
 			await threadManager.loadThread(customUrl);
-			
+
 			jest.clearAllMocks();
 			mockFetcher.fetch.mockResolvedValue(mockBuffer);
 			mockDecoder.decode.mockReturnValue(mockDatContent);
@@ -396,7 +419,7 @@ describe("ThreadManager", () => {
 
 		it("should create new filter object for reactivity", () => {
 			const originalFilters = threadManager.filters;
-			
+
 			threadManager.updateFilters({ popular: true });
 
 			// Verify a new object was created (important for Svelte reactivity)
@@ -406,7 +429,7 @@ describe("ThreadManager", () => {
 
 		it("should handle empty updates", () => {
 			const originalFilters = threadManager.filters;
-			
+
 			threadManager.updateFilters({});
 
 			// Should still create new object even with empty updates
@@ -536,17 +559,17 @@ describe("ThreadManager", () => {
 				{ popular: true },
 			];
 
-			updates.forEach(update => {
+			updates.forEach((update) => {
 				threadManager.updateFilters(update);
 			});
 
 			// Final state should reflect all changes
 			expect(threadManager.filters).toEqual({
-				popular: true,    // Last update
-				image: true,      // From earlier update
-				video: true,      // From earlier update
-				external: true,   // From earlier update
-				internal: false,  // Never changed
+				popular: true, // Last update
+				image: true, // From earlier update
+				video: true, // From earlier update
+				external: true, // From earlier update
+				internal: false, // Never changed
 				searchText: "test2", // Last searchText update
 			});
 		});
@@ -555,17 +578,17 @@ describe("ThreadManager", () => {
 	describe("jumpToPost", () => {
 		it("should log jump action for future UI integration", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			threadManager.jumpToPost(42);
 
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 42");
-			
+
 			consoleSpy.mockRestore();
 		});
 
 		it("should handle various post numbers", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			threadManager.jumpToPost(1);
 			threadManager.jumpToPost(999);
 			threadManager.jumpToPost(0);
@@ -573,25 +596,27 @@ describe("ThreadManager", () => {
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 1");
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 999");
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 0");
-			
+
 			consoleSpy.mockRestore();
 		});
 
 		it("should handle edge case post numbers", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			// Test negative numbers
 			threadManager.jumpToPost(-1);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post -1");
 
 			// Test very large numbers
 			threadManager.jumpToPost(Number.MAX_SAFE_INTEGER);
-			expect(consoleSpy).toHaveBeenCalledWith(`Jumping to post ${Number.MAX_SAFE_INTEGER}`);
+			expect(consoleSpy).toHaveBeenCalledWith(
+				`Jumping to post ${Number.MAX_SAFE_INTEGER}`
+			);
 
 			// Test decimal numbers (should work as-is for future flexibility)
 			threadManager.jumpToPost(42.5);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 42.5");
-			
+
 			consoleSpy.mockRestore();
 		});
 
@@ -604,7 +629,7 @@ describe("ThreadManager", () => {
 			const originalFilters = threadManager.filters;
 
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			// Jump to post should not change any state
 			threadManager.jumpToPost(5);
 
@@ -612,7 +637,7 @@ describe("ThreadManager", () => {
 			expect(threadManager.isLoading).toBe(originalIsLoading);
 			expect(threadManager.error).toBe(originalError);
 			expect(threadManager.filters).toBe(originalFilters);
-			
+
 			consoleSpy.mockRestore();
 		});
 
@@ -621,37 +646,39 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toBeNull();
 
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			// Should still work without a loaded thread
 			threadManager.jumpToPost(10);
 
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 10");
-			
+
 			consoleSpy.mockRestore();
 		});
 
 		it("should handle rapid successive calls", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			// Simulate rapid navigation
 			const postNumbers = [1, 5, 3, 10, 2, 8];
-			postNumbers.forEach(num => {
+			postNumbers.forEach((num) => {
 				threadManager.jumpToPost(num);
 			});
 
 			// Verify all calls were logged
-			postNumbers.forEach(num => {
-				expect(consoleSpy).toHaveBeenCalledWith(`Jumping to post ${num}`);
+			postNumbers.forEach((num) => {
+				expect(consoleSpy).toHaveBeenCalledWith(
+					`Jumping to post ${num}`
+				);
 			});
 
 			expect(consoleSpy).toHaveBeenCalledTimes(postNumbers.length);
-			
+
 			consoleSpy.mockRestore();
 		});
 
 		it("should be synchronous operation", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			const startTime = Date.now();
 			threadManager.jumpToPost(100);
 			const endTime = Date.now();
@@ -659,15 +686,15 @@ describe("ThreadManager", () => {
 			// Should complete immediately (within reasonable time for synchronous operation)
 			expect(endTime - startTime).toBeLessThan(10);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 100");
-			
+
 			consoleSpy.mockRestore();
 		});
 
 		it("should prepare for future UI integration scenarios", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			// Test scenarios that UI integration might need to handle
-			
+
 			// Jump to first post
 			threadManager.jumpToPost(1);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 1");
@@ -679,13 +706,13 @@ describe("ThreadManager", () => {
 			// Jump to post 0 (might be used for thread top)
 			threadManager.jumpToPost(0);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 0");
-			
+
 			consoleSpy.mockRestore();
 		});
 
 		it("should maintain consistent behavior across different thread states", () => {
 			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-			
+
 			// Test with no thread loaded
 			threadManager.jumpToPost(1);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 1");
@@ -704,7 +731,7 @@ describe("ThreadManager", () => {
 			threadManager.error = "Some error";
 			threadManager.jumpToPost(4);
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 4");
-			
+
 			consoleSpy.mockRestore();
 		});
 	});
@@ -732,12 +759,14 @@ describe("ThreadManager", () => {
 			mockFetcher.fetch.mockResolvedValue(mockBuffer);
 			mockDecoder.decode.mockReturnValue(mockDatContent);
 			mockParser.parseThread.mockReturnValue(mockThread);
-			
+
 			await threadManager.loadThread("https://example.com/thread1");
 			expect(threadManager.thread).toEqual(mockThread);
 
 			// Mock failure for second load
-			mockFetcher.fetch.mockRejectedValue(new Error("Second load failed"));
+			mockFetcher.fetch.mockRejectedValue(
+				new Error("Second load failed")
+			);
 
 			await threadManager.loadThread("https://example.com/thread2");
 
