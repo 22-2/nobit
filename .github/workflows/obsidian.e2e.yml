@@ -110,7 +110,7 @@ jobs:
                   npx @telosh/filetree --exclude node_modules,.git
 
             - name: Run Playwright example tests
-              run: pnpm playwright test e2e/specs/setup/example.spec.ts --project=chromium
+              run: pnpm run test:e2e:example
               env:
                   DEBUG: "pw:browser"
 

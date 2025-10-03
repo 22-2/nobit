@@ -14,7 +14,7 @@
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
 		"test:e2e": "playwright test",
-		"test:e2e:example": "pnpm playwright test e2e/specs/setup/example.spec.ts --project=chromium",
+		"test:e2e:example": "pnpm playwright test e2e/specs/example.spec.ts --project=chromium",
 		"test:e2e:debug": "cross-env DEBUG=pw:api playwright test"
 	},
 	"keywords": [],
