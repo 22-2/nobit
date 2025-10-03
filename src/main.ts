@@ -1,11 +1,15 @@
 import log from "loglevel";
 import { Plugin } from "obsidian";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, VIEW_TYPE_BROWSER, VIEW_TYPE_THREAD } from "./utils/constants";
+import {
+	DEFAULT_SETTINGS,
+	VIEW_TYPE_BROWSER,
+	VIEW_TYPE_THREAD,
+} from "./utils/constants";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView } from "./utils/obsidian";
-import { BrowserView } from "./view/view";
 import { ThreadView } from "./view/ThreadView";
+import { BrowserView } from "./view/view";
 
 export const logger = log.getLogger("nobit.main");
 
@@ -65,7 +69,7 @@ export default class NobitPlugin extends Plugin {
 		});
 	}
 
-	private configureLogging(): void {
+	configureLogging(): void {
 		toggleLoggerBy(this.settings.showLogger ? "DEBUG" : "ERROR");
 	}
 

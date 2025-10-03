@@ -23,7 +23,7 @@ export class NobitSettingTab extends PluginSettingTab {
 					.onChange(async (val) => {
 						this.plugin.settings.showLogger = val;
 						await this.plugin.saveSettings();
-						this.plugin.initializeLogger();
+						this.plugin.configureLogging();
 					});
 			});
 	}

@@ -45,7 +45,7 @@ test("Debug: Check what's actually rendered", async ({ vault }) => {
     const contentHTML = await vault.window.evaluate(() => {
         const activeLeaf = app.workspace.activeLeaf;
         if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
-            return activeLeaf.view.contentEl.innerHTML;
+            return (activeLeaf.view as any).contentEl.innerHTML;
         }
         return "No thread view found";
     });
@@ -57,7 +57,7 @@ test("Debug: Check what's actually rendered", async ({ vault }) => {
     const hasAnyContent = await vault.window.evaluate(() => {
         const activeLeaf = app.workspace.activeLeaf;
         if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
-            return activeLeaf.view.contentEl.children.length > 0;
+            return (activeLeaf.view as any).contentEl.children.length > 0;
         }
         return false;
     });
