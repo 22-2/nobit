@@ -66,10 +66,38 @@ graph TB
 
 ## Components and Interfaces
 
+### 0. Existing 5ch Communication Infrastructure (Already Implemented & Tested)
+
+The project already includes a comprehensive 5ch communication and decoding layer:
+
+#### ObsidianFetcher
+**Responsibility:** Obsidian-compatible HTTP client with rate limiting
+- Implements `HttpFetcher` interface using Obsidian's `requestUrl` API
+- Built-in `RequestQueue` with 300ms delay for rate limiting
+- Proper error handling with `HttpError` class
+- Supports both GET and POST requests
+
+#### libch Package Components
+**Responsibility:** 5ch-specific parsing and decoding logic
+
+- **`BufferDecoder`**: Handles Shift-JIS decoding for 5ch responses
+- **`DefaultParser`**: Parses 5ch DAT files, subject.txt, and BBS menu HTML
+- **`HttpFetcher` Interface**: Abstraction for network requests (implemented by ObsidianFetcher)
+- **URL Utilities**: 5ch URL parsing and validation
+- **Type Definitions**: Complete type system for 5ch data structures
+
+**Key Features**:
+- Shift-JIS text decoding for Japanese content
+- DAT file parsing with post relationship analysis
+- HTML entity decoding
+- Anchor link processing (>>1 style references)
+- Image URL extraction
+- Rate limiting and error handling
+
 ### 1. Manager Layer Components
 
 #### ThreadManager Class
-**Responsibility:** Manages thread-specific state and operations
+**Responsibility:** Manages thread-specific state and operations using existing 5ch infrastructure
 
 ```typescript
 class ThreadManager {
@@ -79,10 +107,44 @@ class ThreadManager {
   error = $state<string | null>(null);
   filters = $state<ThreadFilters>(defaultFilters);
   
-  constructor(private app: App) {}
+  private fetcher: ObsidianFetcher;
+  private decoder: DefaultDecoder;
+  private parser: DefaultParser;
   
-  // Public interface methods
-  async loadThread(url: string): Promise<void>
+  constructor(private app: App) {
+    this.fetcher = new ObsidianFetcher(300); // 300ms rate limiting
+    this.decoder = new DefaultDecoder();
+    this.parser = new DefaultParser();
+  }
+  
+  // Public interface methods leveraging existing infrastructure
+  async loadThread(url: string): Promise<void> {
+    this.isLoading = true;
+    this.error = null;
+    
+    try {
+      // Use existing ObsidianFetcher with rate limiting
+      const buffer = await this.fetcher.fetch(url);
+      
+      // Use existing decoder for Shift-JIS
+      const datContent = this.decoder.decode(buffer);
+      
+      // Use existing parser for 5ch DAT format
+      const threadId = extractThreadIdFromUrl(url);
+      const parsedThread = this.parser.parseThread(datContent, threadId, url);
+      
+      if (parsedThread) {
+        this.thread = parsedThread;
+      } else {
+        throw new Error('Failed to parse thread data');
+      }
+    } catch (error) {
+      this.error = `スレッドの読み込みに失敗しました: ${error.message}`;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
   async refreshThread(): Promise<void>
   async postToThread(postData: PostData): Promise<PostResult>
   updateFilters(newFilters: Partial<ThreadFilters>): void
@@ -91,7 +153,7 @@ class ThreadManager {
 ```
 
 #### BoardManager Class
-**Responsibility:** Manages board-specific state and operations
+**Responsibility:** Manages board-specific state and operations using existing 5ch infrastructure
 
 ```typescript
 class BoardManager {
@@ -100,16 +162,43 @@ class BoardManager {
   isLoading = $state<boolean>(false);
   error = $state<string | null>(null);
   
-  constructor(private app: App) {}
+  private fetcher: ObsidianFetcher;
+  private decoder: DefaultDecoder;
+  private parser: DefaultParser;
   
-  async loadBoard(boardUrl: string): Promise<void>
+  constructor(private app: App) {
+    this.fetcher = new ObsidianFetcher(300);
+    this.decoder = new DefaultDecoder();
+    this.parser = new DefaultParser();
+  }
+  
+  async loadBoard(boardUrl: string): Promise<void> {
+    this.isLoading = true;
+    this.error = null;
+    
+    try {
+      // Fetch subject.txt using existing infrastructure
+      const subjectUrl = `${boardUrl}/subject.txt`;
+      const buffer = await this.fetcher.fetch(subjectUrl);
+      const subjectContent = this.decoder.decode(buffer);
+      
+      // Parse using existing parser
+      this.boardThreads = this.parser.parseSubject(subjectContent);
+      this.currentBoard = { name: extractBoardName(boardUrl), url: boardUrl };
+    } catch (error) {
+      this.error = `板の読み込みに失敗しました: ${error.message}`;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
   async refreshBoard(): Promise<void>
   openThread(threadId: string): void
 }
 ```
 
 #### BoardListManager Class
-**Responsibility:** Manages board list state and navigation
+**Responsibility:** Manages board list state and navigation using existing 5ch infrastructure
 
 ```typescript
 class BoardListManager {
@@ -117,9 +206,35 @@ class BoardListManager {
   isLoading = $state<boolean>(false);
   error = $state<string | null>(null);
   
-  constructor(private app: App) {}
+  private fetcher: ObsidianFetcher;
+  private decoder: DefaultDecoder;
+  private parser: DefaultParser;
   
-  async loadBoardList(): Promise<void>
+  constructor(private app: App) {
+    this.fetcher = new ObsidianFetcher(300);
+    this.decoder = new DefaultDecoder();
+    this.parser = new DefaultParser();
+  }
+  
+  async loadBoardList(): Promise<void> {
+    this.isLoading = true;
+    this.error = null;
+    
+    try {
+      // Fetch BBS menu using existing infrastructure
+      const menuUrl = 'https://menu.5ch.net/bbsmenu.html';
+      const buffer = await this.fetcher.fetch(menuUrl);
+      const menuHtml = this.decoder.decode(buffer);
+      
+      // Parse using existing parser
+      this.bbsMenu = this.parser.parseBBSMenu(menuHtml);
+    } catch (error) {
+      this.error = `板一覧の読み込みに失敗しました: ${error.message}`;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+  
   openBoard(board: Board): void
 }
 ```
@@ -437,27 +552,35 @@ test('should handle network errors gracefully', async ({ page }) => {
 ## MVP Implementation Strategy
 
 ### Phase 1: Ruthless MVP (v0.0.1)
-**Goal**: Validate Manager layer architecture with minimal functionality
+**Goal**: Validate Manager layer architecture with minimal functionality using existing 5ch infrastructure
 
 **Scope**:
-1. Single hardcoded thread URL in ThreadManager
-2. Basic ThreadViewComponent.svelte displaying posts using existing components
+1. Single hardcoded thread URL in ThreadManager using existing ObsidianFetcher + DefaultParser
+2. Basic ThreadViewComponent.svelte displaying posts using existing PostItem components
 3. No navigation, no board lists, no user input
-4. Focus on proving Manager ↔ Svelte communication works
-5. Leverage existing Storybook stories for component development
+4. Focus on proving Manager ↔ Svelte communication works with real 5ch data
+5. Leverage existing Storybook stories and 5ch communication layer
 
 **Success Criteria**:
 - Command "Open Nobit Test Thread" opens ThreadView ItemView
-- ThreadView displays posts from hardcoded URL using existing PostItem components
+- ThreadView fetches and displays real 5ch thread data using existing infrastructure
+- ObsidianFetcher handles rate limiting and Shift-JIS decoding automatically
+- DefaultParser correctly processes DAT format and post relationships
 - No Svelte component imports from 'obsidian' (strict architectural separation)
 - ThreadManager uses Svelte 5's `$state` for reactive state management
-- Basic E2E test passes with mocked network requests
+- Basic E2E test passes with mocked 5ch responses
 - Existing thread components (PostItem, ThreadToolbar, etc.) integrate seamlessly
 
 **Development Workflow for MVP**:
-1. **Logic First**: Implement ThreadManager with unit tests
-2. **UI in Isolation**: Verify existing components work in Storybook
-3. **Integrate & Verify**: Create ThreadView ItemView and validate with E2E tests
+1. **Logic First**: Implement ThreadManager using existing ObsidianFetcher/DefaultParser with unit tests
+2. **UI in Isolation**: Verify existing components work in Storybook with real 5ch data structures
+3. **Integrate & Verify**: Create ThreadView ItemView and validate with E2E tests using network mocks
+
+**Advantages of Existing Infrastructure**:
+- No need to implement HTTP client, rate limiting, or Shift-JIS decoding
+- Proven 5ch DAT parsing and post relationship analysis
+- Existing error handling and network resilience
+- Type-safe 5ch data structures already defined
 
 ### Phase 2: Dynamic Thread Loading (v0.0.2)
 **Scope**:
