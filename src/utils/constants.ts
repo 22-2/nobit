@@ -1,5 +1,5 @@
 import log from "loglevel";
-import manifest from "../../manifest.json";
+import manifest from "../../manifest.json" with { type: "json" };
 import { type NobitPluginSettings } from "../settings";
 
 export const DEBUG_MODE = Boolean(
