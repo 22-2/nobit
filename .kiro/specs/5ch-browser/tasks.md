@@ -12,7 +12,13 @@
   - Add constructor that initializes existing 5ch communication components
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ]* 1.1 Write unit tests for ThreadManager public interface
+- [x] 1.1 Write unit tests for ThreadManager public interface
+
+
+
+
+
+
   - Test loadThread method with mocked ObsidianFetcher responses
   - Test error handling for network failures and parsing errors
   - Test reactive state updates (thread, isLoading, error)

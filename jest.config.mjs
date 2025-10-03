@@ -12,8 +12,9 @@ export default {
 		],
 	},
 	collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/tests/**"],
-	moduleNameMapping: {
-		"^@/(.*)$": "<rootDir>/src/$1",
+	setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
+	moduleNameMapper: {
+		"^obsidian$": "<rootDir>/src/__mocks__/obsidian",
+		"^src/(.*)$": "<rootDir>/src/$1",
 	},
-	// setupFilesAfterEnv: ["<rootDir>/src/tests/setup.ts"],
 };

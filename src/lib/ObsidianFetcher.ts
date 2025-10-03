@@ -1,6 +1,6 @@
 import log from "loglevel";
 import { requestUrl, type RequestUrlParam } from "obsidian";
-import { HttpError, type HttpFetcher } from "src/lib/libch/fetcher";
+import { HttpError, type HttpFetcher } from "./libch/fetcher";
 import { RequestQueue } from "./RequestQueue";
 
 export const logger = log.getLogger("ObsidianFetcher");

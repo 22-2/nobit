@@ -69,6 +69,7 @@ export class ThreadManager {
 				throw new Error("Failed to parse thread data");
 			}
 		} catch (error: any) {
+			this.thread = null; // Clear previous thread data on error
 			this.error = `スレッドの読み込みに失敗しました: ${error.message}`;
 		} finally {
 			this.isLoading = false;
