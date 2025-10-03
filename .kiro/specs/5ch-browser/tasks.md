@@ -138,7 +138,13 @@
   - Document the hardcoded URL and rationale in code comments
   - _Requirements: 9.2, 9.5_
 
-- [ ]* 5.2 Write E2E test for MVP functionality
+- [x] 5.2 Write E2E test for MVP functionality
+
+
+
+
+
+
   - Test "Open Nobit Test Thread" command opens ThreadView
   - Mock 5ch network responses using Playwright route interception
   - Verify thread content displays using existing PostItem components

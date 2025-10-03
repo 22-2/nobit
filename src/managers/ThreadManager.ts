@@ -1,4 +1,5 @@
 import type { App } from "obsidian";
+import { writable, type Writable } from "svelte/store";
 import { ObsidianFetcher } from "../lib/ObsidianFetcher";
 import { DefaultDecoder } from "../lib/libch/decoder";
 import { DefaultParser } from "../lib/libch/parser";
@@ -9,7 +10,7 @@ import type { Thread, ThreadFilters } from "../lib/types";
  * This class acts as a bridge between Obsidian's class-based world and Svelte's reactive UI world.
  * 
  * Key responsibilities:
- * - Manages reactive state using Svelte 5's $state
+ * - Manages reactive state using Svelte stores
  * - Encapsulates all 5ch API interactions using ObsidianFetcher, DefaultDecoder, and DefaultParser
  * - Provides clean interface for Svelte components
  * - Ensures no direct 'obsidian' imports in Svelte components
@@ -20,11 +21,11 @@ import type { Thread, ThreadFilters } from "../lib/types";
  * - Will be extended to support dynamic thread loading in future iterations
  */
 export class ThreadManager {
-	// Reactive state using Svelte 5's $state
-	thread = $state<Thread | null>(null);
-	isLoading = $state<boolean>(false);
-	error = $state<string | null>(null);
-	filters = $state<ThreadFilters>({
+	// Reactive state using Svelte stores
+	thread: Writable<Thread | null> = writable(null);
+	isLoading: Writable<boolean> = writable(false);
+	error: Writable<string | null> = writable(null);
+	filters: Writable<ThreadFilters> = writable({
 		popular: false,
 		image: false,
 		video: false,
@@ -52,8 +53,8 @@ export class ThreadManager {
 	 * @param url - The 5ch thread URL to load
 	 */
 	async loadThread(url: string): Promise<void> {
-		this.isLoading = true;
-		this.error = null;
+		this.isLoading.set(true);
+		this.error.set(null);
 
 		try {
 			// Use existing ObsidianFetcher with rate limiting
@@ -69,15 +70,15 @@ export class ThreadManager {
 			const parsedThread = this.parser.parseThread(datContent, threadId, url);
 
 			if (parsedThread) {
-				this.thread = parsedThread;
+				this.thread.set(parsedThread);
 			} else {
 				throw new Error("Failed to parse thread data");
 			}
 		} catch (error: any) {
-			this.thread = null; // Clear previous thread data on error
-			this.error = `スレッドの読み込みに失敗しました: ${error.message}`;
+			this.thread.set(null); // Clear previous thread data on error
+			this.error.set(`スレッドの読み込みに失敗しました: ${error.message}`);
 		} finally {
-			this.isLoading = false;
+			this.isLoading.set(false);
 		}
 	}
 
@@ -85,8 +86,15 @@ export class ThreadManager {
 	 * Refresh the currently loaded thread by reloading from its URL.
 	 */
 	async refreshThread(): Promise<void> {
-		if (this.thread?.url) {
-			await this.loadThread(this.thread.url);
+		const currentThread = await new Promise<Thread | null>(resolve => {
+			const unsubscribe = this.thread.subscribe(value => {
+				unsubscribe();
+				resolve(value);
+			});
+		});
+		
+		if (currentThread?.url) {
+			await this.loadThread(currentThread.url);
 		}
 	}
 
@@ -97,7 +105,7 @@ export class ThreadManager {
 	 * @param newFilters - Partial filter updates to apply
 	 */
 	updateFilters(newFilters: Partial<ThreadFilters>): void {
-		this.filters = { ...this.filters, ...newFilters };
+		this.filters.update(current => ({ ...current, ...newFilters }));
 	}
 
 	/**

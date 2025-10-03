@@ -4,7 +4,7 @@ import { mount, unmount } from "svelte";
 import { setContext } from "svelte";
 import type NobitPlugin from "../main";
 import { ThreadManager } from "../managers/ThreadManager";
-import ThreadViewComponent from "./ThreadViewComponent.svelte";
+import SimpleThreadViewComponent from "./SimpleThreadViewComponent.svelte";
 
 /**
  * ThreadView extends Obsidian's ItemView to provide a bridge between
@@ -44,15 +44,10 @@ export class ThreadView extends ItemView {
 		// Clear any existing content
 		this.contentEl.empty();
 		
-		// Create a context map for Svelte component
-		const contextMap = new Map();
-		contextMap.set('threadManager', this.threadManager);
-		
-		// Mount Svelte component with ThreadManager injected via context
-		this.component = mount(ThreadViewComponent, {
+		// Mount simple thread view component
+		this.component = mount(SimpleThreadViewComponent, {
 			target: this.contentEl,
-			props: {},
-			context: contextMap
+			props: {}
 		});
 	}
 

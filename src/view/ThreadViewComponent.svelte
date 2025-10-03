@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { getContext, onMount } from "svelte";
+	import { onMount } from "svelte";
 	import { ThreadManager } from "../managers/ThreadManager";
 	import type { ThreadFilters } from "../lib/types";
 	import PostItem from "./thread/PostItem.svelte";
 	import ThreadToolbar from "./thread/ThreadToolbar.svelte";
 	import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
 
-	// Get ThreadManager from context (injected by ThreadView ItemView)
-	const threadManager = getContext<ThreadManager>("threadManager");
+	// Accept ThreadManager as a prop (passed by ThreadView ItemView)
+	export let threadManager: ThreadManager;
 
 	onMount(async () => {
 		// MVP: Load hardcoded thread URL for initial testing
@@ -47,40 +47,40 @@
 	<!-- Thread Filters Component -->
 	<div class="filters-section">
 		<ThreadFiltersComponent 
-			bind:filters={threadManager.filters} 
+			bind:filters={$threadManager.filters} 
 			isVisible={true} 
 		/>
 	</div>
 
 	<!-- Loading State -->
-	{#if threadManager.isLoading}
+	{#if $threadManager.isLoading}
 		<div class="loading-container">
 			<div class="loading-spinner"></div>
 			<div class="loading-text">スレッドを読み込み中...</div>
 		</div>
-	{:else if threadManager.error}
+	{:else if $threadManager.error}
 		<!-- Error State -->
 		<div class="error-container">
 			<div class="error-icon">⚠️</div>
-			<div class="error-message">{threadManager.error}</div>
+			<div class="error-message">{$threadManager.error}</div>
 			<button class="retry-button" on:click={handleRefresh}>
 				再試行
 			</button>
 		</div>
-	{:else if threadManager.thread}
+	{:else if $threadManager.thread}
 		<!-- Thread Content -->
 		<div class="thread-content">
 			<div class="thread-header">
-				<h2 class="thread-title">{threadManager.thread.title}</h2>
+				<h2 class="thread-title">{$threadManager.thread.title}</h2>
 				<div class="thread-info">
 					<span class="post-count"
-						>{threadManager.thread.posts.length} posts</span
+						>{$threadManager.thread.posts.length} posts</span
 					>
 				</div>
 			</div>
 
 			<div class="posts-container">
-				{#each threadManager.thread.posts as post, index}
+				{#each $threadManager.thread.posts as post, index}
 					<PostItem 
 						{post} 
 						{index} 
@@ -101,7 +101,7 @@
 	<div class="toolbar-section">
 		<ThreadToolbar
 			onRefresh={handleRefresh}
-			isLoading={threadManager.isLoading}
+			isLoading={$threadManager.isLoading}
 		/>
 	</div>
 </div>
