@@ -106,7 +106,13 @@
   - Show empty state when no thread is loaded
   - _Requirements: 1.5, 4.5_
 
-- [ ]* 4.3 Update existing Storybook stories for integration testing
+- [x] 4.3 Update existing Storybook stories for integration testing
+
+
+
+
+
+
   - Verify PostItem.stories.svelte works with real 5ch data structures
   - Test ThreadToolbar.stories.svelte with ThreadManager mock
   - Ensure ThreadFilters.stories.svelte integrates properly
