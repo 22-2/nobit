@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { getContext, onMount } from "svelte";
 	import { ThreadManager } from "../managers/ThreadManager";
+	import type { ThreadFilters } from "../lib/types";
 	import PostItem from "./thread/PostItem.svelte";
 	import ThreadToolbar from "./thread/ThreadToolbar.svelte";
-	import ThreadFilters from "./thread/ThreadFilters.svelte";
+	import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
 
 	// Get ThreadManager from context (injected by ThreadView ItemView)
 	const threadManager = getContext<ThreadManager>("threadManager");
@@ -24,12 +25,19 @@
 	function handleJumpToPost(resNumber: number) {
 		threadManager.jumpToPost(resNumber);
 	}
+
+	function handleUpdateFilters(newFilters: Partial<ThreadFilters>) {
+		threadManager.updateFilters(newFilters);
+	}
 </script>
 
 <div class="thread-view">
 	<!-- Thread Filters Component -->
 	<div class="filters-section">
-		<ThreadFilters bind:filters={threadManager.filters} isVisible={true} />
+		<ThreadFiltersComponent 
+			bind:filters={threadManager.filters} 
+			isVisible={true} 
+		/>
 	</div>
 
 	<!-- Loading State -->
@@ -61,7 +69,11 @@
 
 			<div class="posts-container">
 				{#each threadManager.thread.posts as post, index}
-					<PostItem {post} {index} />
+					<PostItem 
+						{post} 
+						{index} 
+						onJumpToPost={handleJumpToPost}
+					/>
 				{/each}
 			</div>
 		</div>

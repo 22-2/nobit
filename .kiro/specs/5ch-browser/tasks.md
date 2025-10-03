@@ -77,21 +77,30 @@
   - Implement proper context cleanup on view close
   - _Requirements: 2.3, 2.4_
 
-- [ ] 4. Create ThreadViewComponent.svelte main component
+- [x] 4. Create ThreadViewComponent.svelte main component
+
+
+
+
+
   - Build main thread display component using existing PostItem, ThreadToolbar, ThreadFilters
   - Implement getContext to access ThreadManager
   - Add onMount hook to load hardcoded thread URL for MVP
   - Create reactive UI that responds to ThreadManager state changes
   - _Requirements: 1.1, 1.2, 1.3, 5.1, 5.2, 5.3, 9.1, 9.2, 9.3_
 
-- [ ] 4.1 Integrate existing thread components
+- [x] 4.1 Integrate existing thread components
+
+
   - Use PostItem.svelte for individual post display
   - Integrate ThreadToolbar.svelte for refresh functionality
   - Add ThreadFilters.svelte for filtering options
   - Ensure proper event handling between components and ThreadManager
   - _Requirements: 5.3, 5.4, 8.3_
 
-- [ ] 4.2 Implement loading and error states in ThreadViewComponent
+- [x] 4.2 Implement loading and error states in ThreadViewComponent
+
+
   - Add loading spinner when ThreadManager.isLoading is true
   - Display error messages when ThreadManager.error is set
   - Show empty state when no thread is loaded
