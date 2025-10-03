@@ -5,11 +5,11 @@
  * create Git tags, and push them to origin.
  *
  * Usage:
- * npm run version:update - Update version in files only
- * npm run version:commit - Update version and commit changes
- * npm run version:tag - Update version, commit changes, and create a tag
- * npm run version:push - Update version, commit changes, create a tag, and push to origin
- * npm run version:all - (Alias for push) Execute all steps
+ * pnpm run version:update - Update version in files only
+ * pnpm run version:commit - Update version and commit changes
+ * pnpm run version:tag - Update version, commit changes, and create a tag
+ * pnpm run version:push - Update version, commit changes, create a tag, and push to origin
+ * pnpm run version:all - (Alias for push) Execute all steps
  * node version-bump.ts interactive - Run in interactive mode
  */
 
