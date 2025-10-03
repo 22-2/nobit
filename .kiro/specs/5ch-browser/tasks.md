@@ -25,14 +25,21 @@
   - Focus on public interface behavior, not internal implementation details
   - _Requirements: 6.1_
 
-- [ ] 2. Implement ThreadManager core functionality
+- [x] 2. Implement ThreadManager core functionality
+
+
+
+
+
   - Add loadThread method using existing ObsidianFetcher.fetch()
   - Integrate DefaultDecoder for Shift-JIS decoding
   - Use DefaultParser.parseThread() for DAT file processing
   - Implement proper error handling with user-friendly Japanese messages
   - _Requirements: 1.1, 1.2, 1.3, 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 2.1 Add ThreadManager utility methods
+- [x] 2.1 Add ThreadManager utility methods
+
+
   - Implement refreshThread method (reload current thread URL)
   - Add updateFilters method for ThreadFilters state management
   - Create jumpToPost method for navigation within thread
