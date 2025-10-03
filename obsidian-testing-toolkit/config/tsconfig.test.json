@@ -2,7 +2,11 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -19,10 +23,18 @@
     "rootDir": "../../../",
     "baseUrl": "../../../",
     "paths": {
-      "@obsidian-testing-toolkit/*": ["obsidian-testing-toolkit/*"],
-      "@/*": ["src/*"],
-      "obsidian": ["obsidian-testing-toolkit/mocks/obsidian"],
-      "electron": ["obsidian-testing-toolkit/mocks/electron"]
+      "@obsidian-testing-toolkit/*": [
+        "obsidian-testing-toolkit/*"
+      ],
+      "@/*": [
+        "src/*"
+      ],
+      "obsidian": [
+        "obsidian-testing-toolkit/mocks/obsidian"
+      ],
+      "electron": [
+        "obsidian-testing-toolkit/mocks/electron"
+      ]
     },
     "types": [
       "node",
@@ -31,7 +43,7 @@
     ],
     "typeRoots": [
       "../../../node_modules/@types",
-      "../../../types"
+      "../src/lib/types"
     ]
   },
   "include": [

@@ -1,8 +1,10 @@
 import builtins from "builtin-modules";
 import dotenv from "dotenv";
 import esbuild from "esbuild";
+import esbuildSvelte from "esbuild-svelte";
 import path from "path";
 import process from "process";
+import { sveltePreprocess } from "svelte-preprocess";
 
 import { copyPlugin } from "./copyPlugin.mts";
 import manifest from "./manifest.json";
@@ -72,7 +74,16 @@ const context = await esbuild.context({
 				.replace(/[\\/:*?"<>|\s.]/g, "-")
 		),
 	},
-	plugins: [copyPlugin(copyOpts)],
+	plugins: [
+		copyPlugin(copyOpts),
+		esbuildSvelte({
+			compilerOptions: {
+				css: "injected",
+				warningFilter: (warning) => !warning.code.startsWith("a11y"), // a11y-から始まる警告をすべて無視
+			},
+			preprocess: sveltePreprocess(),
+		}),
+	],
 	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [

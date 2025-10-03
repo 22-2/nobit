@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type MyPlugin from "../main";
 	import { onMount } from "svelte";
+	import type Nobitlugin from "../main";
 
-	export let plugin: MyPlugin;
+	export let plugin: Nobitlugin;
 
 	let counter = 0;
 
