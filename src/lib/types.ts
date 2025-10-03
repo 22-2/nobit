@@ -41,6 +41,7 @@ export const ThreadFiltersSchema = z.object({
 export type ThreadFilters = z.infer<typeof ThreadFiltersSchema>;
 
 export const ThreadSchema = z.object({
+	id: z.string(),
 	title: z.string(),
 	posts: z.array(PostSchema),
 	url: z.string(),
