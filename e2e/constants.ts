@@ -52,7 +52,7 @@ export const LAUNCH_OPTIONS = {
 
 
 export const CMD_ID_OPEN_PLUGIN_VIEW =
-	"count-novels:open-count-novels-home";
+	"nobit:open-browser-view";
 export const CMD_ID_TOGGLE_SOURCE = "editor:toggle-source";
 export const CMD_ID_CLOSE_TAB = "workspace:close";
 export const CMD_ID_UNDO_CLOSE_TAB = "workspace:undo-close-pane";
