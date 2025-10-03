@@ -1,7 +1,7 @@
 <!-- src/components/PostItem.svelte -->
 <script lang="ts">
     import { type Post } from "src/lib/types";
-    import { formatDate } from "src/utils/date";
+    import { formatDate } from "src/utils/utils";
 
     export type HoverDetail = {
         targetEl: HTMLElement;
