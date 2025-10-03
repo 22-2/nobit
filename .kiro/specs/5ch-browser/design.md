@@ -409,19 +409,19 @@ class ThreadManager {
 
 ## Testing Strategy
 
-### 1. Unit Tests (Jest) - Foundation Layer
+### 1. Unit Tests (Vitest) - Foundation Layer
 **Focus**: Manager class logic and pure functions
 **Approach**: Test public interfaces, not implementation details to ensure refactoring resilience
 
 **Current Setup**:
-- Jest 30.2.0 with TypeScript support via ts-jest
-- Configuration in `jest.config.mjs`
+- Vitest 3.2.4 with TypeScript support and native ES modules
+- Configuration in `vitest.config.ts`
 - Focus on testing Manager class public interfaces
 
 ```typescript
 // Example: ThreadManager.test.ts
 describe('ThreadManager', () => {
-  let mockApp: jest.Mocked<App>;
+  let mockApp: App;
   let threadManager: ThreadManager;
   
   beforeEach(() => {
@@ -639,7 +639,7 @@ test('should handle network errors gracefully', async ({ page }) => {
 - **Obsidian Plugin**: TypeScript with strict mode
 - **UI Framework**: Svelte 5 with reactive `$state` 
 - **Component Development**: Storybook 9.1.10 with Svelte CSF addon
-- **Unit Testing**: Jest 30.2.0 with ts-jest for TypeScript support
+- **Unit Testing**: Vitest 2.1.9 with native TypeScript and ES modules support
 - **E2E Testing**: Playwright 1.55.1 with obsidian-testing-toolkit
 - **Build System**: esbuild with Svelte plugin
 - **Code Quality**: Biome for formatting and linting

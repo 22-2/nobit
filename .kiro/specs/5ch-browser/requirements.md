@@ -72,7 +72,7 @@ This feature implements a lightweight, performant, and hackable 5ch-compatible b
 
 #### Acceptance Criteria
 
-1. WHEN implementing Manager logic THEN unit tests SHALL be written using Jest focusing on public interfaces to avoid brittleness during refactoring
+1. WHEN implementing Manager logic THEN unit tests SHALL be written using Vitest focusing on public interfaces to avoid brittleness during refactoring
 2. WHEN creating UI components THEN component tests SHALL be developed in Storybook
 3. WHEN implementing user flows THEN E2E tests SHALL be written using Playwright leveraging existing infrastructure
 4. WHEN making network requests in tests THEN external APIs SHALL be mocked for deterministic results

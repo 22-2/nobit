@@ -28,7 +28,7 @@ The key to this project's stability is the strict separation between the Obsidia
 ## Testing Strategy (Test Pyramid)
 This project employs a three-tiered testing strategy. All tests must pass before merging a PR.
 
-### 1. Unit Tests (Jest)
+### 1. Unit Tests (Vitest)
 - **Purpose:** To test pure TypeScript logic, helper functions, and the business logic within Manager classes.
 - **Location:** `*.test.ts` files.
 - **How to run:**
