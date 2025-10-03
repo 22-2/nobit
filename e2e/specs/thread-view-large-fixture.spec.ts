@@ -14,12 +14,15 @@ const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
 // ========================================
 // Easily customize which fixture files to use for testing
 const FIXTURES = {
-	SMALL: join(process.cwd(), "src/__tests__/fixtures/1759320900.dat"),        // ~10 posts
-	LARGE: join(process.cwd(), "src/__tests__/fixtures/1759470805.1000posts.dat") // ~1000 posts
+	SMALL: join(process.cwd(), "src/__tests__/fixtures/1759320900.dat"), // ~10 posts
+	LARGE: join(
+		process.cwd(),
+		"src/__tests__/fixtures/1759470805.1000posts.dat"
+	), // ~1000 posts
 };
 
 // Default fixture path (can be overridden per test)
-const DEFAULT_FIXTURE_PATH = FIXTURES.SMALL;
+const FIXTURE_PATH = FIXTURES.SMALL;
 
 // 💡 To add a new fixture:
 // 1. Add your .dat file to src/__tests__/fixtures/
@@ -40,24 +43,29 @@ test.use({
 });
 
 // Helper function to setup route with fixture file (raw Shift_JIS binary)
-async function setupFixtureRoute(window: any, fixturePath: string = DEFAULT_FIXTURE_PATH) {
+async function setupFixtureRoute(
+	window: any,
+	fixturePath: string = FIXTURE_PATH
+) {
 	console.log(`🔧 Setting up fixture route with file: ${fixturePath}`);
-	
+
 	// Debug: catch all requests to see what's happening
 	await window.route("**/*", async (route: any) => {
 		const url = route.request().url();
 		console.log(`🌐 ALL REQUESTS: ${url}`);
-		
+
 		// Only intercept our target URLs
 		if (url.includes("/test/read.cgi/") || url.includes("bbs.eddibb.cc")) {
 			console.log(`🎯 MATCHING TARGET URL: ${url}`);
-			
+
 			try {
 				// Read the fixture file as raw binary buffer
 				const buffer = readFileSync(fixturePath);
 
-				console.log(`📁 Serving fixture file: ${fixturePath} (${buffer.length} bytes)`);
-				
+				console.log(
+					`📁 Serving fixture file: ${fixturePath} (${buffer.length} bytes)`
+				);
+
 				// Send raw Shift_JIS binary data - let the plugin's DefaultDecoder handle decoding
 				await route.fulfill({
 					status: 200,
@@ -67,7 +75,10 @@ async function setupFixtureRoute(window: any, fixturePath: string = DEFAULT_FIXT
 				console.log(`✅ Successfully served fixture file`);
 				return; // Important: return after fulfilling the route
 			} catch (error) {
-				console.error("❌ Failed to load fixture file in route:", error);
+				console.error(
+					"❌ Failed to load fixture file in route:",
+					error
+				);
 				await route.fulfill({
 					status: 500,
 					body: "Failed to load fixture",
@@ -430,19 +441,19 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 	expect(newPostCount).toBeGreaterThan(100);
 });
 
-
-
 test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// Load fixture data and set it in global scope for the plugin to use
 	const fixtureBuffer = readFileSync(FIXTURES.LARGE);
-	const decoder = new TextDecoder('shift-jis');
+	const decoder = new TextDecoder("shift-jis");
 	const fixtureData = decoder.decode(fixtureBuffer);
-	
+
 	await vault.window.evaluate((data) => {
 		(window as any).testFixtureData = data;
-		console.log(`🔧 Test: Set fixture data in global scope (${data.length} characters)`);
+		console.log(
+			`🔧 Test: Set fixture data in global scope (${data.length} characters)`
+		);
 	}, fixtureData);
 
 	// Setup fixture route as backup (though we're using direct loading now)
@@ -456,7 +467,9 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load with extended timeout for 1000 posts
-	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 30000 });
+	await expect(vault.window.locator(".thread-content")).toBeVisible({
+		timeout: 30000,
+	});
 
 	const loadTime = Date.now() - startTime;
 	console.log(`🚀 1000 posts loaded in ${loadTime}ms`);
@@ -465,17 +478,19 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	expect(loadTime).toBeLessThan(20000);
 
 	// Verify 1000 posts are rendered
-	const postCount = await vault.window.locator('.posts-container .post').count();
+	const postCount = await vault.window
+		.locator(".posts-container .post")
+		.count();
 	console.log(`📊 Rendered ${postCount} posts`);
 	expect(postCount).toBe(1000);
 
 	// Test scrolling performance with large dataset
 	const scrollStartTime = Date.now();
-	await vault.window.locator('.posts-container').scrollIntoViewIfNeeded();
+	await vault.window.locator(".posts-container").scrollIntoViewIfNeeded();
 
 	// Scroll to middle
 	await vault.window.evaluate(() => {
-		const container = document.querySelector('.posts-container');
+		const container = document.querySelector(".posts-container");
 		if (container) {
 			container.scrollTop = container.scrollHeight / 2;
 		}
@@ -483,7 +498,7 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 
 	// Scroll to bottom
 	await vault.window.evaluate(() => {
-		const container = document.querySelector('.posts-container');
+		const container = document.querySelector(".posts-container");
 		if (container) {
 			container.scrollTop = container.scrollHeight;
 		}
@@ -493,121 +508,143 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	console.log(`📜 Scrolling completed in ${scrollTime}ms`);
 
 	// Verify UI remains responsive after scrolling
-	await expect(vault.window.locator('.thread-filters')).toBeVisible();
-	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
+	await expect(vault.window.locator(".thread-filters")).toBeVisible();
+	await expect(vault.window.locator(".toolbar-section")).toBeVisible();
 
 	// Test search performance with large dataset
 	const searchStartTime = Date.now();
-	const searchInput = vault.window.locator('.thread-filters input[type="text"]');
+	const searchInput = vault.window.locator(
+		'.thread-filters input[type="text"]'
+	);
 	if (await searchInput.isVisible()) {
-		await searchInput.fill('なん');
+		await searchInput.fill("なん");
 		await vault.window.waitForTimeout(1000); // Wait for search to process
 
-		const searchResults = await vault.window.locator('.posts-container .post').count();
+		const searchResults = await vault.window
+			.locator(".posts-container .post")
+			.count();
 		const searchTime = Date.now() - searchStartTime;
-		console.log(`🔍 Search completed in ${searchTime}ms, found ${searchResults} results`);
+		console.log(
+			`🔍 Search completed in ${searchTime}ms, found ${searchResults} results`
+		);
 
 		// Search should complete within reasonable time
 		expect(searchTime).toBeLessThan(5000);
 		expect(searchResults).toBeGreaterThan(0);
 
 		// Clear search
-		await searchInput.fill('');
+		await searchInput.fill("");
 		await vault.window.waitForTimeout(500);
 
 		// Verify all posts are shown again
-		const finalPostCount = await vault.window.locator('.posts-container .post').count();
+		const finalPostCount = await vault.window
+			.locator(".posts-container .post")
+			.count();
 		expect(finalPostCount).toBe(1000);
 	}
 
 	// Memory usage check - verify no memory leaks
 	const memoryInfo = await vault.window.evaluate(() => {
-		if ('memory' in performance) {
+		if ("memory" in performance) {
 			return (performance as any).memory;
 		}
 		return null;
 	});
 
 	if (memoryInfo && memoryInfo.usedJSHeapSize) {
-		console.log(`💾 Memory usage: ${Math.round(memoryInfo.usedJSHeapSize / 1024 / 1024)}MB`);
+		console.log(
+			`💾 Memory usage: ${Math.round(
+				memoryInfo.usedJSHeapSize / 1024 / 1024
+			)}MB`
+		);
 		// Should not exceed 500MB for 1000 posts
 		expect(memoryInfo.usedJSHeapSize).toBeLessThan(500 * 1024 * 1024);
 	} else {
-		console.log('💾 Memory API not available in this environment');
+		console.log("💾 Memory API not available in this environment");
 		// Skip memory test if API is not available
 	}
-}); test(
-	"Large Fixture: Real 1000 posts fixture file test", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+});
+test("Large Fixture: Real 1000 posts fixture file test", async ({ vault }) => {
+	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-		// Setup fixture route with the large 1000 posts fixture file
-		await setupFixtureRoute(vault.window, FIXTURES.LARGE);
+	// Setup fixture route with the large 1000 posts fixture file
+	await setupFixtureRoute(vault.window, FIXTURES.LARGE);
 
-		// Measure loading time
-		const startTime = Date.now();
+	// Measure loading time
+	const startTime = Date.now();
 
-		// Execute command
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
-		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
+	// Execute command
+	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
-		// Wait for content to load with extended timeout for 1000 posts
-		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 30000 });
+	// Wait for content to load with extended timeout for 1000 posts
+	await expect(vault.window.locator(".thread-content")).toBeVisible({
+		timeout: 30000,
+	});
 
-		const loadTime = Date.now() - startTime;
-		console.log(`🚀 Real 1000 posts fixture loaded in ${loadTime}ms`);
+	const loadTime = Date.now() - startTime;
+	console.log(`🚀 Real 1000 posts fixture loaded in ${loadTime}ms`);
 
-		// Verify reasonable loading time
-		expect(loadTime).toBeLessThan(25000);
+	// Verify reasonable loading time
+	expect(loadTime).toBeLessThan(25000);
 
-		// Verify posts are rendered (should be close to 1000)
-		const postCount = await vault.window.locator('.posts-container .post').count();
-		console.log(`📊 Rendered ${postCount} posts from real fixture`);
-		expect(postCount).toBeGreaterThan(900); // Allow for some parsing variations
+	// Verify posts are rendered (should be close to 1000)
+	const postCount = await vault.window
+		.locator(".posts-container .post")
+		.count();
+	console.log(`📊 Rendered ${postCount} posts from real fixture`);
+	expect(postCount).toBeGreaterThan(900); // Allow for some parsing variations
 
-		// Verify thread title is from the real fixture
-		const threadTitle = await vault.window.locator('.thread-title').textContent();
-		console.log(`📝 Thread title: ${threadTitle}`);
-		expect(threadTitle).toContain('エッヂ'); // Should contain content from real fixture
+	// Verify thread title is from the real fixture
+	const threadTitle = await vault.window
+		.locator(".thread-title")
+		.textContent();
+	console.log(`📝 Thread title: ${threadTitle}`);
+	expect(threadTitle).toContain("エッヂ"); // Should contain content from real fixture
 
-		// Test performance with real data
-		const scrollStartTime = Date.now();
+	// Test performance with real data
+	const scrollStartTime = Date.now();
 
-		// Scroll to middle
-		await vault.window.evaluate(() => {
-			const container = document.querySelector('.posts-container');
-			if (container) {
-				container.scrollTop = container.scrollHeight / 2;
-			}
-		});
-
-		// Scroll to bottom
-		await vault.window.evaluate(() => {
-			const container = document.querySelector('.posts-container');
-			if (container) {
-				container.scrollTop = container.scrollHeight;
-			}
-		});
-
-		const scrollTime = Date.now() - scrollStartTime;
-		console.log(`📜 Real data scrolling completed in ${scrollTime}ms`);
-
-		// Verify UI remains responsive
-		await expect(vault.window.locator('.thread-filters')).toBeVisible();
-		await expect(vault.window.locator('.toolbar-section')).toBeVisible();
-
-		// Test search with real Japanese content
-		const searchInput = vault.window.locator('.thread-filters input[type="text"]');
-		if (await searchInput.isVisible()) {
-			await searchInput.fill('エッヂ');
-			await vault.window.waitForTimeout(1000);
-
-			const searchResults = await vault.window.locator('.posts-container .post').count();
-			console.log(`🔍 Search for 'エッヂ' found ${searchResults} results`);
-
-			expect(searchResults).toBeGreaterThan(0);
-
-			// Clear search
-			await searchInput.fill('');
-			await vault.window.waitForTimeout(500);
+	// Scroll to middle
+	await vault.window.evaluate(() => {
+		const container = document.querySelector(".posts-container");
+		if (container) {
+			container.scrollTop = container.scrollHeight / 2;
 		}
 	});
+
+	// Scroll to bottom
+	await vault.window.evaluate(() => {
+		const container = document.querySelector(".posts-container");
+		if (container) {
+			container.scrollTop = container.scrollHeight;
+		}
+	});
+
+	const scrollTime = Date.now() - scrollStartTime;
+	console.log(`📜 Real data scrolling completed in ${scrollTime}ms`);
+
+	// Verify UI remains responsive
+	await expect(vault.window.locator(".thread-filters")).toBeVisible();
+	await expect(vault.window.locator(".toolbar-section")).toBeVisible();
+
+	// Test search with real Japanese content
+	const searchInput = vault.window.locator(
+		'.thread-filters input[type="text"]'
+	);
+	if (await searchInput.isVisible()) {
+		await searchInput.fill("エッヂ");
+		await vault.window.waitForTimeout(1000);
+
+		const searchResults = await vault.window
+			.locator(".posts-container .post")
+			.count();
+		console.log(`🔍 Search for 'エッヂ' found ${searchResults} results`);
+
+		expect(searchResults).toBeGreaterThan(0);
+
+		// Clear search
+		await searchInput.fill("");
+		await vault.window.waitForTimeout(500);
+	}
+});
