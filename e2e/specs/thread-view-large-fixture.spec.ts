@@ -507,11 +507,7 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	"Large Fixture: Real 1000 posts fixture file test", async ({ vault }) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-		// Change URL to use the new 1000 posts fixture
-		await vault.window.evaluate(() => {
-			// Mock the ThreadViewComponent to use the new fixture ID
-			window.testFixtureId = '1759470805';
-		});
+		// This test uses the real 1000 posts fixture (1759470805) automatically based on URL matching
 
 		// Setup fixture route
 		await setupFixtureRoute(vault.window);
