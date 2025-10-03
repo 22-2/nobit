@@ -118,14 +118,21 @@
   - Ensure ThreadFilters.stories.svelte integrates properly
   - _Requirements: 6.2_
 
-- [ ] 5. Register ThreadView in main plugin
+- [x] 5. Register ThreadView in main plugin
+
+
+
+
+
   - Add VIEW_TYPE_THREAD constant to constants.ts
   - Register ThreadView in NobitPlugin.onload()
   - Create command "Open Nobit Test Thread" to activate ThreadView
   - Update existing BrowserView or create separate ThreadView registration
   - _Requirements: 8.1, 8.4, 9.1_
 
-- [ ] 5.1 Configure hardcoded thread URL for MVP
+- [x] 5.1 Configure hardcoded thread URL for MVP
+
+
   - Set specific 5ch thread URL in ThreadManager for initial testing
   - Choose stable, long-running thread for consistent testing
   - Document the hardcoded URL and rationale in code comments

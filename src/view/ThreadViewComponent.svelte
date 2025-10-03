@@ -11,9 +11,21 @@
 
 	onMount(async () => {
 		// MVP: Load hardcoded thread URL for initial testing
+		// 
+		// Using a realistic 5ch-compatible URL format for testing:
+		// - Host: bbs.eddibb.cc (test server used in libch tests)
+		// - Board: livejupiter (popular 5ch board, commonly used for testing)
+		// - Thread ID: 1678886400 (realistic Unix timestamp format)
+		// 
+		// This hardcoded URL serves several purposes:
+		// 1. Validates the Manager layer → Svelte UI architecture
+		// 2. Tests existing 5ch infrastructure (ObsidianFetcher, DefaultDecoder, DefaultParser)
+		// 3. Provides a stable foundation before adding dynamic thread loading
+		// 4. Uses the same URL format as existing libch tests for consistency
+		// 
 		// This will be replaced with dynamic URL loading in future iterations
-		const testThreadUrl =
-			"https://example.5ch.net/test/read.cgi/board/1234567890/";
+		// when BoardView and thread selection functionality is implemented.
+		const testThreadUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759320900/";
 		await threadManager.loadThread(testThreadUrl);
 	});
 

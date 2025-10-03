@@ -10,9 +10,14 @@ import type { Thread, ThreadFilters } from "../lib/types";
  * 
  * Key responsibilities:
  * - Manages reactive state using Svelte 5's $state
- * - Encapsulates all 5ch API interactions
+ * - Encapsulates all 5ch API interactions using ObsidianFetcher, DefaultDecoder, and DefaultParser
  * - Provides clean interface for Svelte components
  * - Ensures no direct 'obsidian' imports in Svelte components
+ * 
+ * MVP Implementation Notes:
+ * - Currently designed to work with hardcoded thread URLs for initial testing
+ * - Uses bbs.eddibb.cc/livejupiter URLs consistent with existing libch test infrastructure
+ * - Will be extended to support dynamic thread loading in future iterations
  */
 export class ThreadManager {
 	// Reactive state using Svelte 5's $state
