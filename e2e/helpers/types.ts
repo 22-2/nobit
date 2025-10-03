@@ -21,3 +21,15 @@ export interface TestContext {
 export interface VaultPageTextContext extends TestContext {
 	pluginHandleMap: JSHandle<Map<string, Plugin>>;
 }
+export interface VaultOptions {
+	name?: string;
+	vaultPath?: string;
+	forceNewVault?: boolean;
+	useSandbox?: boolean;
+	showLoggerOnNode?: boolean;
+	plugins?: TestPlugin[];
+}
+export interface TestPlugin {
+	path: string;
+	pluginId: string;
+}

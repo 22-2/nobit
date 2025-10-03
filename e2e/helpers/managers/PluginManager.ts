@@ -13,7 +13,7 @@ import {
 import log from "loglevel";
 import path from "path";
 import type { ElectronApplication, Page } from "playwright";
-import type { TestPlugin } from "./VaultManager";
+import type { TestPlugin } from "../types";
 
 const logger = log.getLogger("PluginManager");
 

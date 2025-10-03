@@ -2,6 +2,7 @@
 // setup.mts - メインのセットアップクラス
 // ===================================================================
 
+import { type VaultOptions } from "e2e/helpers/types";
 import fs from "fs/promises";
 import log from "loglevel";
 import os from "os";
@@ -10,10 +11,7 @@ import type { ElectronApplication } from "playwright";
 import { _electron as electron } from "playwright/test";
 import { LAUNCH_OPTIONS } from "../constants";
 import { PageManager } from "../helpers/managers/PageManager";
-import {
-	VaultManager,
-	type VaultOptions,
-} from "../helpers/managers/VaultManager";
+import { VaultManager } from "../helpers/managers/VaultManager";
 import type { TestContext, VaultPageTextContext } from "../helpers/types";
 import { getPluginHandleMap } from "../helpers/utils";
 

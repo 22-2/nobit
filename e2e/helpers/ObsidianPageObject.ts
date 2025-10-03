@@ -1,8 +1,7 @@
 import { CMD_ID_CLOSE_TAB, CMD_ID_UNDO_CLOSE_TAB } from "e2e/constants";
 import type { JSHandle, Locator, Page } from "playwright";
 import { expect } from "playwright/test";
-import type { VaultOptions } from "./managers/VaultManager";
-import type { VaultPageTextContext } from "./types";
+import type { VaultOptions, VaultPageTextContext } from "./types";
 
 export interface PageObjectConfig {
 	viewType?: string;

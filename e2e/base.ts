@@ -1,6 +1,6 @@
 import { test as base, type TestInfo } from "@playwright/test"; // TestInfo をインポート
 import log from "loglevel";
-import type { VaultOptions } from "./helpers/managers/VaultManager";
+import type { VaultOptions } from "./helpers/types";
 import { type VaultPageTextContext } from "./helpers/types";
 import { ObsidianTestSetup } from "./setup/ObsidianTestSetup";
 
@@ -93,6 +93,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 		const context = vaultOptions.useSandbox
 			? await obsidianSetup.openSandbox(vaultOptions)
 			: await obsidianSetup.openVault(vaultOptions);
+		if (vaultOptions.showLoggerOnNode) {
+			context.window.on("console", (msg) => {
+				console.log(
+					`[Browser Console ${msg
+						.type()
+						.toUpperCase()}] ${msg.text()}`
+				);
+			});
+		}
 		const notices = await context.window
 			.locator(".notice-container .notice")
 			.all();
