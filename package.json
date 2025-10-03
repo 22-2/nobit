@@ -43,7 +43,9 @@
 		"typescript": "5.9.3"
 	},
 	"dependencies": {
+		"@types/jest": "^30.0.0",
 		"date-fns": "^4.1.0",
+		"jest": "^30.2.0",
 		"loglevel": "^1.9.2",
 		"lucide-svelte": "^0.544.0",
 		"svelte": "^5.39.8",
