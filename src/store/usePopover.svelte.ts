@@ -1,7 +1,6 @@
 import log from "loglevel";
 import type { Post, Thread } from "src/lib/types";
-import { mount, unmount } from "svelte";
-import InfoPopup from "../view/common/InfoPopup.svelte";
+import { mount } from "svelte";
 import PostItemComponent from "../view/thread/PostItem.svelte";
 import PostTree from "../view/thread/PostTree.svelte";
 import {
@@ -222,13 +221,6 @@ export function usePopover(): UsePopoverReturn {
 		const popupEl = document.createElement("div");
 		popoverContainer.appendChild(popupEl);
 
-		const svelteComponent = mount(InfoPopup, {
-			target: popupEl,
-			props: {
-				message,
-			},
-		});
-
 		// Position the popup
 		const parentRect = popoverContainer.getBoundingClientRect();
 		let top = event.clientY - parentRect.top;
@@ -239,10 +231,11 @@ export function usePopover(): UsePopoverReturn {
 		popupEl.style.left = `${left}px`;
 
 		// Automatically hide after a few seconds
-		setTimeout(() => {
-			unmount(svelteComponent);
-			popupEl.remove();
-		}, 2000);
+		// setTimeout(() => {
+		// 	unmount(svelteComponent);
+		// 	popupEl.remove();
+		// }, 2000);
+		// Use Obsidian Notice API
 	}
 
 	function handleHover(
