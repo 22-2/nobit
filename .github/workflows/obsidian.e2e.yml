@@ -38,7 +38,7 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
-            - name: Run Jest unit tests
+            - name: Run Vitest unit tests
               run: pnpm run test:ci
               env:
                   CI: true
