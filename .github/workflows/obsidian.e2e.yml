@@ -38,6 +38,11 @@ jobs:
             - name: Install dependencies
               run: pnpm install
 
+            - name: Run Jest unit tests
+              run: pnpm run test:ci
+              env:
+                  CI: true
+
             # --- ▼▼▼ 高速化のための変更点 ここから ▼▼▼ ---
 
             # Playwrightのブラウザをキャッシュして、ダウンロード時間を短縮します
