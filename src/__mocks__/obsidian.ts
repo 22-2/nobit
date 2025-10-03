@@ -16,6 +16,14 @@ export class WorkspaceLeaf {
 	constructor() {}
 }
 
+export class PluginSettingTab {
+	constructor() {}
+}
+
+export class Setting {
+	constructor() {}
+}
+
 export interface RequestUrlParam {
 	url: string;
 	method?: string;
