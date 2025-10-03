@@ -265,6 +265,115 @@ describe("ThreadManager", () => {
 			// Verify no fetch was attempted
 			expect(mockFetcher.fetch).not.toHaveBeenCalled();
 		});
+
+		it("should update reactive state during refresh", async () => {
+			// First load a thread
+			await threadManager.loadThread(mockThread.url);
+			expect(threadManager.thread).toEqual(mockThread);
+			
+			// Setup mock for refresh with updated content
+			const updatedThread = {
+				...mockThread,
+				posts: [
+					...mockThread.posts,
+					{
+						resNum: 2,
+						authorName: "新しいユーザー",
+						mail: "",
+						authorId: "NewID456",
+						content: "新しい投稿です",
+						date: new Date("2024-01-01T13:00:00Z"),
+						references: [],
+						replies: [],
+						hasImage: false,
+						hasExternalLink: false,
+						postIdCount: 1,
+						siblingPostNumbers: [2],
+						imageUrls: [],
+					},
+				],
+			};
+
+			jest.clearAllMocks();
+			mockFetcher.fetch.mockResolvedValue(mockBuffer);
+			mockDecoder.decode.mockReturnValue(mockDatContent);
+			mockParser.parseThread.mockReturnValue(updatedThread);
+
+			// Refresh the thread
+			await threadManager.refreshThread();
+
+			// Verify state was updated with new content
+			expect(threadManager.thread).toEqual(updatedThread);
+			expect(threadManager.thread?.posts).toHaveLength(2);
+			expect(threadManager.isLoading).toBe(false);
+			expect(threadManager.error).toBeNull();
+		});
+
+		it("should handle refresh errors gracefully", async () => {
+			// First load a thread successfully
+			await threadManager.loadThread(mockThread.url);
+			expect(threadManager.thread).toEqual(mockThread);
+			
+			// Setup mock to fail on refresh
+			jest.clearAllMocks();
+			const refreshError = new Error("Refresh failed");
+			mockFetcher.fetch.mockRejectedValue(refreshError);
+
+			// Refresh the thread
+			await threadManager.refreshThread();
+
+			// Verify error handling - thread should be cleared and error set
+			expect(threadManager.thread).toBeNull();
+			expect(threadManager.isLoading).toBe(false);
+			expect(threadManager.error).toBe("スレッドの読み込みに失敗しました: Refresh failed");
+		});
+
+		it("should set loading state during refresh operation", async () => {
+			// First load a thread
+			await threadManager.loadThread(mockThread.url);
+			
+			// Create a controllable promise for refresh
+			let resolveRefresh: (value: ArrayBuffer) => void;
+			const refreshPromise = new Promise<ArrayBuffer>((resolve) => {
+				resolveRefresh = resolve;
+			});
+
+			jest.clearAllMocks();
+			mockFetcher.fetch.mockReturnValue(refreshPromise);
+
+			// Start refresh operation
+			const refreshOperation = threadManager.refreshThread();
+
+			// Verify loading state is set during refresh
+			expect(threadManager.isLoading).toBe(true);
+			expect(threadManager.error).toBeNull();
+
+			// Complete the refresh
+			resolveRefresh!(mockBuffer);
+			await refreshOperation;
+
+			// Verify loading state is cleared
+			expect(threadManager.isLoading).toBe(false);
+		});
+
+		it("should preserve thread URL during refresh", async () => {
+			const customUrl = "https://custom.5ch.net/test/read.cgi/board/9876543210/";
+			const customThread = { ...mockThread, url: customUrl };
+			
+			// Load thread with custom URL
+			mockParser.parseThread.mockReturnValue(customThread);
+			await threadManager.loadThread(customUrl);
+			
+			jest.clearAllMocks();
+			mockFetcher.fetch.mockResolvedValue(mockBuffer);
+			mockDecoder.decode.mockReturnValue(mockDatContent);
+			mockParser.parseThread.mockReturnValue(customThread);
+
+			// Refresh should use the same URL
+			await threadManager.refreshThread();
+
+			expect(mockFetcher.fetch).toHaveBeenCalledWith(customUrl);
+		});
 	});
 
 	describe("updateFilters", () => {
@@ -304,6 +413,143 @@ describe("ThreadManager", () => {
 			expect(threadManager.filters).not.toBe(originalFilters);
 			expect(threadManager.filters).toEqual(originalFilters);
 		});
+
+		it("should update individual filter properties correctly", () => {
+			// Test each filter property individually
+			threadManager.updateFilters({ popular: true });
+			expect(threadManager.filters.popular).toBe(true);
+			expect(threadManager.filters.image).toBe(false); // Others unchanged
+
+			threadManager.updateFilters({ image: true });
+			expect(threadManager.filters.image).toBe(true);
+			expect(threadManager.filters.popular).toBe(true); // Previous change preserved
+
+			threadManager.updateFilters({ video: true });
+			expect(threadManager.filters.video).toBe(true);
+
+			threadManager.updateFilters({ external: true });
+			expect(threadManager.filters.external).toBe(true);
+
+			threadManager.updateFilters({ internal: true });
+			expect(threadManager.filters.internal).toBe(true);
+
+			threadManager.updateFilters({ searchText: "検索テキスト" });
+			expect(threadManager.filters.searchText).toBe("検索テキスト");
+		});
+
+		it("should handle multiple simultaneous filter updates", () => {
+			const multipleUpdates: Partial<ThreadFilters> = {
+				popular: true,
+				image: true,
+				video: false,
+				searchText: "複数更新テスト",
+			};
+
+			threadManager.updateFilters(multipleUpdates);
+
+			expect(threadManager.filters.popular).toBe(true);
+			expect(threadManager.filters.image).toBe(true);
+			expect(threadManager.filters.video).toBe(false);
+			expect(threadManager.filters.external).toBe(false); // Unchanged
+			expect(threadManager.filters.internal).toBe(false); // Unchanged
+			expect(threadManager.filters.searchText).toBe("複数更新テスト");
+		});
+
+		it("should handle filter reset scenarios", () => {
+			// First set some filters
+			threadManager.updateFilters({
+				popular: true,
+				image: true,
+				searchText: "テスト",
+			});
+
+			// Reset to defaults
+			threadManager.updateFilters({
+				popular: false,
+				image: false,
+				video: false,
+				external: false,
+				internal: false,
+				searchText: "",
+			});
+
+			expect(threadManager.filters).toEqual({
+				popular: false,
+				image: false,
+				video: false,
+				external: false,
+				internal: false,
+				searchText: "",
+			});
+		});
+
+		it("should preserve immutability for nested state changes", () => {
+			const originalFilters = threadManager.filters;
+			const firstUpdate = { popular: true };
+			const secondUpdate = { searchText: "テスト" };
+
+			threadManager.updateFilters(firstUpdate);
+			const afterFirstUpdate = threadManager.filters;
+
+			threadManager.updateFilters(secondUpdate);
+			const afterSecondUpdate = threadManager.filters;
+
+			// Each update should create a new object
+			expect(originalFilters).not.toBe(afterFirstUpdate);
+			expect(afterFirstUpdate).not.toBe(afterSecondUpdate);
+			expect(originalFilters).not.toBe(afterSecondUpdate);
+
+			// But content should be preserved correctly
+			expect(afterSecondUpdate.popular).toBe(true); // From first update
+			expect(afterSecondUpdate.searchText).toBe("テスト"); // From second update
+		});
+
+		it("should handle edge cases in search text", () => {
+			// Empty string
+			threadManager.updateFilters({ searchText: "" });
+			expect(threadManager.filters.searchText).toBe("");
+
+			// Special characters
+			threadManager.updateFilters({ searchText: "!@#$%^&*()" });
+			expect(threadManager.filters.searchText).toBe("!@#$%^&*()");
+
+			// Unicode characters
+			threadManager.updateFilters({ searchText: "🎌日本語テスト🎌" });
+			expect(threadManager.filters.searchText).toBe("🎌日本語テスト🎌");
+
+			// Very long string
+			const longString = "a".repeat(1000);
+			threadManager.updateFilters({ searchText: longString });
+			expect(threadManager.filters.searchText).toBe(longString);
+		});
+
+		it("should maintain state consistency across multiple updates", () => {
+			// Simulate rapid filter updates like a user might do
+			const updates = [
+				{ popular: true },
+				{ image: true },
+				{ popular: false },
+				{ searchText: "test1" },
+				{ video: true },
+				{ searchText: "test2" },
+				{ external: true },
+				{ popular: true },
+			];
+
+			updates.forEach(update => {
+				threadManager.updateFilters(update);
+			});
+
+			// Final state should reflect all changes
+			expect(threadManager.filters).toEqual({
+				popular: true,    // Last update
+				image: true,      // From earlier update
+				video: true,      // From earlier update
+				external: true,   // From earlier update
+				internal: false,  // Never changed
+				searchText: "test2", // Last searchText update
+			});
+		});
 	});
 
 	describe("jumpToPost", () => {
@@ -327,6 +573,137 @@ describe("ThreadManager", () => {
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 1");
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 999");
 			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 0");
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should handle edge case post numbers", () => {
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			// Test negative numbers
+			threadManager.jumpToPost(-1);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post -1");
+
+			// Test very large numbers
+			threadManager.jumpToPost(Number.MAX_SAFE_INTEGER);
+			expect(consoleSpy).toHaveBeenCalledWith(`Jumping to post ${Number.MAX_SAFE_INTEGER}`);
+
+			// Test decimal numbers (should work as-is for future flexibility)
+			threadManager.jumpToPost(42.5);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 42.5");
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should not affect thread state", () => {
+			// Load a thread first
+			const originalThread = mockThread;
+			threadManager.thread = originalThread;
+			const originalIsLoading = threadManager.isLoading;
+			const originalError = threadManager.error;
+			const originalFilters = threadManager.filters;
+
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			// Jump to post should not change any state
+			threadManager.jumpToPost(5);
+
+			expect(threadManager.thread).toBe(originalThread);
+			expect(threadManager.isLoading).toBe(originalIsLoading);
+			expect(threadManager.error).toBe(originalError);
+			expect(threadManager.filters).toBe(originalFilters);
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should work when no thread is loaded", () => {
+			// Ensure no thread is loaded
+			expect(threadManager.thread).toBeNull();
+
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			// Should still work without a loaded thread
+			threadManager.jumpToPost(10);
+
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 10");
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should handle rapid successive calls", () => {
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			// Simulate rapid navigation
+			const postNumbers = [1, 5, 3, 10, 2, 8];
+			postNumbers.forEach(num => {
+				threadManager.jumpToPost(num);
+			});
+
+			// Verify all calls were logged
+			postNumbers.forEach(num => {
+				expect(consoleSpy).toHaveBeenCalledWith(`Jumping to post ${num}`);
+			});
+
+			expect(consoleSpy).toHaveBeenCalledTimes(postNumbers.length);
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should be synchronous operation", () => {
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			const startTime = Date.now();
+			threadManager.jumpToPost(100);
+			const endTime = Date.now();
+
+			// Should complete immediately (within reasonable time for synchronous operation)
+			expect(endTime - startTime).toBeLessThan(10);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 100");
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should prepare for future UI integration scenarios", () => {
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			// Test scenarios that UI integration might need to handle
+			
+			// Jump to first post
+			threadManager.jumpToPost(1);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 1");
+
+			// Jump to a post that might not exist yet (future posts)
+			threadManager.jumpToPost(9999);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 9999");
+
+			// Jump to post 0 (might be used for thread top)
+			threadManager.jumpToPost(0);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 0");
+			
+			consoleSpy.mockRestore();
+		});
+
+		it("should maintain consistent behavior across different thread states", () => {
+			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			
+			// Test with no thread loaded
+			threadManager.jumpToPost(1);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 1");
+
+			// Test with thread loaded
+			threadManager.thread = mockThread;
+			threadManager.jumpToPost(2);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 2");
+
+			// Test with loading state
+			threadManager.isLoading = true;
+			threadManager.jumpToPost(3);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 3");
+
+			// Test with error state
+			threadManager.error = "Some error";
+			threadManager.jumpToPost(4);
+			expect(consoleSpy).toHaveBeenCalledWith("Jumping to post 4");
 			
 			consoleSpy.mockRestore();
 		});

@@ -45,7 +45,13 @@
   - Create jumpToPost method for navigation within thread
   - _Requirements: 1.4, 5.4, 7.2_
 
-- [ ]* 2.2 Extend unit tests for ThreadManager methods
+- [x] 2.2 Extend unit tests for ThreadManager methods
+
+
+
+
+
+
   - Test refreshThread functionality
   - Test updateFilters state changes
   - Test jumpToPost navigation logic
