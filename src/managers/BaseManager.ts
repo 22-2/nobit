@@ -4,12 +4,8 @@ import { ObsidianFetcher } from "src/lib/ObsidianFetcher";
 import { TestFetcher } from "src/lib/TestFetcher";
 import { DefaultDecoder } from "src/lib/libch/decoder";
 import { HttpError } from "src/lib/libch/fetcher";
-import {
-	ensureError,
-	getErrorMessage,
-	isTestEnvironment,
-	sleep,
-} from "./utils";
+import { DEBUG_MODE } from "src/utils/constants";
+import { ensureError, getErrorMessage, sleep } from "./utils";
 
 const logger = log.getLogger("BaseManager");
 
@@ -55,13 +51,20 @@ export abstract class BaseManager {
 
 	constructor(protected app: App, options: BaseManagerOptions = {}) {
 		// Initialize 5ch communication components - use TestFetcher in test environment
-		this.fetcher = isTestEnvironment() 
+		const isTest = DEBUG_MODE;
+		this.fetcher = isTest
 			? new TestFetcher(RATE_LIMIT_MS)
 			: new ObsidianFetcher(RATE_LIMIT_MS);
 		this.decoder = new DefaultDecoder();
 
+		console.log(
+			`🔧 BaseManager: Using ${
+				isTest ? "TestFetcher" : "ObsidianFetcher"
+			} (test environment: ${isTest})`
+		);
+
 		// Configure retry behavior - disable in test environments
-		this.enableRetry = options.enableRetry ?? !isTestEnvironment();
+		this.enableRetry = options.enableRetry ?? !DEBUG_MODE;
 		this.retryConfig = { ...DEFAULT_RETRY_CONFIG, ...options.retryConfig };
 
 		logger.debug(`${this.constructor.name} initialized`, {

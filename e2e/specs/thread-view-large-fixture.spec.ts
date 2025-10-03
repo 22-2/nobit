@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { TextDecoder } from "util";
 import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
@@ -8,11 +9,22 @@ import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 
 const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
 
-// Fixture file path
-const FIXTURE_PATH = join(
-	process.cwd(),
-	"src/__tests__/fixtures/1759320900.dat"
-);
+// ========================================
+// 📁 FIXTURE CONFIGURATION
+// ========================================
+// Easily customize which fixture files to use for testing
+const FIXTURES = {
+	SMALL: join(process.cwd(), "src/__tests__/fixtures/1759320900.dat"),        // ~10 posts
+	LARGE: join(process.cwd(), "src/__tests__/fixtures/1759470805.1000posts.dat") // ~1000 posts
+};
+
+// Default fixture path (can be overridden per test)
+const DEFAULT_FIXTURE_PATH = FIXTURES.SMALL;
+
+// 💡 To add a new fixture:
+// 1. Add your .dat file to src/__tests__/fixtures/
+// 2. Add it to the FIXTURES object above
+// 3. Use it in tests: setupFixtureRoute(vault.window, FIXTURES.YOUR_FIXTURE)
 
 test.use({
 	vaultOptions: {
@@ -28,27 +40,43 @@ test.use({
 });
 
 // Helper function to setup route with fixture file (raw Shift_JIS binary)
-async function setupFixtureRoute(window: any) {
-	await window.route("**/test/read.cgi/**", async (route: any) => {
-		try {
-			// Read the fixture file as raw binary buffer
-			const buffer = readFileSync(FIXTURE_PATH);
+async function setupFixtureRoute(window: any, fixturePath: string = DEFAULT_FIXTURE_PATH) {
+	console.log(`🔧 Setting up fixture route with file: ${fixturePath}`);
+	
+	// Debug: catch all requests to see what's happening
+	await window.route("**/*", async (route: any) => {
+		const url = route.request().url();
+		console.log(`🌐 ALL REQUESTS: ${url}`);
+		
+		// Only intercept our target URLs
+		if (url.includes("/test/read.cgi/") || url.includes("bbs.eddibb.cc")) {
+			console.log(`🎯 MATCHING TARGET URL: ${url}`);
+			
+			try {
+				// Read the fixture file as raw binary buffer
+				const buffer = readFileSync(fixturePath);
 
-			console.log(`Route intercepted: ${route.request().url()}`);
-			console.log(`Serving fixture file: ${buffer.length} bytes`);
-
-			// Send raw Shift_JIS binary data - let the plugin's DefaultDecoder handle decoding
-			route.fulfill({
-				status: 200,
-				contentType: "text/html; charset=Shift_JIS",
-				body: buffer,
-			});
-		} catch (error) {
-			console.error("Failed to load fixture file in route:", error);
-			route.fulfill({
-				status: 500,
-				body: "Failed to load fixture",
-			});
+				console.log(`📁 Serving fixture file: ${fixturePath} (${buffer.length} bytes)`);
+				
+				// Send raw Shift_JIS binary data - let the plugin's DefaultDecoder handle decoding
+				await route.fulfill({
+					status: 200,
+					contentType: "text/html; charset=Shift_JIS",
+					body: buffer,
+				});
+				console.log(`✅ Successfully served fixture file`);
+				return; // Important: return after fulfilling the route
+			} catch (error) {
+				console.error("❌ Failed to load fixture file in route:", error);
+				await route.fulfill({
+					status: 500,
+					body: "Failed to load fixture",
+				});
+				return; // Important: return after fulfilling the route
+			}
+		} else {
+			// Let other requests pass through
+			await route.continue();
 		}
 	});
 }
@@ -407,13 +435,18 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-	// Add performance marker to URL to trigger 1000 posts generation
-	await vault.window.evaluate(() => {
-		window.history.replaceState({}, '', window.location.href + '?performance=1000');
-	});
+	// Load fixture data and set it in global scope for the plugin to use
+	const fixtureBuffer = readFileSync(FIXTURES.LARGE);
+	const decoder = new TextDecoder('shift-jis');
+	const fixtureData = decoder.decode(fixtureBuffer);
+	
+	await vault.window.evaluate((data) => {
+		(window as any).testFixtureData = data;
+		console.log(`🔧 Test: Set fixture data in global scope (${data.length} characters)`);
+	}, fixtureData);
 
-	// Setup fixture route
-	await setupFixtureRoute(vault.window);
+	// Setup fixture route as backup (though we're using direct loading now)
+	await setupFixtureRoute(vault.window, FIXTURES.LARGE);
 
 	// Measure loading time
 	const startTime = Date.now();
@@ -507,10 +540,8 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	"Large Fixture: Real 1000 posts fixture file test", async ({ vault }) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-		// This test uses the real 1000 posts fixture (1759470805) automatically based on URL matching
-
-		// Setup fixture route
-		await setupFixtureRoute(vault.window);
+		// Setup fixture route with the large 1000 posts fixture file
+		await setupFixtureRoute(vault.window, FIXTURES.LARGE);
 
 		// Measure loading time
 		const startTime = Date.now();

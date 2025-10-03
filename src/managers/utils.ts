@@ -48,7 +48,10 @@ export function isTestEnvironment(): boolean {
 		(process.env?.NODE_ENV === "test" ||
 			process.env?.VITEST === "true" ||
 			(typeof global !== "undefined" &&
-				(global as any).describe !== undefined))
+				(global as any).describe !== undefined)) ||
+		// Playwright test environment detection
+		(typeof window !== "undefined" && 
+			(window as any).playwright !== undefined)
 	);
 }
 /**
