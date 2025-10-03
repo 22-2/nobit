@@ -296,7 +296,12 @@ class ThreadManager {
 
 ### 1. Unit Tests (Jest) - Foundation Layer
 **Focus**: Manager class logic and pure functions
-**Approach**: Test public interfaces, not implementation details
+**Approach**: Test public interfaces, not implementation details to ensure refactoring resilience
+
+**Current Setup**:
+- Jest 30.2.0 with TypeScript support via ts-jest
+- Configuration in `jest.config.mjs`
+- Focus on testing Manager class public interfaces
 
 ```typescript
 // Example: ThreadManager.test.ts
@@ -309,52 +314,123 @@ describe('ThreadManager', () => {
     threadManager = new ThreadManager(mockApp);
   });
   
-  it('should load thread and update state', async () => {
-    // Test public interface behavior
-    await threadManager.loadThread('test-url');
+  // Test public interface behavior, not internal implementation
+  it('should load thread and update reactive state', async () => {
+    const testUrl = 'https://example.5ch.net/test/read.cgi/board/1234567890/';
+    
+    await threadManager.loadThread(testUrl);
+    
+    // Test observable state changes, not internal methods
     expect(threadManager.thread).toBeDefined();
     expect(threadManager.isLoading).toBe(false);
+    expect(threadManager.error).toBeNull();
+  });
+  
+  it('should handle network errors gracefully', async () => {
+    // Mock network failure
+    mockApp.vault.adapter.read.mockRejectedValue(new Error('Network error'));
+    
+    await threadManager.loadThread('invalid-url');
+    
+    expect(threadManager.error).toContain('Network error');
+    expect(threadManager.thread).toBeNull();
   });
 });
 ```
 
 ### 2. Component Tests (Storybook) - Isolation Layer
 **Focus**: UI components in isolation from Obsidian
-**Approach**: Develop and test components with mock data
+**Approach**: Develop and test components with mock data using Storybook 9.1.10 with Svelte CSF
 
-```typescript
-// Example: PostItem.stories.ts
-export default {
-  title: 'Thread/PostItem',
-  component: PostItem,
-};
+**Current Setup**: 
+- Storybook 9.1.10 with `@storybook/addon-svelte-csf`
+- Svelte 5 compatible with `defineMeta` pattern
+- Stories located in `src/stories/` directory
 
-export const Default = {
-  args: {
-    post: mockPost,
+```svelte
+<!-- Example: PostItem.stories.svelte -->
+<script module>
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import PostItem from "../../view/thread/PostItem.svelte";
+  import { fn } from "storybook/test";
+
+  const { Story } = defineMeta({
+    title: "Thread/PostItem",
+    component: PostItem,
+    tags: ["autodocs"],
+    argTypes: {
+      post: { control: false, description: "表示するポストオブジェクト" },
+      index: { control: { type: "number", min: 0, max: 1000 } },
+      onJumpToPost: { action: "onJumpToPost" },
+    },
+  });
+</script>
+
+<Story
+  name="Default"
+  args={{
+    post: generateBasicPost(),
     index: 0,
-    onJumpToPost: action('jumpToPost'),
-  },
-};
+    onJumpToPost: fn(),
+  }}
+/>
 ```
+
+**Existing Stories**: Already implemented for thread components:
+- `PostItem.stories.svelte` - Comprehensive post display testing
+- `ThreadFilters.stories.svelte` - Filter component testing
+- `PostTree.stories.svelte` - Reply tree visualization
+- `InlineWriteForm.stories.svelte` - Post composition form
 
 ### 3. E2E Tests (Playwright) - Integration Layer
 **Focus**: Complete user flows with mocked network requests
-**Approach**: Test real user interactions in mock Obsidian environment
+**Approach**: Test real user interactions in mock Obsidian environment using existing infrastructure
+
+**Current Setup**:
+- Playwright 1.55.1 with GitHub Actions integration
+- Configuration in `playwright.config.ts`
+- Uses `obsidian-testing-toolkit` for Obsidian environment simulation
+- Network mocking for deterministic 5ch API responses
 
 ```typescript
 // Example: thread-view.spec.ts
-test('should display thread content', async ({ page }) => {
-  // Mock 5ch API responses
+import { test, expect } from '@playwright/test';
+
+test('should display hardcoded thread content in MVP', async ({ page }) => {
+  // Mock 5ch API responses for deterministic testing
   await page.route('**/test/read.cgi/**', route => {
-    route.fulfill({ json: mockThreadData });
+    route.fulfill({ 
+      status: 200,
+      contentType: 'text/html; charset=Shift_JIS',
+      body: mockThreadHtml 
+    });
+  });
+  
+  // Open Obsidian and activate thread view
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Open Nobit Test Thread' }).click();
+  
+  // Verify thread content is displayed
+  await expect(page.locator('.thread-content')).toBeVisible();
+  await expect(page.locator('.post')).toHaveCount(10);
+  await expect(page.locator('h2')).toContainText('テストスレッド');
+  
+  // Verify Manager layer → Svelte UI communication
+  await expect(page.locator('.loading')).not.toBeVisible();
+  await expect(page.locator('.error')).not.toBeVisible();
+});
+
+test('should handle network errors gracefully', async ({ page }) => {
+  // Mock network failure
+  await page.route('**/test/read.cgi/**', route => {
+    route.abort('failed');
   });
   
   await page.goto('/');
-  await page.click('[data-testid="open-thread"]');
+  await page.getByRole('button', { name: 'Open Nobit Test Thread' }).click();
   
-  await expect(page.locator('.thread-content')).toBeVisible();
-  await expect(page.locator('.post')).toHaveCount(10);
+  await expect(page.locator('.error')).toBeVisible();
+  await expect(page.locator('.error')).toContainText('ネットワークエラー');
 });
 ```
 
@@ -365,15 +441,23 @@ test('should display thread content', async ({ page }) => {
 
 **Scope**:
 1. Single hardcoded thread URL in ThreadManager
-2. Basic ThreadView.svelte displaying posts
+2. Basic ThreadViewComponent.svelte displaying posts using existing components
 3. No navigation, no board lists, no user input
 4. Focus on proving Manager ↔ Svelte communication works
+5. Leverage existing Storybook stories for component development
 
 **Success Criteria**:
-- Command "Open Nobit Test Thread" opens ThreadView
-- ThreadView displays posts from hardcoded URL
-- No Svelte component imports from 'obsidian'
-- Basic E2E test passes
+- Command "Open Nobit Test Thread" opens ThreadView ItemView
+- ThreadView displays posts from hardcoded URL using existing PostItem components
+- No Svelte component imports from 'obsidian' (strict architectural separation)
+- ThreadManager uses Svelte 5's `$state` for reactive state management
+- Basic E2E test passes with mocked network requests
+- Existing thread components (PostItem, ThreadToolbar, etc.) integrate seamlessly
+
+**Development Workflow for MVP**:
+1. **Logic First**: Implement ThreadManager with unit tests
+2. **UI in Isolation**: Verify existing components work in Storybook
+3. **Integrate & Verify**: Create ThreadView ItemView and validate with E2E tests
 
 ### Phase 2: Dynamic Thread Loading (v0.0.2)
 **Scope**:
@@ -424,8 +508,17 @@ test('should display thread content', async ({ page }) => {
 - **Settings Persistence**: Store settings in Obsidian's data system
 
 ### Development Workflow
-1. **Logic First**: Implement Manager class with unit tests
-2. **UI in Isolation**: Develop Svelte components in Storybook
-3. **Integrate & Verify**: Connect layers and validate with E2E tests
+1. **Logic First**: Implement Manager class with unit tests focusing on public interfaces
+2. **UI in Isolation**: Leverage existing Storybook stories and develop new components in isolation
+3. **Integrate & Verify**: Connect layers and validate with E2E tests using Playwright network mocking
 
-This design provides a solid foundation for incremental development while maintaining the architectural principles learned from previous prototyping attempts.
+### Technology Stack Summary
+- **Obsidian Plugin**: TypeScript with strict mode
+- **UI Framework**: Svelte 5 with reactive `$state` 
+- **Component Development**: Storybook 9.1.10 with Svelte CSF addon
+- **Unit Testing**: Jest 30.2.0 with ts-jest for TypeScript support
+- **E2E Testing**: Playwright 1.55.1 with obsidian-testing-toolkit
+- **Build System**: esbuild with Svelte plugin
+- **Code Quality**: Biome for formatting and linting
+
+This design provides a solid foundation for incremental development while maintaining the architectural principles learned from three previous prototyping attempts. The existing Storybook infrastructure and component library provide a significant head start for the MVP implementation.
