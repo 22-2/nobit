@@ -1,6 +1,8 @@
+import { vi } from "vitest";
+
 // Manual mock for Obsidian module
 
-export const requestUrl = jest.fn();
+export const requestUrl = vi.fn();
 
 export class App {
 	constructor() {}

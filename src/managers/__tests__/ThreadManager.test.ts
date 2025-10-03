@@ -1,3 +1,4 @@
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ThreadManager } from "../ThreadManager.svelte";
 import { ObsidianFetcher } from "../../lib/ObsidianFetcher";
 import { DefaultDecoder } from "../../lib/libch/decoder";
@@ -6,13 +7,13 @@ import type { App } from "obsidian";
 import type { Thread, ThreadFilters } from "../../lib/types";
 
 // Mock the dependencies
-jest.mock("../../lib/ObsidianFetcher");
-jest.mock("../../lib/libch/decoder");
-jest.mock("../../lib/libch/parser");
+vi.mock("../../lib/ObsidianFetcher");
+vi.mock("../../lib/libch/decoder");
+vi.mock("../../lib/libch/parser");
 
 // Mock Obsidian App
-const createMockApp = (): jest.Mocked<App> => {
-	return {} as jest.Mocked<App>;
+const createMockApp = (): App => {
+	return {} as App;
 };
 
 // Mock data for testing
@@ -45,36 +46,31 @@ const mockBuffer = new ArrayBuffer(8);
 
 describe("ThreadManager", () => {
 	let threadManager: ThreadManager;
-	let mockApp: jest.Mocked<App>;
-	let mockFetcher: jest.Mocked<ObsidianFetcher>;
-	let mockDecoder: jest.Mocked<DefaultDecoder>;
-	let mockParser: jest.Mocked<DefaultParser>;
+	let mockApp: App;
+	let mockFetcher: any;
+	let mockDecoder: any;
+	let mockParser: any;
 
 	beforeEach(() => {
 		// Clear all mocks
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 
 		// Create mock instances
 		mockApp = createMockApp();
-		mockFetcher = new ObsidianFetcher() as jest.Mocked<ObsidianFetcher>;
-		mockDecoder = new DefaultDecoder() as jest.Mocked<DefaultDecoder>;
-		mockParser = new DefaultParser() as jest.Mocked<DefaultParser>;
-
-		// Setup default mock implementations
-		mockFetcher.fetch = jest.fn();
-		mockDecoder.decode = jest.fn();
-		mockParser.parseThread = jest.fn();
+		mockFetcher = {
+			fetch: vi.fn(),
+		};
+		mockDecoder = {
+			decode: vi.fn(),
+		};
+		mockParser = {
+			parseThread: vi.fn(),
+		};
 
 		// Mock the constructors to return our mocked instances
-		(
-			ObsidianFetcher as jest.MockedClass<typeof ObsidianFetcher>
-		).mockImplementation(() => mockFetcher);
-		(
-			DefaultDecoder as jest.MockedClass<typeof DefaultDecoder>
-		).mockImplementation(() => mockDecoder);
-		(
-			DefaultParser as jest.MockedClass<typeof DefaultParser>
-		).mockImplementation(() => mockParser);
+		vi.mocked(ObsidianFetcher).mockImplementation(() => mockFetcher);
+		vi.mocked(DefaultDecoder).mockImplementation(() => mockDecoder);
+		vi.mocked(DefaultParser).mockImplementation(() => mockParser);
 
 		// Create ThreadManager instance
 		threadManager = new ThreadManager(mockApp);
@@ -264,7 +260,7 @@ describe("ThreadManager", () => {
 			await threadManager.loadThread(mockThread.url);
 
 			// Clear the mock calls from initial load
-			jest.clearAllMocks();
+			vi.clearAllMocks();
 			mockFetcher.fetch.mockResolvedValue(mockBuffer);
 			mockDecoder.decode.mockReturnValue(mockDatContent);
 			mockParser.parseThread.mockReturnValue(mockThread);
@@ -314,7 +310,7 @@ describe("ThreadManager", () => {
 				],
 			};
 
-			jest.clearAllMocks();
+			vi.clearAllMocks();
 			mockFetcher.fetch.mockResolvedValue(mockBuffer);
 			mockDecoder.decode.mockReturnValue(mockDatContent);
 			mockParser.parseThread.mockReturnValue(updatedThread);
@@ -335,7 +331,7 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toEqual(mockThread);
 
 			// Setup mock to fail on refresh
-			jest.clearAllMocks();
+			vi.clearAllMocks();
 			const refreshError = new Error("Refresh failed");
 			mockFetcher.fetch.mockRejectedValue(refreshError);
 
@@ -360,7 +356,7 @@ describe("ThreadManager", () => {
 				resolveRefresh = resolve;
 			});
 
-			jest.clearAllMocks();
+			vi.clearAllMocks();
 			mockFetcher.fetch.mockReturnValue(refreshPromise);
 
 			// Start refresh operation
@@ -387,7 +383,7 @@ describe("ThreadManager", () => {
 			mockParser.parseThread.mockReturnValue(customThread);
 			await threadManager.loadThread(customUrl);
 
-			jest.clearAllMocks();
+			vi.clearAllMocks();
 			mockFetcher.fetch.mockResolvedValue(mockBuffer);
 			mockDecoder.decode.mockReturnValue(mockDatContent);
 			mockParser.parseThread.mockReturnValue(customThread);
@@ -577,7 +573,7 @@ describe("ThreadManager", () => {
 
 	describe("jumpToPost", () => {
 		it("should log jump action for future UI integration", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			threadManager.jumpToPost(42);
 
@@ -587,7 +583,7 @@ describe("ThreadManager", () => {
 		});
 
 		it("should handle various post numbers", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			threadManager.jumpToPost(1);
 			threadManager.jumpToPost(999);
@@ -601,7 +597,7 @@ describe("ThreadManager", () => {
 		});
 
 		it("should handle edge case post numbers", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			// Test negative numbers
 			threadManager.jumpToPost(-1);
@@ -628,7 +624,7 @@ describe("ThreadManager", () => {
 			const originalError = threadManager.error;
 			const originalFilters = threadManager.filters;
 
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			// Jump to post should not change any state
 			threadManager.jumpToPost(5);
@@ -645,7 +641,7 @@ describe("ThreadManager", () => {
 			// Ensure no thread is loaded
 			expect(threadManager.thread).toBeNull();
 
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			// Should still work without a loaded thread
 			threadManager.jumpToPost(10);
@@ -656,7 +652,7 @@ describe("ThreadManager", () => {
 		});
 
 		it("should handle rapid successive calls", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			// Simulate rapid navigation
 			const postNumbers = [1, 5, 3, 10, 2, 8];
@@ -677,7 +673,7 @@ describe("ThreadManager", () => {
 		});
 
 		it("should be synchronous operation", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			const startTime = Date.now();
 			threadManager.jumpToPost(100);
@@ -691,7 +687,7 @@ describe("ThreadManager", () => {
 		});
 
 		it("should prepare for future UI integration scenarios", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			// Test scenarios that UI integration might need to handle
 
@@ -711,7 +707,7 @@ describe("ThreadManager", () => {
 		});
 
 		it("should maintain consistent behavior across different thread states", () => {
-			const consoleSpy = jest.spyOn(console, "log").mockImplementation();
+			const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
 			// Test with no thread loaded
 			threadManager.jumpToPost(1);
