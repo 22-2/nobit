@@ -1,92 +1,115 @@
-// TODO: zodに置き換える
+import { z } from "zod";
 
 // packages/libch/src/types.ts
 
-export interface Post {
-	resNum: number;
-
-	authorName: string;
-	mail: string;
-	authorId: string;
+export const PostSchema = z.object({
+	resNum: z.number(),
+	authorName: z.string(),
+	mail: z.string(),
+	authorId: z.string(),
 	/**
 	 * パーサーによってアンカー(>>1)が<a>タグに変換済みのHTML文字列。
 	 * コンポーネント側ではこれをそのまま {@html} で表示します。
 	 */
-	content: string;
-	date: Date;
+	content: z.string(),
+	date: z.date(),
 	/** このレスが参照しているレス番号の配列 (例: [10, 25]) */
-	references: number[];
+	references: z.array(z.number()),
 	/** このレスから返信されている（被参照）レス番号の配列 (例: [100, 123]) */
-	replies: number[];
-	hasImage: boolean;
-	hasExternalLink: boolean;
+	replies: z.array(z.number()),
+	hasImage: z.boolean(),
+	hasExternalLink: z.boolean(),
 	/** この投稿のIDがスレッド内で書き込んだ総数 */
-	postIdCount: number;
+	postIdCount: z.number(),
 	/** この投稿のIDが書き込んだレス番号の配列（自分自身も含む） */
-	siblingPostNumbers: number[];
+	siblingPostNumbers: z.array(z.number()),
 	/** この投稿に含まれる画像のURLの配列 */
-	imageUrls?: string[];
-}
+	imageUrls: z.array(z.string()).optional(),
+});
 
-export interface ThreadFilters {
-	popular: boolean;
-	image: boolean;
-	video: boolean;
-	external: boolean;
-	internal: boolean;
-	searchText: string;
-}
+export type Post = z.infer<typeof PostSchema>;
 
-export interface Thread {
-	title: string;
-	posts: Post[];
-	url: string;
-}
+export const ThreadFiltersSchema = z.object({
+	popular: z.boolean(),
+	image: z.boolean(),
+	video: z.boolean(),
+	external: z.boolean(),
+	internal: z.boolean(),
+	searchText: z.string(),
+});
 
-export interface SubjectItem {
-	id: string; // スレッドID (unixtime)
-	title: string;
-	resCount: number;
-}
+export type ThreadFilters = z.infer<typeof ThreadFiltersSchema>;
 
-export interface Board {
-	name: string;
-	url: string;
-}
+export const ThreadSchema = z.object({
+	title: z.string(),
+	posts: z.array(PostSchema),
+	url: z.string(),
+});
 
-export interface BBSMenuCategory {
-	name: string;
-	boards: Board[];
-}
+export type Thread = z.infer<typeof ThreadSchema>;
 
-export type BBSMenu = BBSMenuCategory[];
+export const SubjectItemSchema = z.object({
+	id: z.string(), // スレッドID (unixtime)
+	title: z.string(),
+	resCount: z.number(),
+});
+
+export type SubjectItem = z.infer<typeof SubjectItemSchema>;
+
+export const BoardSchema = z.object({
+	name: z.string(),
+	url: z.string(),
+});
+
+export type Board = z.infer<typeof BoardSchema>;
+
+export const BBSMenuCategorySchema = z.object({
+	name: z.string(),
+	boards: z.array(BoardSchema),
+});
+
+export type BBSMenuCategory = z.infer<typeof BBSMenuCategorySchema>;
+
+export const BBSMenuSchema = z.array(BBSMenuCategorySchema);
+
+export type BBSMenu = z.infer<typeof BBSMenuSchema>;
 
 // --- 書き込み関連の型 ---
-export interface PostData {
-	name: string;
-	mail: string;
-	content: string;
-}
+export const PostDataSchema = z.object({
+	name: z.string(),
+	mail: z.string(),
+	content: z.string(),
+});
 
-export type PostResult =
-	| SuccessPostResult
-	| ErrorPostResult
-	| ConfirmationPostResult;
+export type PostData = z.infer<typeof PostDataSchema>;
 
-export interface SuccessPostResult {
-	kind: "success";
-	message: string;
-}
+export const SuccessPostResultSchema = z.object({
+	kind: z.literal("success"),
+	message: z.string(),
+});
 
-export interface ErrorPostResult {
-	kind: "error";
-	message: string;
-}
+export const ErrorPostResultSchema = z.object({
+	kind: z.literal("error"),
+	message: z.string(),
+});
 
-export interface ConfirmationPostResult {
-	kind: "confirmation";
+export const ConfirmationPostResultSchema = z.object({
+	kind: z.literal("confirmation"),
 	/** 確認画面のHTMLコンテンツ */
-	html: string;
+	html: z.string(),
 	/** 再投稿に必要なフォームデータ */
-	formData: Record<string, string>;
-}
+	formData: z.record(z.string(), z.string()),
+});
+
+export const PostResultSchema = z.discriminatedUnion("kind", [
+	SuccessPostResultSchema,
+	ErrorPostResultSchema,
+	ConfirmationPostResultSchema,
+]);
+
+export type SuccessPostResult = z.infer<typeof SuccessPostResultSchema>;
+export type ErrorPostResult = z.infer<typeof ErrorPostResultSchema>;
+export type ConfirmationPostResult = z.infer<
+	typeof ConfirmationPostResultSchema
+>;
+export type PostResult = z.infer<typeof PostResultSchema>;
