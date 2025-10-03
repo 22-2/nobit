@@ -1,6 +1,10 @@
 # Implementation Plan
 
-- [-] 1. Set up ThreadManager foundation with existing 5ch infrastructure
+- [x] 1. Set up ThreadManager foundation with existing 5ch infrastructure
+
+
+
+
 
 
   - Create ThreadManager class using ObsidianFetcher, DefaultDecoder, and DefaultParser
