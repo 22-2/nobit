@@ -1,11 +1,12 @@
-export interface ParsedBbsUrl {
-    host: string;
-    board: string;
-    threadId?: string;
-    // This allows the object to be compatible with Obsidian's ViewState,
-    // which expects a string index signature.
-    [key: string]: unknown;
-}
+import { z } from "zod";
+
+export const ParsedBbsUrlSchema = z.object({
+    host: z.string(),
+    board: z.string(),
+    threadId: z.string().optional(),
+}).passthrough(); // Allow additional properties for Obsidian ViewState compatibility
+
+export type ParsedBbsUrl = z.infer<typeof ParsedBbsUrlSchema>;
 
 export function parseBbsUrl(url: string): ParsedBbsUrl | null {
     // Ensure the URL has a scheme for consistent parsing.
@@ -19,7 +20,8 @@ export function parseBbsUrl(url: string): ParsedBbsUrl | null {
     if (threadMatch) {
         const [, host, board, threadId] = threadMatch;
         if (host && board && threadId) {
-            return { host, board, threadId };
+            const parsed = { host, board, threadId };
+            return ParsedBbsUrlSchema.parse(parsed);
         }
     }
 
@@ -47,7 +49,8 @@ export function parseBbsUrl(url: string): ParsedBbsUrl | null {
 
         if (host && finalBoardSegments.length > 0) {
             // 最初の意味のあるパスセグメントを板名として解釈
-            return { host, board: finalBoardSegments[0]! };
+            const parsed = { host, board: finalBoardSegments[0]! };
+            return ParsedBbsUrlSchema.parse(parsed);
         }
     } catch (e) {
         // URLのパースに失敗した場合は何もしない

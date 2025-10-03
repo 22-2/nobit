@@ -8,6 +8,7 @@ import type {
 	SubjectItem,
 	Thread,
 } from "../types";
+import { PostSchema, ThreadSchema, SubjectItemSchema, BBSMenuSchema } from "../types";
 import { invariant, normalizeDateStr } from "./utils";
 
 export interface Parser {
@@ -125,8 +126,10 @@ export class DefaultParser implements Parser {
 			.map((postStr, index) => {
 				try {
 					const post = this.parsePost(postStr, index + 1);
-					if (!post)
-						return {
+					let fullPost: Post;
+					
+					if (!post) {
+						fullPost = {
 							resNum: index + 1,
 							authorName: "",
 							mail: "",
@@ -137,30 +140,34 @@ export class DefaultParser implements Parser {
 							replies: [],
 							hasImage: false,
 							hasExternalLink: false,
-							postIdCount: 0, // 仮の値
-							siblingPostNumbers: [], // 仮の値
+							postIdCount: 0,
+							siblingPostNumbers: [],
 							imageUrls: [],
-						} as Post;
-
-					// IDごとのレス番号を記録
-					if (post.authorId) {
-						const resNumber = index + 1;
-						if (!idPostMap.has(post.authorId)) {
-							idPostMap.set(post.authorId, []);
+						};
+					} else {
+						// IDごとのレス番号を記録
+						if (post.authorId) {
+							const resNumber = index + 1;
+							if (!idPostMap.has(post.authorId)) {
+								idPostMap.set(post.authorId, []);
+							}
+							idPostMap.get(post.authorId)!.push(resNumber);
 						}
-						idPostMap.get(post.authorId)!.push(resNumber);
+
+						fullPost = {
+							...post,
+							references: [],
+							replies: [],
+							hasImage: false,
+							hasExternalLink: false,
+							postIdCount: 0,
+							siblingPostNumbers: [],
+							imageUrls: [],
+						};
 					}
 
-					return {
-						...post,
-						references: [],
-						replies: [],
-						hasImage: false,
-						hasExternalLink: false,
-						postIdCount: 0, // 仮の値
-						siblingPostNumbers: [], // 仮の値
-						imageUrls: [],
-					};
+					// Validate the post with zod schema
+					return PostSchema.parse(fullPost);
 				} catch (err) {
 					console.error(
 						"投稿のパースに失敗しました:",
@@ -254,12 +261,15 @@ export class DefaultParser implements Parser {
 			post.imageUrls = imageUrls;
 		});
 
-		return {
+		const thread = {
 			id: threadId,
 			title,
 			posts: initialPosts,
 			url,
 		};
+
+		// Validate the thread data with zod schema
+		return ThreadSchema.parse(thread);
 	}
 
 	public parseSubject(subjectTxt: string): SubjectItem[] {
@@ -287,7 +297,8 @@ export class DefaultParser implements Parser {
 			}
 		}
 
-		return items;
+		// Validate each subject item with zod schema
+		return items.map(item => SubjectItemSchema.parse(item));
 	}
 
 	public parseBBSMenu(html: string): BBSMenu {
@@ -332,6 +343,9 @@ export class DefaultParser implements Parser {
 			}
 		}
 
-		return menu.filter((category) => category.boards.length > 0);
+		const filteredMenu = menu.filter((category) => category.boards.length > 0);
+		
+		// Validate the BBS menu with zod schema
+		return BBSMenuSchema.parse(filteredMenu);
 	}
 }
