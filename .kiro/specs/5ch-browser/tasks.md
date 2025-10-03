@@ -152,7 +152,12 @@
   - Ensure no Svelte components import from 'obsidian' directly
   - _Requirements: 6.3, 6.4, 9.3, 9.4_
 
-- [ ] 6. Implement basic error handling and user feedback
+- [x] 6. Implement basic error handling and user feedback
+
+
+
+
+
   - Add network timeout handling in ThreadManager
   - Implement retry logic for failed requests
   - Create user-friendly error messages in Japanese
