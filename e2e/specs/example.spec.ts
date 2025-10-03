@@ -1,6 +1,6 @@
 // E:\Desktop\coding\pub\obsidian-sandbox-note\e2e\specs\setup\example.spec.ts
 import { VIEW_TYPE_BROWSER } from "src/utils/constants";
-import "./logger-setup";
+import "../setup/logger-setup";
 // ===================================================================
 // Example Test (example.test.mts)
 // ===================================================================
