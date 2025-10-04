@@ -1,6 +1,6 @@
 import { existsSync } from "fs";
 import path from "path";
-import { VIEW_TYPE_BROWSER } from "src/utils/constants";
+import { VIEW_TYPE_THREAD } from "src/utils/constants";
 import invariant from "tiny-invariant";
 import { fileURLToPath } from "url";
 import manifest from "../manifest.json" with { type: "json" };
@@ -52,10 +52,10 @@ export const LAUNCH_OPTIONS = {
 
 
 export const CMD_ID_OPEN_PLUGIN_VIEW =
-	"nobit:open-browser-view";
+	"nobit:open-nobit-test-thread";
 export const CMD_ID_TOGGLE_SOURCE = "editor:toggle-source";
 export const CMD_ID_CLOSE_TAB = "workspace:close";
 export const CMD_ID_UNDO_CLOSE_TAB = "workspace:undo-close-pane";
 export const DATAT_TYPE_MARKDOWN = "markdown";
 export const DATA_TYPE_EMPTY = "empty";
-export const DATA_TYPE_HOT_COUNT_NOVEL = VIEW_TYPE_BROWSER
+export const DATA_TYPE_HOT_THREAD = VIEW_TYPE_THREAD

@@ -1,5 +1,5 @@
 // E:\Desktop\coding\pub\obsidian-sandbox-note\e2e\specs\setup\example.spec.ts
-import { VIEW_TYPE_BROWSER } from "src/utils/constants";
+import { VIEW_TYPE_THREAD } from "src/utils/constants";
 import "../setup/logger-setup";
 // ===================================================================
 // Example Test (example.test.mts)
@@ -38,8 +38,8 @@ test("sandbox test: plugin activation and view creation via command", async ({
 	await obsPage.runCommand(CMD_ID_OPEN_PLUGIN_VIEW);
 
 	// 3. Verify the view opened correctly
-	await obsPage.expectViewCount(VIEW_TYPE_BROWSER, 1);
-	await obsPage.expectActiveTabType(VIEW_TYPE_BROWSER);
+	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
+	await obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
 });
 
 // Custom settings are maintained
