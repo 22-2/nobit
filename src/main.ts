@@ -1,5 +1,7 @@
 import log from "loglevel";
 import { Plugin } from "obsidian";
+import { DefaultParser, type Parser } from "./lib/libch/parser";
+import { ThreadManager } from "./managers";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
 import {
 	DEFAULT_SETTINGS,
@@ -15,10 +17,14 @@ export const logger = log.getLogger("nobit.main");
 
 export default class NobitPlugin extends Plugin {
 	settings: NobitPluginSettings = DEFAULT_SETTINGS;
+	threadManager!: ThreadManager;
+	parser!: Parser;
 
 	async onload() {
 		await this.loadSettings();
 		this.configureLogging();
+		this.parser = new DefaultParser();
+		this.threadManager = new ThreadManager(this.app, this.parser);
 		this.addSettingTab(new NobitSettingTab(this));
 
 		this.registerView(
@@ -28,7 +34,7 @@ export default class NobitPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_THREAD,
-			(leaf) => new ThreadView(leaf, this)
+			(leaf) => new ThreadView(leaf, this, this.threadManager)
 		);
 
 		this.addRibbonIcon("dice", "Activate browser view", () => {

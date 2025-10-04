@@ -1,9 +1,8 @@
-import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
-import { VIEW_TYPE_THREAD } from "../utils/constants";
+import { ItemView, WorkspaceLeaf } from "obsidian";
 import { mount, unmount } from "svelte";
-import { setContext } from "svelte";
 import type NobitPlugin from "../main";
 import { ThreadManager } from "../managers/ThreadManager.svelte";
+import { VIEW_TYPE_THREAD } from "../utils/constants";
 import ThreadViewComponent from "./ThreadViewComponent.svelte";
 
 /**
@@ -17,15 +16,17 @@ import ThreadViewComponent from "./ThreadViewComponent.svelte";
  * - Ensures architectural separation (no 'obsidian' imports in Svelte)
  */
 export class ThreadView extends ItemView {
-	private threadManager: ThreadManager;
 	private component: ReturnType<typeof mount> | null = null;
 	private plugin: NobitPlugin;
 
-	constructor(leaf: WorkspaceLeaf, plugin: NobitPlugin) {
+	constructor(
+		leaf: WorkspaceLeaf,
+		plugin: NobitPlugin,
+		private threadManager: ThreadManager
+	) {
 		super(leaf);
 		this.plugin = plugin;
 		// Initialize ThreadManager with Obsidian app instance
-		this.threadManager = new ThreadManager(this.app);
 	}
 
 	getViewType(): string {
@@ -46,13 +47,13 @@ export class ThreadView extends ItemView {
 
 		// Create a context map for Svelte component
 		const contextMap = new Map();
-		contextMap.set('threadManager', this.threadManager);
+		contextMap.set("threadManager", this.threadManager);
 
 		// Mount Svelte component with ThreadManager injected via context
 		this.component = mount(ThreadViewComponent, {
 			target: this.contentEl,
 			props: {},
-			context: contextMap
+			context: contextMap,
 		});
 	}
 

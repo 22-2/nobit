@@ -43,10 +43,26 @@ const DEFAULT_TEST_CONFIG: TestConfig = {
 	anchorChance: 0.05,
 	templates: {
 		authorIds: [
-			"can0y8at5", "VaIWYFUoe", "unuqbldXz", "nifwyLlxQ", "9Xu94Y12t",
-			"kYUQFM4ib", "yrmmRxDI7", "ZygznWYK/", "/VhVczWbI", "faD8iIk7x",
-			"1vvNtITu2", "aXTw4JhTq", "isaQer1Zi", "rTFUe6Ifo", "y01NCaPlG",
-			"4HVvqVZ0Y", "maQYa4ZkR", "N12QPrLwe", "ftfLIY2D8", "kd4U.obHe",
+			"can0y8at5",
+			"VaIWYFUoe",
+			"unuqbldXz",
+			"nifwyLlxQ",
+			"9Xu94Y12t",
+			"kYUQFM4ib",
+			"yrmmRxDI7",
+			"ZygznWYK/",
+			"/VhVczWbI",
+			"faD8iIk7x",
+			"1vvNtITu2",
+			"aXTw4JhTq",
+			"isaQer1Zi",
+			"rTFUe6Ifo",
+			"y01NCaPlG",
+			"4HVvqVZ0Y",
+			"maQYa4ZkR",
+			"N12QPrLwe",
+			"ftfLIY2D8",
+			"kd4U.obHe",
 		],
 		contentVariations: [
 			"面白くなりそうなのに…",
@@ -77,19 +93,19 @@ const DEFAULT_TEST_CONFIG: TestConfig = {
 /**
  * Test helper class for ThreadManager
  * Contains all test-related functionality separated from the main ThreadManager
- * 
+ *
  * Usage examples:
- * 
+ *
  * // Update thread IDs
  * ThreadManagerTestHelper.updateConfig({
  *   threadIds: { standard: "1234567890", performance: "0987654321" }
  * });
- * 
+ *
  * // Change post counts
  * ThreadManagerTestHelper.updateConfig({
  *   postCounts: { standard: 20, performance: 500 }
  * });
- * 
+ *
  * // Customize content templates
  * ThreadManagerTestHelper.updateConfig({
  *   templates: {
@@ -132,21 +148,21 @@ export class ThreadManagerTestHelper {
 		content?: string[];
 	}): void {
 		const updates: Partial<TestConfig> = {};
-		
+
 		if (options.threadId) {
-			updates.threadIds = { 
-				...this.config.threadIds, 
-				standard: options.threadId 
+			updates.threadIds = {
+				...this.config.threadIds,
+				standard: options.threadId,
 			};
 		}
-		
+
 		if (options.postCount) {
-			updates.postCounts = { 
-				...this.config.postCounts, 
-				standard: options.postCount 
+			updates.postCounts = {
+				...this.config.postCounts,
+				standard: options.postCount,
 			};
 		}
-		
+
 		if (options.title || options.authors || options.content) {
 			updates.templates = {
 				...this.config.templates,
@@ -155,7 +171,7 @@ export class ThreadManagerTestHelper {
 				...(options.content && { contentVariations: options.content }),
 			};
 		}
-		
+
 		this.updateConfig(updates);
 	}
 
@@ -262,7 +278,8 @@ export class ThreadManagerTestHelper {
 		const baseTime = new Date("2025/10/03 14:53:25");
 
 		// Use configured templates
-		const { authorIds, contentVariations, threadTitle } = this.config.templates;
+		const { authorIds, contentVariations, threadTitle } =
+			this.config.templates;
 
 		// First post with thread title
 		const firstPost = `エッヂの名無し<><>2025/10/03(木) 14:53:25.854 ID:${authorIds[0]}<> 話動きそうなのに <>${threadTitle}`;
@@ -273,7 +290,11 @@ export class ThreadManagerTestHelper {
 		for (let i = 1; i < targetCount; i++) {
 			const { minInterval, maxInterval } = this.config.timing;
 			const time = new Date(
-				baseTime.getTime() + i * 1000 * (Math.random() * (maxInterval - minInterval) + minInterval)
+				baseTime.getTime() +
+					i *
+						1000 *
+						(Math.random() * (maxInterval - minInterval) +
+							minInterval)
 			);
 			const timeStr = time
 				.toLocaleString("ja-JP", {
@@ -320,7 +341,8 @@ export class ThreadManagerTestHelper {
 		const baseTime = new Date("2025/10/01 21:15:00");
 
 		// Use configured templates
-		const { authorIds, contentVariations, threadTitle } = this.config.templates;
+		const { authorIds, contentVariations, threadTitle } =
+			this.config.templates;
 
 		// First post with thread title
 		const firstPost = `エッヂの名無し<><>2025/10/01(水) 21:15:00.544 ID:${authorIds[0]}<> 話動きそうなのに <>${threadTitle}`;
@@ -330,7 +352,11 @@ export class ThreadManagerTestHelper {
 		for (let i = 1; i < postCount; i++) {
 			const { minInterval, maxInterval } = this.config.timing;
 			const time = new Date(
-				baseTime.getTime() + i * 1000 * (Math.random() * (maxInterval - minInterval) + minInterval)
+				baseTime.getTime() +
+					i *
+						1000 *
+						(Math.random() * (maxInterval - minInterval) +
+							minInterval)
 			);
 			const timeStr = time
 				.toLocaleString("ja-JP", {

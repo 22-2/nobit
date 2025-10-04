@@ -1,4 +1,4 @@
-// packages/libch/src/core/parser.ts
+// E:\Desktop\coding\my-projects-02\nobit\src\lib\libch\parser.ts
 import { isValid, parse } from "date-fns";
 import he from "he";
 import type {
@@ -8,25 +8,63 @@ import type {
 	SubjectItem,
 	Thread,
 } from "../types";
-import { PostSchema, ThreadSchema, SubjectItemSchema, BBSMenuSchema } from "../types";
+import {
+	BBSMenuSchema,
+	PostSchema,
+	SubjectItemSchema,
+	ThreadSchema,
+} from "../types";
 import { invariant, normalizeDateStr } from "./utils";
 
+// ========================================
+// Parser Interface
+// ========================================
 export interface Parser {
 	parseThread(dat: string, threadId: string, url: string): Thread | undefined;
 	parseSubject(subjectTxt: string): SubjectItem[];
 	parseBBSMenu(html: string): BBSMenu;
 }
 
-export class DefaultParser implements Parser {
-	private static readonly talkfm = "yyyy/MM/dd HH:mm:ss.SSS";
-	private static readonly fivechfm = "yyyy/MM/dd HH:mm:ss.SS";
-	private static readonly oldfm = "yyyy/MM/dd HH:mm:ss";
+// ========================================
+// Base Parser (共通ロジック)
+// ========================================
+export abstract class BaseParser implements Parser {
+	protected static readonly DATE_FORMATS = {
+		talkfm: "yyyy/MM/dd HH:mm:ss.SSS",
+		fivechfm: "yyyy/MM/dd HH:mm:ss.SS",
+		oldfm: "yyyy/MM/dd HH:mm:ss",
+	} as const;
 
-	private decodeHtmlEntities(str: string): string {
+	protected decodeHtmlEntities(str: string): string {
 		return he.decode(str);
 	}
 
-	private parsePost(
+	protected parseDate(rawDateStr: string, resNum?: number): Date {
+		if (!rawDateStr) {
+			return new Date();
+		}
+
+		const dateStr = normalizeDateStr(rawDateStr);
+		this.onDateParsing?.(resNum, rawDateStr, dateStr);
+
+		for (const [formatName, format] of Object.entries(
+			BaseParser.DATE_FORMATS
+		)) {
+			const parsedDate = parse(dateStr, format, new Date());
+			if (isValid(parsedDate)) {
+				this.onDateParseSuccess?.(resNum, dateStr, formatName);
+				return parsedDate;
+			}
+			this.onDateParseAttempt?.(resNum, formatName, false);
+		}
+
+		this.onDateParseFailure?.(resNum, rawDateStr, dateStr);
+		throw new Error(
+			`ParseError: Failed to parse date. Raw: "${rawDateStr}", Normalized: "${dateStr}".`
+		);
+	}
+
+	protected parsePost(
 		postStr: string,
 		resNum: number
 	): Omit<
@@ -42,60 +80,158 @@ export class DefaultParser implements Parser {
 		const trimmedPostStr = postStr.trim();
 		if (!trimmedPostStr) return null;
 
-		const splitParts = trimmedPostStr.split("<>");
-		const dateAndIdIdx = splitParts.findIndex((str) => str.includes("ID:"));
+		try {
+			const splitParts = trimmedPostStr.split("<>");
+			const dateAndIdIdx = splitParts.findIndex((str) =>
+				str.includes("ID:")
+			);
 
-		if (dateAndIdIdx < 2 || dateAndIdIdx + 1 >= splitParts.length) {
+			if (dateAndIdIdx < 2 || dateAndIdIdx + 1 >= splitParts.length) {
+				this.onPostParseError?.(resNum, "Invalid structure", {
+					dateAndIdIdx,
+					partsLength: splitParts.length,
+				});
+				return null;
+			}
+
+			const authorName = (splitParts[0]?.trim() || "").replace(
+				/<.*?>/g,
+				""
+			);
+			const mail = splitParts[1]?.trim() || "";
+			const rawContent = splitParts[dateAndIdIdx + 1]?.trim() || "";
+			const content = rawContent
+				.replace(/<a\s+href=[^>]*?be\.2ch\.net[^>]*?>.*?<\/a>/i, "")
+				.trim();
+
+			const headerPart = splitParts[dateAndIdIdx];
+			invariant(headerPart, "failed to parse header");
+
+			const headerSplit = headerPart.split("ID:");
+			const rawDateStr = headerSplit[0]?.trim();
+			const authorId =
+				headerSplit.length > 1
+					? headerSplit.slice(1).join("ID:").trim()
+					: "";
+
+			const date = this.parseDate(rawDateStr || "", resNum);
+
+			this.onPostParseSuccess?.(resNum);
+			return {
+				resNum,
+				authorName,
+				mail,
+				date,
+				content,
+				authorId,
+			};
+		} catch (error) {
+			this.onPostParseError?.(
+				resNum,
+				error instanceof Error ? error.message : String(error),
+				{ postStr: postStr.substring(0, 100) }
+			);
 			return null;
 		}
+	}
 
-		// <b>タグなどを除去
-		const authorName = (splitParts[0]?.trim() || "").replace(/<.*?>/g, "");
-		const mail = splitParts[1]?.trim() || "";
-		const rawContent = splitParts[dateAndIdIdx + 1]?.trim() || "";
-		// beリンクなどの不要なaタグを除去
-		const content = rawContent
-			.replace(/<a\s+href=[^>]*?be\.2ch\.net[^>]*?>.*?<\/a>/i, "")
-			.trim();
-
-		const headerPart = splitParts[dateAndIdIdx];
-
-		invariant(headerPart, "failed to parse header");
-
-		const headerSplit = headerPart.split("ID:");
-		const rawDateStr = headerSplit[0]?.trim();
-		const authorId =
-			headerSplit.length > 1
-				? headerSplit.slice(1).join("ID:").trim()
-				: "";
-
-		let date: Date;
-		if (!rawDateStr) {
-			date = new Date();
-		} else {
-			const dateStr = normalizeDateStr(rawDateStr);
-			let parsedDate = parse(dateStr, DefaultParser.talkfm, new Date());
-			if (!isValid(parsedDate))
-				parsedDate = parse(dateStr, DefaultParser.fivechfm, new Date());
-			if (!isValid(parsedDate))
-				parsedDate = parse(dateStr, DefaultParser.oldfm, new Date());
-
-			if (!isValid(parsedDate)) {
-				throw new Error(
-					`ParseError: Failed to parse date. Raw: "${rawDateStr}", Normalized: "${dateStr}".`
-				);
+	protected buildIdPostMap(posts: Post[]): Map<string, number[]> {
+		const idPostMap = new Map<string, number[]>();
+		posts.forEach((post, index) => {
+			if (post.authorId) {
+				const resNumber = index + 1;
+				if (!idPostMap.has(post.authorId)) {
+					idPostMap.set(post.authorId, []);
+				}
+				idPostMap.get(post.authorId)!.push(resNumber);
 			}
-			date = parsedDate;
-		}
+		});
+		return idPostMap;
+	}
 
-		return {
-			resNum,
-			authorName,
-			mail,
-			date,
-			content,
-			authorId,
-		};
+	protected buildReferences(
+		posts: Post[],
+		threadId: string,
+		idPostMap: Map<string, number[]>
+	): void {
+		posts.forEach((post, index) => {
+			const resNumber = index + 1;
+
+			// ID情報の付与
+			if (post.authorId) {
+				const siblingPosts = idPostMap.get(post.authorId) || [];
+				post.postIdCount = siblingPosts.length;
+				post.siblingPostNumbers = siblingPosts;
+			}
+
+			const decodedContent = this.decodeHtmlEntities(post.content);
+			const anchorRegex = />>(\d+)/g;
+			let match;
+
+			while ((match = anchorRegex.exec(decodedContent)) !== null) {
+				const strNum = match[1];
+				if (!strNum) continue;
+
+				const targetResNumber = parseInt(strNum, 10);
+				const targetIndex = targetResNumber - 1;
+
+				if (targetIndex >= 0 && targetIndex < posts.length) {
+					const targetPost = posts[targetIndex]!;
+					if (!post.references.includes(targetResNumber)) {
+						post.references.push(targetResNumber);
+					}
+					if (!targetPost.replies.includes(resNumber)) {
+						targetPost.replies.push(resNumber);
+					}
+				}
+			}
+
+			this.transformPostContent(post, decodedContent, threadId);
+		});
+	}
+
+	protected transformPostContent(
+		post: Post,
+		decodedContent: string,
+		threadId: string
+	): void {
+		const contentParts = decodedContent.split(
+			/(>>\d+|<br>|https?:\/\/[^\s<>"']+)/
+		);
+		const imageUrls: string[] = [];
+
+		const processedContent = contentParts
+			.map((part) => {
+				if (!part) return "";
+
+				if (part.startsWith(">>")) {
+					const resNum = part.substring(2);
+					const escapedPart = part.replace(/>/g, "&gt;");
+					return `<a class="internal-res-link" data-thread-id="${threadId}" data-res-number="${resNum}">${escapedPart}</a>`;
+				}
+
+				if (part.startsWith("http")) {
+					const url = part;
+					if (/\.(jpg|jpeg|png|gif)$/i.test(url)) {
+						post.hasImage = true;
+						if (!imageUrls.includes(url)) {
+							imageUrls.push(url);
+						}
+					}
+					post.hasExternalLink = true;
+					return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="external-link">${url}</a>`;
+				}
+
+				if (part === "<br>") {
+					return "<br />";
+				}
+
+				return part;
+			})
+			.join("");
+
+		post.content = processedContent;
+		post.imageUrls = imageUrls;
 	}
 
 	public parseThread(
@@ -103,31 +239,36 @@ export class DefaultParser implements Parser {
 		threadId: string,
 		url: string
 	): Thread | undefined {
+		this.onThreadParseStart?.(dat.length);
+
 		if (!dat?.trim().length) {
+			this.onThreadParseEmpty?.();
 			return undefined;
 		}
 
 		const lines = dat.trim().split("\n");
+		this.onThreadParseLinesCount?.(lines.length);
+
 		invariant(!!lines.length && !!lines[0], "No posts found");
 
 		const firstLineParts = lines[0].split("<>");
 		const rawTitle =
 			firstLineParts.length > 4 ? firstLineParts?.[4]?.trim() : "無題";
-
 		invariant(rawTitle, "failed to parse title");
 
 		const title = this.decodeHtmlEntities(rawTitle);
+		this.onThreadParseTitle?.(title);
 
 		const postsToProcess = lines.slice(0, 1000);
+		this.onThreadParseProcessingCount?.(postsToProcess.length);
 
-		// 1st Pass: 基本的なパースとID集計
-		const idPostMap = new Map<string, number[]>();
+		// 1st Pass: 基本的なパース
 		const initialPosts: Post[] = postsToProcess
 			.map((postStr, index) => {
 				try {
 					const post = this.parsePost(postStr, index + 1);
 					let fullPost: Post;
-					
+
 					if (!post) {
 						fullPost = {
 							resNum: index + 1,
@@ -145,15 +286,6 @@ export class DefaultParser implements Parser {
 							imageUrls: [],
 						};
 					} else {
-						// IDごとのレス番号を記録
-						if (post.authorId) {
-							const resNumber = index + 1;
-							if (!idPostMap.has(post.authorId)) {
-								idPostMap.set(post.authorId, []);
-							}
-							idPostMap.get(post.authorId)!.push(resNumber);
-						}
-
 						fullPost = {
 							...post,
 							references: [],
@@ -166,7 +298,6 @@ export class DefaultParser implements Parser {
 						};
 					}
 
-					// Validate the post with zod schema
 					return PostSchema.parse(fullPost);
 				} catch (err) {
 					console.error(
@@ -180,86 +311,9 @@ export class DefaultParser implements Parser {
 			})
 			.filter((p): p is Post => p !== null);
 
-		// 2nd Pass: 参照関係の構築とHTML変換、ID情報の付与
-		initialPosts.forEach((post, index) => {
-			const resNumber = index + 1;
-
-			// ID情報の付与
-			if (post.authorId) {
-				const siblingPosts = idPostMap.get(post.authorId) || [];
-				post.postIdCount = siblingPosts.length;
-				post.siblingPostNumbers = siblingPosts;
-			}
-
-			const decodedContent = this.decodeHtmlEntities(post.content);
-			const anchorRegex = />>(\d+)/g;
-			let match;
-
-			while ((match = anchorRegex.exec(decodedContent)) !== null) {
-				const strNum = match[1];
-				if (!strNum) {
-					console.warn("invalid match object", match);
-					continue;
-				}
-				const targetResNumber = parseInt(strNum, 10);
-				const targetIndex = targetResNumber - 1;
-
-				if (targetIndex >= 0 && targetIndex < initialPosts.length) {
-					const targetPost = initialPosts[targetIndex]!;
-					if (!post.references.includes(targetResNumber)) {
-						post.references.push(targetResNumber);
-					}
-					if (!targetPost.replies.includes(resNumber)) {
-						targetPost.replies.push(resNumber);
-					}
-				}
-			}
-
-			// --- コンテンツ変換ロジック ---
-			const contentParts = decodedContent.split(
-				/(>>\d+|<br>|https?:\/\/[^\s<>"']+)/
-			);
-			const imageUrls: string[] = [];
-
-			const processedContent = contentParts
-				.map((part) => {
-					if (!part) return ""; // 空文字列はスキップ
-
-					// アンカー (>>1)
-					if (part.startsWith(">>")) {
-						const resNum = part.substring(2);
-						const escapedPart = part.replace(/>/g, "&gt;");
-						return `<a class="internal-res-link" data-thread-id="${threadId}" data-res-number="${resNum}">${escapedPart}</a>`;
-					}
-
-					// URL (http... or https...)
-					if (part.startsWith("http")) {
-						const url = part;
-						// 画像URLの場合は、imageUrls 配列に追加
-						if (/\.(jpg|jpeg|png|gif)$/i.test(url)) {
-							post.hasImage = true;
-							if (!imageUrls.includes(url)) {
-								imageUrls.push(url);
-							}
-						}
-						// すべてのURLをリンクとして扱う
-						post.hasExternalLink = true;
-						return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="external-link">${url}</a>`;
-					}
-
-					// 改行タグ
-					if (part === "<br>") {
-						return "<br />";
-					}
-
-					// それ以外のテキスト
-					return part;
-				})
-				.join("");
-
-			post.content = processedContent;
-			post.imageUrls = imageUrls;
-		});
+		// 2nd Pass: ID集計と参照関係の構築
+		const idPostMap = this.buildIdPostMap(initialPosts);
+		this.buildReferences(initialPosts, threadId, idPostMap);
 
 		const thread = {
 			id: threadId,
@@ -268,7 +322,6 @@ export class DefaultParser implements Parser {
 			url,
 		};
 
-		// Validate the thread data with zod schema
 		return ThreadSchema.parse(thread);
 	}
 
@@ -297,8 +350,7 @@ export class DefaultParser implements Parser {
 			}
 		}
 
-		// Validate each subject item with zod schema
-		return items.map(item => SubjectItemSchema.parse(item));
+		return items.map((item) => SubjectItemSchema.parse(item));
 	}
 
 	public parseBBSMenu(html: string): BBSMenu {
@@ -326,10 +378,9 @@ export class DefaultParser implements Parser {
 			if (currentCategory) {
 				const boardMatch = trimmedLine.match(boardRegex);
 				if (boardMatch && boardMatch[1] && boardMatch[2]) {
-					const url = boardMatch[1].trim().replace(/^"|"$/g, ""); // クォートを除去
+					const url = boardMatch[1].trim().replace(/^"|"$/g, "");
 					const name = this.decodeHtmlEntities(boardMatch[2].trim());
 
-					// 不要なリンクを除外
 					if (
 						url &&
 						name &&
@@ -343,9 +394,174 @@ export class DefaultParser implements Parser {
 			}
 		}
 
-		const filteredMenu = menu.filter((category) => category.boards.length > 0);
-		
-		// Validate the BBS menu with zod schema
+		const filteredMenu = menu.filter(
+			(category) => category.boards.length > 0
+		);
 		return BBSMenuSchema.parse(filteredMenu);
+	}
+
+	// Hook methods for debugging (オーバーライド可能)
+	protected onThreadParseStart?(contentLength: number): void;
+	protected onThreadParseEmpty?(): void;
+	protected onThreadParseLinesCount?(count: number): void;
+	protected onThreadParseTitle?(title: string): void;
+	protected onThreadParseProcessingCount?(count: number): void;
+	protected onDateParsing?(
+		resNum: number | undefined,
+		raw: string,
+		normalized: string
+	): void;
+	protected onDateParseAttempt?(
+		resNum: number | undefined,
+		format: string,
+		success: boolean
+	): void;
+	protected onDateParseSuccess?(
+		resNum: number | undefined,
+		dateStr: string,
+		format: string
+	): void;
+	protected onDateParseFailure?(
+		resNum: number | undefined,
+		raw: string,
+		normalized: string
+	): void;
+	protected onPostParseSuccess?(resNum: number): void;
+	protected onPostParseError?(
+		resNum: number,
+		error: string,
+		context?: any
+	): void;
+}
+
+// ========================================
+// Default Parser (本番用)
+// ========================================
+export class DefaultParser extends BaseParser {
+	// デフォルト実装はそのまま使用
+}
+
+// ========================================
+// Debug Parser (デバッグ用)
+// ========================================
+export class DebugParser extends BaseParser {
+	private verboseLogging = true;
+	private successCount = 0;
+	private errorCount = 0;
+
+	protected onThreadParseStart(contentLength: number): void {
+		console.log(
+			`DEBUG: Starting thread parsing, content length: ${contentLength}`
+		);
+		this.successCount = 0;
+		this.errorCount = 0;
+	}
+
+	protected onThreadParseEmpty(): void {
+		console.log(`DEBUG: Empty content`);
+	}
+
+	protected onThreadParseLinesCount(count: number): void {
+		console.log(`DEBUG: Total lines: ${count}`);
+		if (count > 100) {
+			this.verboseLogging = false;
+			console.log(
+				`DEBUG: Large dataset detected, reducing log verbosity`
+			);
+		}
+	}
+
+	protected onThreadParseTitle(title: string): void {
+		console.log(`DEBUG: Thread title: "${title}"`);
+	}
+
+	protected onThreadParseProcessingCount(count: number): void {
+		console.log(`DEBUG: Processing ${count} posts`);
+	}
+
+	protected onDateParsing(
+		resNum: number | undefined,
+		raw: string,
+		normalized: string
+	): void {
+		if (this.verboseLogging && resNum) {
+			console.log(
+				`DEBUG: Post ${resNum} - Parsing date: "${raw}" -> "${normalized}"`
+			);
+		}
+	}
+
+	protected onDateParseAttempt(
+		resNum: number | undefined,
+		format: string,
+		success: boolean
+	): void {
+		if (this.verboseLogging && resNum && !success) {
+			console.log(`DEBUG: Post ${resNum} - ${format} failed`);
+		}
+	}
+
+	protected onDateParseSuccess(
+		resNum: number | undefined,
+		dateStr: string,
+		format: string
+	): void {
+		if (this.verboseLogging && resNum) {
+			console.log(
+				`DEBUG: Post ${resNum} - Date parsed successfully with ${format}`
+			);
+		}
+	}
+
+	protected onDateParseFailure(
+		resNum: number | undefined,
+		raw: string,
+		normalized: string
+	): void {
+		if (this.verboseLogging && resNum) {
+			console.log(
+				`DEBUG: Post ${resNum} - All date formats failed for: "${raw}" -> "${normalized}"`
+			);
+		}
+	}
+
+	protected onPostParseSuccess(resNum: number): void {
+		this.successCount++;
+		if (this.verboseLogging) {
+			console.log(`DEBUG: Post ${resNum} - SUCCESS`);
+		}
+	}
+
+	protected onPostParseError(
+		resNum: number,
+		error: string,
+		context?: any
+	): void {
+		this.errorCount++;
+		if (this.verboseLogging) {
+			console.log(`DEBUG: Post ${resNum} - ERROR: ${error}`);
+			if (context?.postStr) {
+				console.log(
+					`DEBUG: Post ${resNum} - Content: ${context.postStr}...`
+				);
+			}
+			if (context?.dateAndIdIdx !== undefined) {
+				console.log(
+					`DEBUG: Post ${resNum} - Invalid structure, dateAndIdIdx=${context.dateAndIdIdx}, parts=${context.partsLength}`
+				);
+			}
+		}
+	}
+
+	public parseThread(
+		dat: string,
+		threadId: string,
+		url: string
+	): Thread | undefined {
+		const result = super.parseThread(dat, threadId, url);
+		console.log(
+			`DEBUG: Parsing summary - Success: ${this.successCount}, Errors: ${this.errorCount}`
+		);
+		return result;
 	}
 }

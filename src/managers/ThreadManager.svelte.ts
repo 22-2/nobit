@@ -1,18 +1,18 @@
+// E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
 import type { App } from "obsidian";
-import { DebugParser } from "../lib/libch/debug-parser";
+import type { Parser } from "src/lib/libch/parser";
 import type { Thread, ThreadFilters } from "../lib/types";
 import { BaseManager, type BaseManagerOptions } from "./BaseManager";
-import { ThreadManagerTestHelper } from "./ThreadManagerTestHelper";
-import { getErrorMessage, truncateContent } from "./utils";
+import { getErrorMessage } from "./utils";
 
 const logger = log.getLogger("ThreadManager");
 
 /**
  * Constants specific to ThreadManager
  */
-const FALLBACK_POST_LIMIT = 10;
-const FALLBACK_CONTENT_MAX_LENGTH = 100;
+// const FALLBACK_POST_LIMIT = 10;
+// const FALLBACK_CONTENT_MAX_LENGTH = 100;
 const THREAD_ID_PATTERN = /\/(\d{10})\/?$/;
 
 /**
@@ -25,11 +25,6 @@ const THREAD_ID_PATTERN = /\/(\d{10})\/?$/;
  * - Provides clean interface for Svelte components
  * - Ensures no direct 'obsidian' imports in Svelte components
  * - Implements robust error handling with retry logic and user-friendly messages
- *
- * MVP Implementation Notes:
- * - Currently designed to work with hardcoded thread URLs for initial testing
- * - Uses bbs.eddibb.cc/livejupiter URLs consistent with existing libch test infrastructure
- * - Will be extended to support dynamic thread loading in future iterations
  */
 export class ThreadManager extends BaseManager {
 	// Reactive state using Svelte 5's $state
@@ -46,11 +41,12 @@ export class ThreadManager extends BaseManager {
 	});
 
 	// Private thread-specific components
-	private readonly debugParser: DebugParser;
-
-	constructor(app: App, options: BaseManagerOptions = {}) {
+	constructor(
+		app: App,
+		private parser: Parser,
+		protected options: BaseManagerOptions = {}
+	) {
 		super(app, options);
-		this.debugParser = new DebugParser();
 	}
 
 	/**
@@ -64,57 +60,12 @@ export class ThreadManager extends BaseManager {
 		this.isLoading = true;
 		this.error = null;
 
-		console.log(`🔥 ThreadManager: Loading thread from URL: ${url}`);
 		logger.info(`Loading thread from URL: ${url}`);
 
 		try {
-			// Use test fixtures when appropriate
-			if (ThreadManagerTestHelper.shouldUseTestFixture(url)) {
-				console.log(
-					`🔥 ThreadManager: Loading test fixture for URL: ${url}`
-				);
-				const mockData = await ThreadManagerTestHelper.loadTestFixture(
-					url
-				);
-				const threadId = this.extractThreadIdFromUrl(url);
-				const parsedThread = this.parseThreadWithFallback(
-					mockData,
-					threadId,
-					url
-				);
-
-				if (!parsedThread) {
-					throw new Error("Failed to parse test fixture data");
-				}
-
-				this.thread = parsedThread;
-				console.log(
-					`🔥 ThreadManager: Successfully loaded test thread: ${parsedThread.title} (${parsedThread.posts.length} posts)`
-				);
-				logger.info(
-					`Successfully loaded test thread: ${parsedThread.title} (${parsedThread.posts.length} posts)`
-				);
-				return;
-			}
-
-			console.log(`🔥 ThreadManager: Starting fetchWithRetry...`);
 			const buffer = await this.fetchWithRetry(url);
-			console.log(
-				`🔥 ThreadManager: Fetch completed, buffer size: ${buffer.byteLength}`
-			);
-
 			const datContent = this.decodeBuffer(buffer);
-			console.log(
-				`🔥 ThreadManager: Decoded content length: ${datContent.length}`
-			);
-			console.log(
-				`🔥 ThreadManager: First 200 chars of decoded content:`,
-				datContent.substring(0, 200)
-			);
-
 			const threadId = this.extractThreadIdFromUrl(url);
-			console.log(`🔥 ThreadManager: Extracted thread ID: ${threadId}`);
-
 			const parsedThread = this.parseThreadWithFallback(
 				datContent,
 				threadId,
@@ -126,14 +77,10 @@ export class ThreadManager extends BaseManager {
 			}
 
 			this.thread = parsedThread;
-			console.log(
-				`🔥 ThreadManager: Successfully loaded thread: ${parsedThread.title} (${parsedThread.posts.length} posts)`
-			);
 			logger.info(
 				`Successfully loaded thread: ${parsedThread.title} (${parsedThread.posts.length} posts)`
 			);
 		} catch (error) {
-			console.error(`🔥 ThreadManager: Error loading thread:`, error);
 			this.handleThreadLoadError(error);
 		} finally {
 			this.isLoading = false;
@@ -174,7 +121,7 @@ export class ThreadManager extends BaseManager {
 	jumpToPost(resNumber: number): void {
 		// For now, this is a placeholder for future UI integration
 		// The actual scrolling logic will be handled by Svelte components
-		console.log(`Jumping to post ${resNumber}`);
+		logger.debug(`Jumping to post ${resNumber}`);
 	}
 
 	/**
@@ -203,22 +150,17 @@ export class ThreadManager extends BaseManager {
 		url: string
 	): Thread | null {
 		try {
-			// Use debug parser for detailed logging
-			console.log("DEBUG: Using debug parser for detailed analysis");
-
 			// Check post count and adjust logging level
 			const lineCount = datContent.split("\n").length;
 			if (lineCount > 100) {
 				// Disable verbose logging for large datasets
-				(this.debugParser as any).verboseLogging = false;
-				console.log(
-					`DEBUG: Large dataset detected (${lineCount} lines), reducing log verbosity`
+				(this.parser as any).verboseLogging = false;
+				logger.debug(
+					`Large dataset detected (${lineCount} lines), reducing log verbosity`
 				);
 			}
 
-			return (
-				this.debugParser.parseThread(datContent, threadId, url) || null
-			);
+			return this.parser.parseThread(datContent, threadId, url) || null;
 		} catch (error) {
 			logger.warn(
 				"Primary thread parsing failed:",
@@ -302,12 +244,12 @@ export class ThreadManager extends BaseManager {
 			id: threadId,
 			title: `スレッド ${threadId}`,
 			url: url,
-			posts: lines.slice(0, FALLBACK_POST_LIMIT).map((line, index) => ({
+			posts: lines.map((line, index) => ({
 				resNum: index + 1,
 				authorName: "名無しさん",
 				mail: "",
 				authorId: "",
-				content: truncateContent(line, FALLBACK_CONTENT_MAX_LENGTH),
+				content: line,
 				date: new Date(),
 				references: [],
 				replies: [],
