@@ -1,19 +1,26 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
 import { ThreadManager } from "../ThreadManager.svelte";
-import { ObsidianFetcher } from "../../lib/ObsidianFetcher";
-import { DefaultDecoder } from "../../lib/libch/decoder";
-import { DefaultParser } from "../../lib/libch/parser";
 import type { App } from "obsidian";
 import type { Thread, ThreadFilters } from "../../lib/types";
-
-// Mock the dependencies
-vi.mock("../../lib/ObsidianFetcher");
-vi.mock("../../lib/libch/decoder");
-vi.mock("../../lib/libch/parser");
+import type { BBSProvider } from "../../lib/libch/provider";
 
 // Mock Obsidian App
 const createMockApp = (): App => {
 	return {} as App;
+};
+
+// Mock BBSProvider
+const createMockProvider = (): BBSProvider => {
+	return {
+		id: "mock",
+		name: "Mock Provider",
+		canHandleUrl: vi.fn(),
+		getThreads: vi.fn(),
+		getBoardTitle: vi.fn(),
+		getThread: vi.fn(),
+		post: vi.fn(),
+		getBBSMenu: vi.fn(),
+	};
 };
 
 // Mock data for testing
@@ -47,9 +54,7 @@ const mockBuffer = new ArrayBuffer(8);
 describe("ThreadManager", () => {
 	let threadManager: ThreadManager;
 	let mockApp: App;
-	let mockFetcher: any;
-	let mockDecoder: any;
-	let mockParser: any;
+	let mockProvider: BBSProvider;
 
 	beforeEach(() => {
 		// Clear all mocks
@@ -57,23 +62,10 @@ describe("ThreadManager", () => {
 
 		// Create mock instances
 		mockApp = createMockApp();
-		mockFetcher = {
-			fetch: vi.fn(),
-		};
-		mockDecoder = {
-			decode: vi.fn(),
-		};
-		mockParser = {
-			parseThread: vi.fn(),
-		};
-
-		// Mock the constructors to return our mocked instances
-		vi.mocked(ObsidianFetcher).mockImplementation(() => mockFetcher);
-		vi.mocked(DefaultDecoder).mockImplementation(() => mockDecoder);
-		vi.mocked(DefaultParser).mockImplementation(() => mockParser);
+		mockProvider = createMockProvider();
 
 		// Create ThreadManager instance
-		threadManager = new ThreadManager(mockApp);
+		threadManager = new ThreadManager(mockApp, mockProvider);
 	});
 
 	describe("constructor", () => {
@@ -90,12 +82,6 @@ describe("ThreadManager", () => {
 				searchText: "",
 			});
 		});
-
-		it("should initialize dependencies with correct parameters", () => {
-			expect(ObsidianFetcher).toHaveBeenCalledWith(300);
-			expect(DefaultDecoder).toHaveBeenCalled();
-			expect(DefaultParser).toHaveBeenCalled();
-		});
 	});
 
 	describe("loadThread", () => {
@@ -104,22 +90,14 @@ describe("ThreadManager", () => {
 
 		beforeEach(() => {
 			// Setup successful mock responses
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(mockThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(mockThread);
 		});
 
 		it("should successfully load thread and update reactive state", async () => {
 			await threadManager.loadThread(testUrl);
 
 			// Verify the loading flow
-			expect(mockFetcher.fetch).toHaveBeenCalledWith(testUrl);
-			expect(mockDecoder.decode).toHaveBeenCalledWith(mockBuffer);
-			expect(mockParser.parseThread).toHaveBeenCalledWith(
-				mockDatContent,
-				"1234567890",
-				testUrl
-			);
+			expect(mockProvider.getThread).toHaveBeenCalledWith(testUrl);
 
 			// Verify reactive state updates
 			expect(threadManager.thread).toEqual(mockThread);
@@ -129,11 +107,11 @@ describe("ThreadManager", () => {
 
 		it("should set loading state during fetch operation", async () => {
 			// Create a promise that we can control
-			let resolvePromise: (value: ArrayBuffer) => void;
-			const fetchPromise = new Promise<ArrayBuffer>((resolve) => {
+			let resolvePromise: (value: Thread) => void;
+			const fetchPromise = new Promise<Thread>((resolve) => {
 				resolvePromise = resolve;
 			});
-			mockFetcher.fetch.mockReturnValue(fetchPromise);
+			vi.mocked(mockProvider.getThread).mockReturnValue(fetchPromise);
 
 			// Start the load operation
 			const loadPromise = threadManager.loadThread(testUrl);
@@ -143,7 +121,7 @@ describe("ThreadManager", () => {
 			expect(threadManager.error).toBeNull();
 
 			// Complete the fetch
-			resolvePromise!(mockBuffer);
+			resolvePromise!(mockThread);
 			await loadPromise;
 
 			// Verify loading state is cleared
@@ -160,9 +138,9 @@ describe("ThreadManager", () => {
 			expect(threadManager.error).toBeNull();
 		});
 
-		it("should handle network fetch errors gracefully", async () => {
-			const networkError = new Error("Network connection failed");
-			mockFetcher.fetch.mockRejectedValue(networkError);
+		it("should handle provider errors gracefully", async () => {
+			const providerError = new Error("Provider failed to load thread");
+			vi.mocked(mockProvider.getThread).mockRejectedValue(providerError);
 
 			await threadManager.loadThread(testUrl);
 
@@ -170,49 +148,12 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
 			expect(threadManager.error).toBe(
-				"スレッドの読み込みに失敗しました: Network connection failed"
+				"スレッドの読み込みに失敗しました: Provider failed to load thread"
 			);
 		});
 
-		it("should handle decoder errors gracefully", async () => {
-			const decoderError = new Error("Shift-JIS decoding failed");
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockImplementation(() => {
-				throw decoderError;
-			});
-
-			await threadManager.loadThread(testUrl);
-
-			// Verify error handling
-			expect(threadManager.thread).toBeNull();
-			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe(
-				"スレッドの読み込みに失敗しました: Shift-JIS decoding failed"
-			);
-		});
-
-		it("should handle parser errors gracefully", async () => {
-			const parserError = new Error("DAT parsing failed");
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockImplementation(() => {
-				throw parserError;
-			});
-
-			await threadManager.loadThread(testUrl);
-
-			// Verify error handling
-			expect(threadManager.thread).toBeNull();
-			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toBe(
-				"スレッドの読み込みに失敗しました: DAT parsing failed"
-			);
-		});
-
-		it("should handle null parser result gracefully", async () => {
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(undefined);
+		it("should handle null provider result gracefully", async () => {
+			vi.mocked(mockProvider.getThread).mockResolvedValue(null as any);
 
 			await threadManager.loadThread(testUrl);
 
@@ -220,29 +161,7 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toBeNull();
 			expect(threadManager.isLoading).toBe(false);
 			expect(threadManager.error).toBe(
-				"スレッドの読み込みに失敗しました: Failed to parse thread data"
-			);
-		});
-
-		it("should extract thread ID correctly from URL", async () => {
-			await threadManager.loadThread(testUrl);
-
-			expect(mockParser.parseThread).toHaveBeenCalledWith(
-				mockDatContent,
-				"1234567890", // Extracted thread ID
-				testUrl
-			);
-		});
-
-		it("should handle URLs without thread ID gracefully", async () => {
-			const invalidUrl = "https://example.5ch.net/test/read.cgi/board/";
-
-			await threadManager.loadThread(invalidUrl);
-
-			expect(mockParser.parseThread).toHaveBeenCalledWith(
-				mockDatContent,
-				"unknown", // Fallback for invalid URL
-				invalidUrl
+				"スレッドの読み込みに失敗しました: Failed to load thread data"
 			);
 		});
 	});
@@ -250,9 +169,7 @@ describe("ThreadManager", () => {
 	describe("refreshThread", () => {
 		beforeEach(() => {
 			// Setup successful mock responses
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(mockThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(mockThread);
 		});
 
 		it("should reload current thread when thread is loaded", async () => {
@@ -261,15 +178,13 @@ describe("ThreadManager", () => {
 
 			// Clear the mock calls from initial load
 			vi.clearAllMocks();
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(mockThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(mockThread);
 
 			// Refresh the thread
 			await threadManager.refreshThread();
 
 			// Verify it reloaded the same URL
-			expect(mockFetcher.fetch).toHaveBeenCalledWith(mockThread.url);
+			expect(mockProvider.getThread).toHaveBeenCalledWith(mockThread.url);
 		});
 
 		it("should do nothing when no thread is loaded", async () => {
@@ -279,7 +194,7 @@ describe("ThreadManager", () => {
 			await threadManager.refreshThread();
 
 			// Verify no fetch was attempted
-			expect(mockFetcher.fetch).not.toHaveBeenCalled();
+			expect(mockProvider.getThread).not.toHaveBeenCalled();
 		});
 
 		it("should update reactive state during refresh", async () => {
@@ -311,9 +226,7 @@ describe("ThreadManager", () => {
 			};
 
 			vi.clearAllMocks();
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(updatedThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(updatedThread);
 
 			// Refresh the thread
 			await threadManager.refreshThread();
@@ -333,7 +246,7 @@ describe("ThreadManager", () => {
 			// Setup mock to fail on refresh
 			vi.clearAllMocks();
 			const refreshError = new Error("Refresh failed");
-			mockFetcher.fetch.mockRejectedValue(refreshError);
+			vi.mocked(mockProvider.getThread).mockRejectedValue(refreshError);
 
 			// Refresh the thread
 			await threadManager.refreshThread();
@@ -351,13 +264,13 @@ describe("ThreadManager", () => {
 			await threadManager.loadThread(mockThread.url);
 
 			// Create a controllable promise for refresh
-			let resolveRefresh: (value: ArrayBuffer) => void;
-			const refreshPromise = new Promise<ArrayBuffer>((resolve) => {
+			let resolveRefresh: (value: Thread) => void;
+			const refreshPromise = new Promise<Thread>((resolve) => {
 				resolveRefresh = resolve;
 			});
 
 			vi.clearAllMocks();
-			mockFetcher.fetch.mockReturnValue(refreshPromise);
+			vi.mocked(mockProvider.getThread).mockReturnValue(refreshPromise);
 
 			// Start refresh operation
 			const refreshOperation = threadManager.refreshThread();
@@ -367,7 +280,7 @@ describe("ThreadManager", () => {
 			expect(threadManager.error).toBeNull();
 
 			// Complete the refresh
-			resolveRefresh!(mockBuffer);
+			resolveRefresh!(mockThread);
 			await refreshOperation;
 
 			// Verify loading state is cleared
@@ -380,18 +293,16 @@ describe("ThreadManager", () => {
 			const customThread = { ...mockThread, url: customUrl };
 
 			// Load thread with custom URL
-			mockParser.parseThread.mockReturnValue(customThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(customThread);
 			await threadManager.loadThread(customUrl);
 
 			vi.clearAllMocks();
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(customThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(customThread);
 
 			// Refresh should use the same URL
 			await threadManager.refreshThread();
 
-			expect(mockFetcher.fetch).toHaveBeenCalledWith(customUrl);
+			expect(mockProvider.getThread).toHaveBeenCalledWith(customUrl);
 		});
 	});
 
@@ -740,7 +651,7 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toBeNull();
 
 			// Mock a network error
-			mockFetcher.fetch.mockRejectedValue(new Error("Network error"));
+			vi.mocked(mockProvider.getThread).mockRejectedValue(new Error("Network error"));
 
 			await threadManager.loadThread("https://example.com/thread");
 
@@ -752,15 +663,13 @@ describe("ThreadManager", () => {
 
 		it("should clear previous thread data on new load attempt", async () => {
 			// Load initial thread
-			mockFetcher.fetch.mockResolvedValue(mockBuffer);
-			mockDecoder.decode.mockReturnValue(mockDatContent);
-			mockParser.parseThread.mockReturnValue(mockThread);
+			vi.mocked(mockProvider.getThread).mockResolvedValue(mockThread);
 
 			await threadManager.loadThread("https://example.com/thread1");
 			expect(threadManager.thread).toEqual(mockThread);
 
 			// Mock failure for second load
-			mockFetcher.fetch.mockRejectedValue(
+			vi.mocked(mockProvider.getThread).mockRejectedValue(
 				new Error("Second load failed")
 			);
 

@@ -1,6 +1,6 @@
-import { type BufferDecoder, DefaultDecoder } from "./libch/decoder";
+import { DefaultDecoder } from "./libch/decoder";
 import { type HttpFetcher, DefaultFetcher, HttpError } from "./libch/fetcher";
-import { type Parser, DefaultParser } from "./libch/parser";
+import { DefaultParser } from "./libch/parser";
 import type { BBSProvider } from "./libch/provider";
 import { parseBbsUrl } from "./libch/url";
 import type {
@@ -10,23 +10,23 @@ import type {
 	SubjectItem,
 	Thread,
 } from "./types";
+import { BaseBBSProvider, type BaseBBSProviderOptions } from "./BaseBBSProvider";
 
-export class DefaultBBSProvider implements BBSProvider {
+export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 	readonly id = "default";
 	readonly name = "5ch互換BBSプロバイダ";
 
-	public readonly fetcher: HttpFetcher;
-	private readonly decoder: BufferDecoder;
-	private readonly parser: Parser;
-
 	constructor(
 		fetcher?: HttpFetcher,
-		decoder?: BufferDecoder,
-		parser?: Parser
+		decoder?: DefaultDecoder,
+		parser?: DefaultParser,
+		options?: BaseBBSProviderOptions
 	) {
-		this.fetcher = fetcher ?? new DefaultFetcher();
-		this.decoder = decoder ?? new DefaultDecoder();
-		this.parser = parser ?? new DefaultParser();
+		super(fetcher, decoder, parser, options);
+	}
+
+	protected createDefaultFetcher(): HttpFetcher {
+		return new DefaultFetcher();
 	}
 
 	canHandleUrl(url: string): boolean {
@@ -45,8 +45,8 @@ export class DefaultBBSProvider implements BBSProvider {
 		const subjectTxtUrl = `https://${host}/${board}/subject.txt`;
 
 		try {
-			const buffer = await this.fetcher.fetch(subjectTxtUrl);
-			const text = this.decoder.decode(buffer);
+			const buffer = await this.fetchWithRetry(subjectTxtUrl);
+			const text = this.decodeBuffer(buffer);
 			return this.parser.parseSubject(text);
 		} catch (error) {
 			console.error(
@@ -68,8 +68,8 @@ export class DefaultBBSProvider implements BBSProvider {
 		for (const filename of filenames) {
 			const url = `https://${host}/${board}/${filename}`;
 			try {
-				const buffer = await this.fetcher.fetch(url);
-				const text = this.decoder.decode(buffer);
+				const buffer = await this.fetchWithRetry(url);
+				const text = this.decodeBuffer(buffer);
 				const match = text.match(/^BBS_TITLE=(.*)$/m);
 				if (match && match[1]) {
 					return match[1].trim();
@@ -98,8 +98,8 @@ export class DefaultBBSProvider implements BBSProvider {
 		const datUrl = `https://${host}/${board}/dat/${threadId}.dat`;
 
 		try {
-			const buffer = await this.fetcher.fetch(datUrl);
-			const text = this.decoder.decode(buffer);
+			const buffer = await this.fetchWithRetry(datUrl);
+			const text = this.decodeBuffer(buffer);
 			const thread = this.parser.parseThread(text, threadId, threadUrl);
 			if (!thread) {
 				throw new Error(`Failed to parse thread from ${datUrl}`);
@@ -164,7 +164,7 @@ export class DefaultBBSProvider implements BBSProvider {
 				finalHeaders,
 				confirmationData
 			);
-			const responseText = this.decoder.decode(responseBuffer);
+			const responseText = this.decodeBuffer(responseBuffer);
 
 			console.log(responseText);
 
@@ -207,7 +207,7 @@ export class DefaultBBSProvider implements BBSProvider {
 			if (error instanceof HttpError) {
 				// Confirmation pages often return non-200 status codes.
 				// We decode the body and proceed, the logic below will check for confirmation.
-				const responseText = this.decoder.decode(
+				const responseText = this.decodeBuffer(
 					await error.response.arrayBuffer()
 				);
 				if (/bbs\.cgi\?guid=ON/i.test(responseText)) {
@@ -242,8 +242,8 @@ export class DefaultBBSProvider implements BBSProvider {
 
 	async getBBSMenu(menuUrl: string): Promise<BBSMenu> {
 		try {
-			const buffer = await this.fetcher.fetch(menuUrl);
-			const text = this.decoder.decode(buffer);
+			const buffer = await this.fetchWithRetry(menuUrl);
+			const text = this.decodeBuffer(buffer);
 			return this.parser.parseBBSMenu(text);
 		} catch (error) {
 			console.error(`Failed to get bbsmenu from ${menuUrl}:`, error);
