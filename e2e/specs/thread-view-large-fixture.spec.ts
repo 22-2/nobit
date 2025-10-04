@@ -334,22 +334,40 @@ test("Large Fixture: Search functionality with large dataset", async ({
 		'.thread-filters input[type="text"]'
 	);
 	if (await searchInput.isVisible()) {
+		// Get initial post count
+		const initialPostCount = await vault.window
+			.locator(".posts-container .post")
+			.count();
+		console.log(`Initial post count: ${initialPostCount}`);
+
 		// Test search with Japanese text that should be in the fixture
 		await searchInput.fill("面白い");
+		
+		// Wait for filtering to apply
+		await vault.window.waitForTimeout(500);
 
-		// Verify search results are filtered
-		await expect(
-			vault.window.locator(".posts-container .post")
-		).toBeVisible();
+		// Verify search results are filtered (should be less than initial)
+		const filteredPostCount = await vault.window
+			.locator(".posts-container .post")
+			.count();
+		console.log(`Filtered post count for '面白い': ${filteredPostCount}`);
+		
+		// The filtered count should be less than the initial count
+		expect(filteredPostCount).toBeLessThan(initialPostCount);
+		expect(filteredPostCount).toBeGreaterThan(0);
 
 		// Clear search
 		await searchInput.fill("");
+		
+		// Wait for filtering to reset
+		await vault.window.waitForTimeout(500);
 
 		// Verify all posts are shown again
 		const postCount = await vault.window
 			.locator(".posts-container .post")
 			.count();
-		expect(postCount).toBeGreaterThan(100);
+		console.log(`Post count after clearing search: ${postCount}`);
+		expect(postCount).toBe(initialPostCount);
 	}
 });
 
@@ -378,21 +396,37 @@ test("Large Fixture: Filter functionality with large dataset", async ({
 	const buttonCount = await filterButtons.count();
 
 	if (buttonCount > 0) {
+		// Get initial post count
+		const initialPostCount = await vault.window
+			.locator(".posts-container .post")
+			.count();
+		console.log(`Initial post count: ${initialPostCount}`);
+
 		// Click first filter button
 		await filterButtons.first().click();
 
+		// Wait for filtering to apply
+		await vault.window.waitForTimeout(500);
+
 		// Verify posts are still displayed (filtered or unfiltered)
-		await expect(
-			vault.window.locator(".posts-container .post")
-		).toBeVisible();
+		const filteredPostCount = await vault.window
+			.locator(".posts-container .post")
+			.count();
+		console.log(`Filtered post count: ${filteredPostCount}`);
+		expect(filteredPostCount).toBeGreaterThan(0);
 
 		// Click again to toggle off
 		await filterButtons.first().click();
 
+		// Wait for filtering to reset
+		await vault.window.waitForTimeout(500);
+
 		// Verify posts are still displayed
-		await expect(
-			vault.window.locator(".posts-container .post")
-		).toBeVisible();
+		const finalPostCount = await vault.window
+			.locator(".posts-container .post")
+			.count();
+		console.log(`Final post count: ${finalPostCount}`);
+		expect(finalPostCount).toBe(initialPostCount);
 	}
 });
 

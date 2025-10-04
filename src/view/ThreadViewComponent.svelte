@@ -11,6 +11,12 @@
 	
 	console.log("🔥 ThreadViewComponent: Script loaded, threadManager:", threadManager);
 
+	// Debug: Watch filters changes
+	$effect(() => {
+		console.log("🔍 Filters changed:", JSON.stringify(threadManager.filters));
+		console.log("🔍 Filtered posts count:", threadManager.filteredPosts.length);
+	});
+
 	onMount(async () => {
 		// MVP: Load hardcoded thread URL for initial testing
 		// 
@@ -82,13 +88,13 @@
 				<h2 class="thread-title">{threadManager.thread.title}</h2>
 				<div class="thread-info">
 					<span class="post-count"
-						>{threadManager.thread.posts.length} posts</span
+						>{threadManager.filteredPosts.length} / {threadManager.thread.posts.length} posts</span
 					>
 				</div>
 			</div>
 
 			<div class="posts-container">
-				{#each threadManager.thread.posts as post, index}
+				{#each threadManager.filteredPosts as post, index}
 					<PostItem 
 						{post} 
 						{index} 

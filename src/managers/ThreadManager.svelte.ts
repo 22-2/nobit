@@ -38,6 +38,91 @@ export class ThreadManager extends BaseManager {
 		searchText: "",
 	});
 
+	/**
+	 * Get filtered posts based on current filter state.
+	 * Returns all posts if no filters are active.
+	 * Uses $derived for proper Svelte 5 reactivity.
+	 */
+	filteredPosts = $derived.by(() => {
+		if (!this.thread?.posts) {
+			return [];
+		}
+
+		let posts = this.thread.posts;
+		const initialCount = posts.length;
+
+		// Apply search text filter
+		if (this.filters.searchText.trim()) {
+			const searchLower = this.filters.searchText.toLowerCase();
+			posts = posts.filter(
+				(post) =>
+					post.authorName.toLowerCase().includes(searchLower) ||
+					post.content.toLowerCase().includes(searchLower)
+			);
+			logger.debug(
+				`Search filter '${this.filters.searchText}': ${initialCount} -> ${posts.length} posts`
+			);
+		}
+
+		// Apply popular filter (posts with many replies)
+		if (this.filters.popular) {
+			const beforeCount = posts.length;
+			// Consider posts with 5+ replies as popular
+			posts = posts.filter((post) => (post.replies?.length ?? 0) >= 5);
+			logger.debug(
+				`Popular filter: ${beforeCount} -> ${posts.length} posts`
+			);
+		}
+
+		// Apply image filter
+		if (this.filters.image) {
+			const beforeCount = posts.length;
+			posts = posts.filter(
+				(post) => post.hasImage || (post.imageUrls && post.imageUrls.length > 0)
+			);
+			logger.debug(`Image filter: ${beforeCount} -> ${posts.length} posts`);
+		}
+
+		// Apply video filter (currently not supported in Post type, skip for now)
+		if (this.filters.video) {
+			const beforeCount = posts.length;
+			// Video detection would need to be added to the parser
+			// For now, we can check if content contains common video URLs
+			posts = posts.filter((post) =>
+				/youtube\.com|youtu\.be|nicovideo\.jp|nico\.ms/i.test(post.content)
+			);
+			logger.debug(`Video filter: ${beforeCount} -> ${posts.length} posts`);
+		}
+
+		// Apply external link filter
+		if (this.filters.external) {
+			const beforeCount = posts.length;
+			posts = posts.filter((post) => post.hasExternalLink);
+			logger.debug(
+				`External filter: ${beforeCount} -> ${posts.length} posts`
+			);
+		}
+
+		// Apply internal link filter (anchors/references)
+		if (this.filters.internal) {
+			const beforeCount = posts.length;
+			posts = posts.filter(
+				(post) => post.references && post.references.length > 0
+			);
+			logger.debug(
+				`Internal filter: ${beforeCount} -> ${posts.length} posts`
+			);
+		}
+
+		if (initialCount !== posts.length) {
+			logger.info(
+				`Filtered posts: ${initialCount} -> ${posts.length} (filters: ${JSON.stringify(this.filters)})`
+			);
+		}
+
+		return posts;
+	});
+
 	// Private thread-specific components
 	constructor(
 		app: App,
