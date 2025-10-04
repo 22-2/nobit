@@ -6,6 +6,13 @@ export default defineConfig({
 		globals: true,
 		include: ["src/**/*.{test,spec}.ts"],
 		setupFiles: ["src/__tests__/setup.ts"],
+		onConsoleLog: (log) => {
+			// 長文のログだけ抑制（500文字以上）
+			if (log.length > 500) {
+				return false;
+			}
+			return true;
+		},
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "lcov", "html"],

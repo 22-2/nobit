@@ -19,14 +19,6 @@ export default defineConfig({
 		trace: "on-first-retry",
 		video: "on",
 		screenshot: "only-on-failure",
-		// Enable browser console logging
-		launchOptions: {
-			args: [
-				'--enable-logging',
-				'--log-level=0',
-				'--v=1'
-			]
-		}
 	},
 	projects: [
 		{

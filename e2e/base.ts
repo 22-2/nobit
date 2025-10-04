@@ -96,25 +96,35 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			: await obsidianSetup.openVault(vaultOptions);
 		if (vaultOptions.showLoggerOnNode) {
 			logger.debug("enable browser console");
-			
+
 			// Enhanced console logging with more details
 			context.window.on("console", (msg) => {
 				const type = msg.type();
-				const text = msg.text();
-				const location = msg.location();
+				const fullText = msg.text();
 				
-				console.log(`🖥️ BROWSER [${type.toUpperCase()}]: ${text}`);
-				if (location.url && location.url !== 'about:blank') {
-					console.log(`   📍 Location: ${location.url}:${location.lineNumber}:${location.columnNumber}`);
+				// 長文（500文字以上）は抑制
+				if (fullText.length > 500) {
+					console.log(`🖥️ BROWSER [${type.toUpperCase()}]: [長文のため省略: ${fullText.length}文字]`);
+					return;
 				}
 				
+				const text = fullText.substring(0, 100);
+				const location = msg.location();
+
+				console.log(`🖥️ BROWSER [${type.toUpperCase()}]: ${text}`);
+				if (location.url && location.url !== "about:blank") {
+					console.log(
+						`   📍 Location: ${location.url}:${location.lineNumber}:${location.columnNumber}`
+					);
+				}
+
 				// Show args for more complex console calls
 				const args = msg.args();
 				if (args.length > 1) {
 					console.log(`   📋 Args: ${args.length} arguments`);
 				}
 			});
-			
+
 			// Listen to page errors
 			context.window.on("pageerror", (error) => {
 				console.log(`🖥️ PAGE ERROR: ${error.message}`);
@@ -122,7 +132,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 					console.log(`   📚 Stack: ${error.stack}`);
 				}
 			});
-			
+
 			// Listen to request failures
 			context.window.on("requestfailed", (request) => {
 				console.log(`🖥️ REQUEST FAILED: ${request.url()}`);
@@ -131,11 +141,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 					console.log(`   ❌ Failure: ${failure.errorText}`);
 				}
 			});
-			
+
 			// Listen to response errors
 			context.window.on("response", (response) => {
 				if (!response.ok()) {
-					console.log(`🖥️ HTTP ERROR: ${response.status()} ${response.statusText()} - ${response.url()}`);
+					console.log(
+						`🖥️ HTTP ERROR: ${response.status()} ${response.statusText()} - ${response.url()}`
+					);
 				}
 			});
 		}
