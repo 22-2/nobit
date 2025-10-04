@@ -342,7 +342,7 @@ test("Large Fixture: Search functionality with large dataset", async ({
 
 		// Test search with Japanese text that should be in the fixture
 		await searchInput.fill("面白い");
-		
+
 		// Wait for filtering to apply
 		await vault.window.waitForTimeout(500);
 
@@ -351,14 +351,14 @@ test("Large Fixture: Search functionality with large dataset", async ({
 			.locator(".posts-container .post")
 			.count();
 		console.log(`Filtered post count for '面白い': ${filteredPostCount}`);
-		
+
 		// The filtered count should be less than the initial count
 		expect(filteredPostCount).toBeLessThan(initialPostCount);
 		expect(filteredPostCount).toBeGreaterThan(0);
 
 		// Clear search
 		await searchInput.fill("");
-		
+
 		// Wait for filtering to reset
 		await vault.window.waitForTimeout(500);
 
@@ -452,7 +452,7 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 	expect(postCount).toBeGreaterThan(100);
 
 	// Close the view to test cleanup
-	await vault.window.keyboard.press("Escape");
+	await obsPage.closeActiveTab();
 
 	// Wait a moment for cleanup
 	await vault.window.waitForTimeout(1000);

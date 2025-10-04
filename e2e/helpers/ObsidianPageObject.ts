@@ -121,7 +121,7 @@ export class ObsidianPageObject {
 	}
 
 	async closeActiveTab(): Promise<void> {
-		await this.activeEditor.focus();
+		await this.activeLeaf.focus();
 		await this.runCommand(CMD_ID_CLOSE_TAB);
 	}
 
