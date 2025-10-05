@@ -3,7 +3,12 @@ import { vi } from "vitest";
 
 // Mock Svelte 5's $state for testing - simple implementation that returns the initial value
 (global as any).$state = vi.fn((initialValue: any) => initialValue);
-(global as any).$derived = vi.fn((initialValue: any) => initialValue);
+
+// Mock $derived and $derived.by
+const derivedMock = vi.fn((initialValue: any) => initialValue);
+// @ts-expect-error
+derivedMock.by = vi.fn((fn: () => any) => fn());
+(global as any).$derived = derivedMock;
 
 // Mock loglevel
 vi.mock("loglevel", () => ({
