@@ -46,8 +46,8 @@ export class ThreadView extends ItemView {
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
 		super.setState(state, result);
-
-		// Get state (contains URL from open-with-url command)
+		// Clear any existing content
+		this.contentEl.empty();
 
 		// Create a context map for Svelte component
 		const contextMap = new Map();
@@ -61,11 +61,6 @@ export class ThreadView extends ItemView {
 			},
 			context: contextMap,
 		});
-	}
-
-	async onOpen(): Promise<void> {
-		// Clear any existing content
-		this.contentEl.empty();
 	}
 
 	async onClose(): Promise<void> {
