@@ -16,5 +16,4 @@ export const DEFAULT_SETTINGS: NobitPluginSettings = {
 
 export const APP_NAME = manifest.name;
 
-export const VIEW_TYPE_BROWSER = "browser-view";
 export const VIEW_TYPE_THREAD = "thread-view";

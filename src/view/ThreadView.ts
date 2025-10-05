@@ -1,5 +1,6 @@
 import log from "loglevel";
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
+import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
 import { ThreadManager } from "../managers/ThreadManager.svelte";
@@ -7,6 +8,13 @@ import { VIEW_TYPE_THREAD } from "../utils/constants";
 import ThreadViewComponent from "./ThreadViewComponent.svelte";
 
 const logger = log.getLogger("ThreadView");
+
+interface ThreadViewState extends ParsedBbsUrl {
+	url: string;
+
+	// Compat for obsidian api
+	[x: string]: any;
+}
 
 /**
  * ThreadView extends Obsidian's ItemView to provide a bridge between
@@ -21,6 +29,7 @@ const logger = log.getLogger("ThreadView");
 export class ThreadView extends ItemView {
 	private component: ReturnType<typeof mount> | null = null;
 	private plugin: NobitPlugin;
+	private state: ThreadViewState | null = null;
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -46,6 +55,7 @@ export class ThreadView extends ItemView {
 
 	async setState(state: any, result: ViewStateResult): Promise<void> {
 		super.setState(state, result);
+		this.state = state;
 		// Clear any existing content
 		this.contentEl.empty();
 
@@ -61,6 +71,11 @@ export class ThreadView extends ItemView {
 			},
 			context: contextMap,
 		});
+	}
+
+	// @ts-expect-error
+	getState(): ThreadViewState | null {
+		return this.state;
 	}
 
 	async onClose(): Promise<void> {

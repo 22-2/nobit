@@ -283,8 +283,8 @@
         border-radius: var(--size-4-1);
         overflow: hidden;
         line-height: 0;
-        width: var(--size-4-30);
-        height: var(--size-4-30);
+        width: 120px;
+        height: 120px;
     }
 
     .thumbnail-link:hover {
