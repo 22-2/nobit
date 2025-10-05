@@ -1,3 +1,4 @@
+import log from "loglevel";
 import type { App } from "obsidian";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BBSProvider } from "../../lib/libch/provider";
@@ -485,7 +486,9 @@ describe("ThreadManager", () => {
 	describe("jumpToPost", () => {
 		it("should log jump action for future UI integration", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			threadManager.jumpToPost(42);
 
@@ -496,7 +499,9 @@ describe("ThreadManager", () => {
 
 		it("should handle various post numbers", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			threadManager.jumpToPost(1);
 			threadManager.jumpToPost(999);
@@ -511,7 +516,9 @@ describe("ThreadManager", () => {
 
 		it("should handle edge case post numbers", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			// Test negative numbers
 			threadManager.jumpToPost(-1);
@@ -539,7 +546,9 @@ describe("ThreadManager", () => {
 			const originalFilters = threadManager.filters;
 
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			// Jump to post should not change any state
 			threadManager.jumpToPost(5);
@@ -557,7 +566,9 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toBeNull();
 
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			// Should still work without a loaded thread
 			threadManager.jumpToPost(10);
@@ -569,7 +580,9 @@ describe("ThreadManager", () => {
 
 		it("should handle rapid successive calls", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			// Simulate rapid navigation
 			const postNumbers = [1, 5, 3, 10, 2, 8];
@@ -591,7 +604,9 @@ describe("ThreadManager", () => {
 
 		it("should be synchronous operation", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			const startTime = Date.now();
 			threadManager.jumpToPost(100);
@@ -606,7 +621,9 @@ describe("ThreadManager", () => {
 
 		it("should prepare for future UI integration scenarios", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			// Test scenarios that UI integration might need to handle
 
@@ -627,7 +644,9 @@ describe("ThreadManager", () => {
 
 		it("should maintain consistent behavior across different thread states", () => {
 			const logger = log.getLogger("ThreadManager");
-			const loggerSpy = vi.spyOn(logger, "debug").mockImplementation(() => {});
+			const loggerSpy = vi
+				.spyOn(logger, "debug")
+				.mockImplementation(() => {});
 
 			// Test with no thread loaded
 			threadManager.jumpToPost(1);
@@ -648,7 +667,7 @@ describe("ThreadManager", () => {
 			threadManager.jumpToPost(4);
 			expect(loggerSpy).toHaveBeenCalledWith("Jumping to post 4");
 
-			consoleSpy.mockRestore();
+			loggerSpy.mockRestore();
 		});
 	});
 
@@ -660,7 +679,9 @@ describe("ThreadManager", () => {
 			expect(threadManager.thread).toBeNull();
 
 			// Mock a network error
-			vi.mocked(mockProvider.getThread).mockRejectedValue(new Error("Network error"));
+			vi.mocked(mockProvider.getThread).mockRejectedValue(
+				new Error("Network error")
+			);
 
 			await threadManager.loadThread("https://example.com/thread");
 
