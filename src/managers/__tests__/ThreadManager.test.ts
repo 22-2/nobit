@@ -5,6 +5,9 @@ import type { BBSProvider } from "../../lib/libch/provider";
 import type { Thread, ThreadFilters } from "../../lib/types";
 import { ThreadManager } from "../ThreadManager.svelte";
 
+// Unmock loglevel for this test file to allow proper spying
+vi.unmock("loglevel");
+
 // Mock Obsidian App
 const createMockApp = (): App => {
 	return {} as App;
