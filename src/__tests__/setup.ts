@@ -14,6 +14,10 @@ vi.mock("loglevel", () => ({
 			warn: vi.fn(),
 			error: vi.fn(),
 		})),
+		debug: vi.fn(),
+		info: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
 	},
 	getLogger: vi.fn(() => ({
 		debug: vi.fn(),
@@ -21,10 +25,6 @@ vi.mock("loglevel", () => ({
 		warn: vi.fn(),
 		error: vi.fn(),
 	})),
-	debug: vi.fn(),
-	info: vi.fn(),
-	warn: vi.fn(),
-	error: vi.fn(),
 }));
 
 // Global test setup
