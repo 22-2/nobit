@@ -29,7 +29,8 @@
 		console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
 		try {
 			if (!initialUrl) {
-				throw new Error("No initial URL provided");
+				// throw new Error("No initial URL provided");
+				return;
 			}
 			await threadManager.loadThread(initialUrl);
 			console.log("🔥 ThreadViewComponent: Thread loaded successfully");

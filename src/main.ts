@@ -62,13 +62,13 @@ export default class NobitPlugin extends Plugin {
 			return void new Notice("Invalid URL");
 		}
 
-		activateView(
-			this.app.workspace.getLeaf.bind(this.app.workspace),
-			{
-				type: VIEW_TYPE_THREAD,
+		activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
+			type: VIEW_TYPE_THREAD,
+			state: {
+				...state,
+				url: inputUrl,
 			},
-			state
-		);
+		});
 	}
 
 	configureLogging(): void {

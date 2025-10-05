@@ -1,3 +1,4 @@
+import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 import { expect, test } from "../base";
 import {
 	DIST_DIR,
@@ -5,7 +6,6 @@ import {
 	SANDBOX_VAULT_NAME,
 } from "../constants";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 
 test("Integration: Complete flow validation - command → ThreadView → 5ch fetch → UI display", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
@@ -23,7 +23,7 @@ test("Integration: Complete flow validation - command → ThreadView → 5ch fet
 
 	// 2. Test complete flow: command → ThreadView → 5ch fetch → UI display
 	console.log("Step 1: Executing command");
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/');
 
 	console.log("Step 2: Verifying ThreadView opened");
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -32,7 +32,7 @@ test("Integration: Complete flow validation - command → ThreadView → 5ch fet
 	console.log("Step 3: Verifying 5ch fetch and UI display");
 	// Wait for thread content to load (this validates the 5ch fetch)
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
-	
+
 	// Verify UI components are displayed
 	await expect(vault.window.locator('.thread-header')).toBeVisible();
 	await expect(vault.window.locator('.thread-title')).toBeVisible();
@@ -86,14 +86,14 @@ test("Integration: ThreadManager state changes trigger UI updates correctly", as
 
 	// 2. Test loading state triggers UI update
 	console.log("Testing loading state UI updates");
-	
+
 	// Trigger refresh to test loading state
 	const refreshButton = vault.window.locator('.toolbar-section .clickable-icon');
 	await expect(refreshButton).toBeVisible();
-	
+
 	// Click refresh and immediately check for loading state
 	await refreshButton.click({ force: true });
-	
+
 	// The loading state might be brief, but we should be able to catch it or verify it completed
 	try {
 		await expect(vault.window.locator('.loading-container')).toBeVisible({ timeout: 1000 });
@@ -101,23 +101,23 @@ test("Integration: ThreadManager state changes trigger UI updates correctly", as
 	} catch {
 		console.log("Loading state was too brief to catch (acceptable for fast operations)");
 	}
-	
+
 	// Verify loading completes and content is restored
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
 	await expect(vault.window.locator('.loading-container')).not.toBeVisible();
 
 	// 3. Test filter state changes trigger UI updates
 	console.log("Testing filter state UI updates");
-	
+
 	const filtersSection = vault.window.locator('.filters-section');
 	await expect(filtersSection).toBeVisible();
-	
+
 	// Test search filter if available
 	const searchInput = vault.window.locator('.thread-filters input[type="text"]');
 	if (await searchInput.count() > 0) {
 		await searchInput.fill('test');
 		await vault.window.waitForTimeout(300);
-		
+
 		// Verify filter state is reflected in ThreadManager
 		const filterState = await vault.window.evaluate(() => {
 			const activeLeaf = app.workspace.activeLeaf;
@@ -127,24 +127,24 @@ test("Integration: ThreadManager state changes trigger UI updates correctly", as
 			}
 			return null;
 		});
-		
+
 		expect(filterState).toBe('test');
 		console.log("✓ Search filter state update verified");
-		
+
 		// Clear filter
 		await searchInput.clear();
 		await vault.window.waitForTimeout(200);
 	}
-	
+
 	// Test filter buttons if available
 	const filterButtons = vault.window.locator('.filter-buttons-group button');
 	const buttonCount = await filterButtons.count();
-	
+
 	if (buttonCount > 0) {
 		// Click first filter button
 		await filterButtons.first().click({ force: true });
 		await vault.window.waitForTimeout(200);
-		
+
 		// Verify button state is reflected in ThreadManager
 		const buttonFilterState = await vault.window.evaluate(() => {
 			const activeLeaf = app.workspace.activeLeaf;
@@ -154,10 +154,10 @@ test("Integration: ThreadManager state changes trigger UI updates correctly", as
 			}
 			return null;
 		});
-		
+
 		expect(buttonFilterState).toBeTruthy();
 		console.log("✓ Button filter state update verified");
-		
+
 		// Toggle off
 		await filterButtons.first().click({ force: true });
 		await vault.window.waitForTimeout(200);
@@ -241,20 +241,20 @@ test("Integration: Architectural separation validation (no 'obsidian' imports in
 		const activeLeaf = app.workspace.activeLeaf;
 		if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
 			const threadView = activeLeaf.view as any;
-			
+
 			return {
 				// Verify ThreadView (Obsidian ItemView) exists
 				hasThreadView: !!threadView,
 				threadViewType: threadView.getViewType(),
-				
+
 				// Verify ThreadManager (Manager layer) exists
 				hasThreadManager: !!threadView.threadManager,
 				threadManagerHasState: !!(threadView.threadManager?.thread !== undefined),
-				
+
 				// Verify Svelte component is mounted
 				hasSvelteComponent: !!threadView.component,
 				contentElHasContent: threadView.contentEl.children.length > 0,
-				
+
 				// Verify Manager → Svelte communication works
 				threadManagerThread: !!threadView.threadManager?.thread,
 				threadManagerFilters: !!threadView.threadManager?.filters
@@ -287,10 +287,10 @@ test("Integration: Architectural separation validation (no 'obsidian' imports in
 	// 5. Verify interactive elements work (Manager ↔ Svelte communication)
 	const refreshButton = vault.window.locator('.toolbar-section .clickable-icon');
 	await expect(refreshButton).toBeVisible();
-	
+
 	// Click refresh to test Manager method calls from Svelte
 	await refreshButton.click({ force: true });
-	
+
 	// Verify the action was processed (loading state or content refresh)
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
 
@@ -321,18 +321,18 @@ test("Integration: Error handling and recovery", async ({ vault }) => {
 	try {
 		await expect(vault.window.locator('.error-container')).toBeVisible({ timeout: 5000 });
 		console.log("✓ Error state displayed correctly");
-		
+
 		// Verify error message is user-friendly
 		const errorMessage = await vault.window.locator('.error-message').textContent();
 		expect(errorMessage).toBeTruthy();
 		console.log(`Error message: ${errorMessage}`);
-		
+
 		// Test retry functionality if available
 		const retryButton = vault.window.locator('.retry-button');
 		if (await retryButton.count() > 0) {
 			console.log("Retry button available");
 		}
-		
+
 	} catch {
 		console.log("Error state was handled too quickly or differently");
 	}

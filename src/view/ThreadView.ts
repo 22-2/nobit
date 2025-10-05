@@ -1,9 +1,12 @@
-import { ItemView, WorkspaceLeaf } from "obsidian";
+import log from "loglevel";
+import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
 import { ThreadManager } from "../managers/ThreadManager.svelte";
 import { VIEW_TYPE_THREAD } from "../utils/constants";
 import ThreadViewComponent from "./ThreadViewComponent.svelte";
+
+const logger = log.getLogger("ThreadView");
 
 /**
  * ThreadView extends Obsidian's ItemView to provide a bridge between
@@ -41,13 +44,10 @@ export class ThreadView extends ItemView {
 		return "messages-square";
 	}
 
-	async onOpen(): Promise<void> {
-		// Clear any existing content
-		this.contentEl.empty();
+	async setState(state: any, result: ViewStateResult): Promise<void> {
+		super.setState(state, result);
 
-		// Get ephemeral state (contains URL from open-with-url command)
-		const eState = this.leaf.getEphemeralState() as any;
-		const threadUrl = eState?.url;
+		// Get state (contains URL from open-with-url command)
 
 		// Create a context map for Svelte component
 		const contextMap = new Map();
@@ -57,10 +57,15 @@ export class ThreadView extends ItemView {
 		this.component = mount(ThreadViewComponent, {
 			target: this.contentEl,
 			props: {
-				initialUrl: threadUrl, // Pass URL to component
+				initialUrl: state.url, // Pass URL to component
 			},
 			context: contextMap,
 		});
+	}
+
+	async onOpen(): Promise<void> {
+		// Clear any existing content
+		this.contentEl.empty();
 	}
 
 	async onClose(): Promise<void> {
