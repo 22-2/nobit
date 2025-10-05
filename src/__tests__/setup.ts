@@ -1,9 +1,10 @@
+import "@testing-library/jest-dom";
 import { vi } from "vitest";
-
 // Global test setup
 
 // Mock Svelte 5's $state for testing - simple implementation that returns the initial value
 (global as any).$state = vi.fn((initialValue: any) => initialValue);
+(global as any).$derived = vi.fn((initialValue: any) => initialValue);
 
 // Mock loglevel
 vi.mock("loglevel", () => ({
