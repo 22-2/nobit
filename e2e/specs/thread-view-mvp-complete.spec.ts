@@ -7,8 +7,6 @@ import {
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 
-const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
-
 // Mock 5ch thread data that matches the expected structure
 const mockThreadDatContent = `1<>名無しさん@転載は禁止<><>2024/01/01(月) 10:00:00.00 ID:ABC123DE<>これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。<>テストスレッド
 2<>名無しさん@転載は禁止<><>2024/01/01(月) 10:05:00.00 ID:DEF456GH<>画像付きのポストです。<br>複数の画像が添付されています。<>
@@ -57,7 +55,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 
 		// 3. Execute "Open Nobit Test Thread" command
 		console.log("Step 1: Executing command");
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 		// 4. Verify ThreadView opened correctly
 		console.log("Step 2: Verifying ThreadView opened");
@@ -123,7 +121,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -180,7 +178,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -236,7 +234,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -312,7 +310,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			});
 		});
 
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -426,7 +424,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			});
 
 			// Open new ThreadView for each scenario
-			await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+			await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 			await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 			await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -483,7 +481,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -554,7 +552,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		// Measure load performance
 		const startTime = Date.now();
 		
-		await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 		

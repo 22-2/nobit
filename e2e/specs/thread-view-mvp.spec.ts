@@ -20,8 +20,6 @@ const mockNetworkErrorResponse = {
 	body: 'Internal Server Error'
 };
 
-const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
-
 test("MVP: Open Nobit Test Thread command opens ThreadView", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
@@ -46,8 +44,8 @@ test("MVP: Open Nobit Test Thread command opens ThreadView", async ({ vault }) =
 		});
 	});
 
-	// 3. Execute "Open Nobit Test Thread" command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	// 3. Open thread with URL directly
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	// 4. Verify ThreadView opened correctly
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -56,30 +54,30 @@ test("MVP: Open Nobit Test Thread command opens ThreadView", async ({ vault }) =
 	// 5. Verify ThreadView displays using Svelte 5 components
 	// Wait for the thread view to load
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	
+
 	// Wait for thread content to load (onMount automatically loads thread)
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
-	
+
 	// Verify thread content is displayed
 	await expect(vault.window.locator('.thread-header')).toBeVisible();
 	await expect(vault.window.locator('.thread-title')).toBeVisible();
 	await expect(vault.window.locator('.posts-container')).toBeVisible();
-	
+
 	// Verify posts are displayed (should have multiple posts from real 5ch data)
 	const postCount = await vault.window.locator('.posts-container .post').count();
 	expect(postCount).toBeGreaterThan(0);
-	
+
 	// Verify ThreadFilters section is present
 	await expect(vault.window.locator('.filters-section')).toBeVisible();
 	await expect(vault.window.locator('.thread-filters')).toBeVisible();
-	
+
 	// Verify ThreadToolbar section is present
 	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
 	await expect(vault.window.locator('.thread-footer-toolbar')).toBeVisible();
-	
+
 	// Verify no error state is shown (successful load)
 	await expect(vault.window.locator('.error-container')).not.toBeVisible();
-	
+
 	// Verify loading is complete
 	await expect(vault.window.locator('.loading-container')).not.toBeVisible();
 });
@@ -87,8 +85,8 @@ test("MVP: Open Nobit Test Thread command opens ThreadView", async ({ vault }) =
 test("MVP: UI structure and states work correctly", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-	// 1. Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	// 1. Open thread with URL directly
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	// 2. Verify ThreadView opened
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -96,21 +94,21 @@ test("MVP: UI structure and states work correctly", async ({ vault }) => {
 
 	// 3. Verify ThreadView shows loaded thread content
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	
+
 	// Wait for thread content to load
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
-	
+
 	// Verify all UI sections are present
 	await expect(vault.window.locator('.filters-section')).toBeVisible();
 	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
-	
+
 	// Verify thread content structure
 	await expect(vault.window.locator('.thread-header')).toBeVisible();
 	await expect(vault.window.locator('.posts-container')).toBeVisible();
-	
+
 	// Verify interactive elements work
 	await expect(vault.window.locator('.toolbar-section .clickable-icon')).toBeVisible();
-	
+
 	// Verify successful load (no error or loading states)
 	await expect(vault.window.locator('.error-container')).not.toBeVisible();
 	await expect(vault.window.locator('.loading-container')).not.toBeVisible();
@@ -119,8 +117,8 @@ test("MVP: UI structure and states work correctly", async ({ vault }) => {
 test("MVP: Svelte 5 reactivity works correctly", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-	// 1. Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	// 1. Open thread with URL directly
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	// 2. Verify ThreadView opened
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -128,22 +126,22 @@ test("MVP: Svelte 5 reactivity works correctly", async ({ vault }) => {
 
 	// 3. Verify Svelte 5 reactive state is working
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	
+
 	// Wait for thread content to load
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
-	
+
 	// Verify ThreadManager reactive state is working
 	await expect(vault.window.locator('.thread-filters')).toBeVisible();
 	await expect(vault.window.locator('.filter-buttons-group')).toBeVisible();
-	
+
 	// Verify thread data is reactive and displayed
 	await expect(vault.window.locator('.thread-title')).toBeVisible();
 	await expect(vault.window.locator('.post-count')).toContainText('posts');
-	
+
 	// Verify posts are displayed (reactive state from ThreadManager)
 	const postCount = await vault.window.locator('.posts-container .post').count();
 	expect(postCount).toBeGreaterThan(0);
-	
+
 	// Verify interactive elements reflect ThreadManager state
 	await expect(vault.window.locator('.toolbar-section .clickable-icon')).toBeVisible();
 });
@@ -153,7 +151,7 @@ test("MVP: Ensure no Svelte components import from 'obsidian' directly", async (
 	// In a real implementation, this would be done through static analysis
 	// For now, we verify that the ThreadView works correctly, which implies
 	// the Manager layer pattern is working as designed
-	
+
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// Mock successful response
@@ -165,25 +163,25 @@ test("MVP: Ensure no Svelte components import from 'obsidian' directly", async (
 		});
 	});
 
-	// Execute command and verify it works
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	// Open thread with URL directly
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-	
+
 	// Verify the architectural separation works (Svelte 5 components mount successfully)
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	
+
 	// Wait for thread content to load
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
-	
+
 	// Verify Svelte 5 components work correctly
 	// (If there were 'obsidian' imports in Svelte components, mounting would fail)
 	await expect(vault.window.locator('.thread-filters')).toBeVisible();
 	await expect(vault.window.locator('.posts-container')).toBeVisible();
-	
+
 	// Verify ThreadManager state is accessible (proves Manager → Svelte communication works)
 	await expect(vault.window.locator('.thread-title')).toBeVisible();
 	await expect(vault.window.locator('.post-count')).toContainText('posts');
-	
+
 	// Verify existing components integrate properly
 	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
 	await expect(vault.window.locator('.filters-section')).toBeVisible();
@@ -192,32 +190,32 @@ test("MVP: Ensure no Svelte components import from 'obsidian' directly", async (
 test("MVP: Basic UI structure validation", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	// Open thread with URL directly
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-	
+
 	// Verify basic UI structure is present
 	await expect(vault.window.locator('.thread-view')).toBeVisible();
-	
+
 	// Wait for thread content to load
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
-	
+
 	// Verify all main sections are present
 	await expect(vault.window.locator('.filters-section')).toBeVisible();
 	await expect(vault.window.locator('.toolbar-section')).toBeVisible();
-	
+
 	// Verify thread content structure
 	await expect(vault.window.locator('.thread-header')).toBeVisible();
 	await expect(vault.window.locator('.thread-title')).toBeVisible();
 	await expect(vault.window.locator('.posts-container')).toBeVisible();
-	
+
 	// Verify posts are displayed
 	const postCount = await vault.window.locator('.posts-container .post').count();
 	expect(postCount).toBeGreaterThan(0);
-	
+
 	// Verify interactive elements
 	await expect(vault.window.locator('.toolbar-section .clickable-icon')).toBeVisible();
-	
+
 	// Verify filter components
 	await expect(vault.window.locator('.thread-filters')).toBeVisible();
 	await expect(vault.window.locator('.filter-buttons-group')).toBeVisible();

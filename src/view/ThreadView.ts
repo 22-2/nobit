@@ -45,6 +45,10 @@ export class ThreadView extends ItemView {
 		// Clear any existing content
 		this.contentEl.empty();
 
+		// Get ephemeral state (contains URL from open-with-url command)
+		const eState = this.leaf.getEphemeralState() as any;
+		const threadUrl = eState?.url;
+
 		// Create a context map for Svelte component
 		const contextMap = new Map();
 		contextMap.set("threadManager", this.threadManager);
@@ -52,7 +56,9 @@ export class ThreadView extends ItemView {
 		// Mount Svelte component with ThreadManager injected via context
 		this.component = mount(ThreadViewComponent, {
 			target: this.contentEl,
-			props: {},
+			props: {
+				initialUrl: threadUrl, // Pass URL to component
+			},
 			context: contextMap,
 		});
 	}

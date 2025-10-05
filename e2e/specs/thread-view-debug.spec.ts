@@ -3,8 +3,6 @@ import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 
-const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
-
 test("Debug: Check what's actually rendered", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
@@ -20,7 +18,7 @@ test("Debug: Check what's actually rendered", async ({ vault }) => {
 	expect(plugin).toBeTruthy();
 
 	// 2. Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	// 3. Verify ThreadView opened
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);

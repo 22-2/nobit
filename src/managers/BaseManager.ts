@@ -50,17 +50,17 @@ export abstract class BaseManager {
 	protected readonly enableRetry: boolean;
 
 	constructor(protected app: App, options: BaseManagerOptions = {}) {
-		// Initialize 5ch communication components - use TestFetcher in test environment
-		const isTest = DEBUG_MODE;
-		this.fetcher = isTest
+		// Initialize 5ch communication components - use TestFetcher only in Playwright environment
+		const isPlaywright = this.isPlaywrightEnvironment();
+		this.fetcher = isPlaywright
 			? new TestFetcher(RATE_LIMIT_MS)
 			: new ObsidianFetcher(RATE_LIMIT_MS);
 		this.decoder = new DefaultDecoder();
 
 		console.log(
 			`🔧 BaseManager: Using ${
-				isTest ? "TestFetcher" : "ObsidianFetcher"
-			} (test environment: ${isTest})`
+				isPlaywright ? "TestFetcher" : "ObsidianFetcher"
+			} (Playwright environment: ${isPlaywright})`
 		);
 
 		// Configure retry behavior - disable in test environments
@@ -71,6 +71,26 @@ export abstract class BaseManager {
 			enableRetry: this.enableRetry,
 			retryConfig: this.retryConfig,
 		});
+	}
+
+	/**
+	 * Check if running in Playwright test environment.
+	 * Playwright sets window.playwright or process.env.PLAYWRIGHT when running tests.
+	 *
+	 * @returns True if running in Playwright environment
+	 */
+	private isPlaywrightEnvironment(): boolean {
+		// Check for Playwright-specific environment variables
+		if (typeof process !== "undefined" && process.env.PLAYWRIGHT) {
+			return true;
+		}
+
+		// Check for Playwright global object in browser context
+		if (typeof window !== "undefined" && (window as any).playwright) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

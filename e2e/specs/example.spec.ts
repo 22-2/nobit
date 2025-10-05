@@ -7,7 +7,6 @@ import "../setup/logger-setup";
 
 import { expect, test } from "../base";
 import {
-	CMD_ID_OPEN_PLUGIN_VIEW,
 	DIST_DIR,
 	PLUGIN_ID,
 	SANDBOX_VAULT_NAME,
@@ -35,7 +34,7 @@ test("sandbox test: plugin activation and view creation via command", async ({
 
 	// 2. Create a new sandbox view (via command)
 	// Use ObsidianPageObject method
-	await obsPage.runCommand(CMD_ID_OPEN_PLUGIN_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	// 3. Verify the view opened correctly
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);

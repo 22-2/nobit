@@ -1,15 +1,22 @@
 <script lang="ts">
 	import { getContext, onMount } from "svelte";
-	import { ThreadManager } from "../managers/ThreadManager.svelte";
 	import type { ThreadFilters } from "../lib/types";
+	import { ThreadManager } from "../managers/ThreadManager.svelte";
 	import PostItem from "./thread/PostItem.svelte";
-	import ThreadToolbar from "./thread/ThreadToolbar.svelte";
 	import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
+	import ThreadToolbar from "./thread/ThreadToolbar.svelte";
+
+	// Props
+	interface Props {
+		initialUrl?: string;
+	}
+	let { initialUrl }: Props = $props();
 
 	// Get ThreadManager from context (injected by ThreadView ItemView)
 	const threadManager = getContext<ThreadManager>("threadManager");
-	
+
 	console.log("🔥 ThreadViewComponent: Script loaded, threadManager:", threadManager);
+	console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
 
 	// Debug: Watch filters changes
 	$effect(() => {
@@ -18,25 +25,13 @@
 	});
 
 	onMount(async () => {
-		// MVP: Load hardcoded thread URL for initial testing
-		// 
-		// Using a realistic 5ch-compatible URL format for testing:
-		// - Host: bbs.eddibb.cc (test server used in libch tests)
-		// - Board: livejupiter (popular 5ch board, commonly used for testing)
-		// - Thread ID: 1678886400 (realistic Unix timestamp format)
-		// 
-		// This hardcoded URL serves several purposes:
-		// 1. Validates the Manager layer → Svelte UI architecture
-		// 2. Tests existing 5ch infrastructure (ObsidianFetcher, DefaultDecoder, DefaultParser)
-		// 3. Provides a stable foundation before adding dynamic thread loading
-		// 4. Uses the same URL format as existing libch tests for consistency
-		// 
-		// This will be replaced with dynamic URL loading in future iterations
-		// when BoardView and thread selection functionality is implemented.
-		const testThreadUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759320900/";
-		console.log("🔥 ThreadViewComponent: Starting to load thread:", testThreadUrl);
+		// Determine which URL to load:
+		console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
 		try {
-			await threadManager.loadThread(testThreadUrl);
+			if (!initialUrl) {
+				throw new Error("No initial URL provided");
+			}
+			await threadManager.loadThread(initialUrl);
 			console.log("🔥 ThreadViewComponent: Thread loaded successfully");
 		} catch (error) {
 			console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
@@ -60,9 +55,9 @@
 <div class="thread-view">
 	<!-- Thread Filters Component -->
 	<div class="filters-section">
-		<ThreadFiltersComponent 
-			bind:filters={threadManager.filters} 
-			isVisible={true} 
+		<ThreadFiltersComponent
+			bind:filters={threadManager.filters}
+			isVisible={true}
 		/>
 	</div>
 
@@ -95,9 +90,9 @@
 
 			<div class="posts-container">
 				{#each threadManager.filteredPosts as post, index}
-					<PostItem 
-						{post} 
-						{index} 
+					<PostItem
+						{post}
+						{index}
 						onJumpToPost={handleJumpToPost}
 					/>
 				{/each}

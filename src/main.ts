@@ -1,5 +1,5 @@
 import log from "loglevel";
-import { Plugin } from "obsidian";
+import { Notice, Plugin } from "obsidian";
 import { DefaultBBSProvider } from "./lib/DefaultBBSProvider";
 import { ObsidianFetcher } from "./lib/ObsidianFetcher";
 import type { HttpFetcher } from "./lib/libch/fetcher";
@@ -8,7 +8,8 @@ import { ThreadManager } from "./managers";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, VIEW_TYPE_THREAD } from "./utils/constants";
 import { toggleLoggerBy } from "./utils/logger";
-import { activateView } from "./utils/obsidian";
+import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
+import { showInputDialog } from "./utils/showInputDialog";
 import { ThreadView } from "./view/ThreadView";
 
 export const logger = log.getLogger("nobit.main");
@@ -33,10 +34,14 @@ export default class NobitPlugin extends Plugin {
 		);
 
 		this.addCommand({
-			id: "open-nobit-test-thread",
-			name: "Open Nobit Test Thread",
-			callback: () => {
-				this.activateThreadView();
+			id: "open-with-url",
+			name: "Open with-url",
+			callback: async () => {
+				const inputUrl = await showInputDialog(this.app, {
+					message: "URLを入力してください",
+					placeholder: "URLを入力してください",
+				});
+				if (inputUrl) this.openWithURL(inputUrl);
 			},
 		});
 		logger.debug("Plugin loaded");
@@ -46,10 +51,24 @@ export default class NobitPlugin extends Plugin {
 		logger.debug("Plugin unloaded");
 	}
 
-	private activateThreadView() {
-		activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
-			type: VIEW_TYPE_THREAD,
-		});
+	openWithURL(inputUrl: string) {
+		if (!inputUrl || !isURL(inputUrl)) {
+			return;
+		}
+
+		const state = getViewStateByUrl(inputUrl, log.debug);
+
+		if (!state) {
+			return void new Notice("Invalid URL");
+		}
+
+		activateView(
+			this.app.workspace.getLeaf.bind(this.app.workspace),
+			{
+				type: VIEW_TYPE_THREAD,
+			},
+			state
+		);
 	}
 
 	configureLogging(): void {

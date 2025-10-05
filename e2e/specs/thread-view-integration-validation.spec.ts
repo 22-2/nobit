@@ -7,8 +7,6 @@ import {
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 
-const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
-
 test("Integration: Complete flow validation - command → ThreadView → 5ch fetch → UI display", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
@@ -25,7 +23,7 @@ test("Integration: Complete flow validation - command → ThreadView → 5ch fet
 
 	// 2. Test complete flow: command → ThreadView → 5ch fetch → UI display
 	console.log("Step 1: Executing command");
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	console.log("Step 2: Verifying ThreadView opened");
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -82,7 +80,7 @@ test("Integration: ThreadManager state changes trigger UI updates correctly", as
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open ThreadView
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -172,7 +170,7 @@ test("Integration: Proper cleanup when ThreadView is closed", async ({ vault }) 
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open ThreadView and verify it's working
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -223,7 +221,7 @@ test("Integration: Proper cleanup when ThreadView is closed", async ({ vault }) 
 	console.log("✓ ThreadView properly cleaned up after closure");
 
 	// 4. Verify we can open a new ThreadView after cleanup
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -234,7 +232,7 @@ test("Integration: Architectural separation validation (no 'obsidian' imports in
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open ThreadView
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -303,7 +301,7 @@ test("Integration: Error handling and recovery", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Test normal operation first
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 

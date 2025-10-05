@@ -1,13 +1,11 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { TextDecoder } from "util";
+import type NobitPlugin from "src/main";
 import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 // DefaultDecoder import removed - decoding will be handled by the plugin
-
-const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
 
 // ========================================
 // 📁 FIXTURE CONFIGURATION
@@ -136,7 +134,7 @@ test("Large Fixture: Load and display 1759320900.dat file content", async ({
 	});
 
 	// 3. Execute "Open Nobit Test Thread" command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 
 	// 4. Verify ThreadView opened correctly
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -245,7 +243,7 @@ test("Large Fixture: Debug parsing and content", async ({ vault }) => {
 	console.log("Route setup complete");
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -285,7 +283,7 @@ test("Large Fixture: Performance test with large dataset", async ({
 	const startTime = Date.now();
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -321,7 +319,7 @@ test("Large Fixture: Search functionality with large dataset", async ({
 	await setupFixtureRoute(vault.window);
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -380,7 +378,7 @@ test("Large Fixture: Filter functionality with large dataset", async ({
 	await setupFixtureRoute(vault.window);
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -437,7 +435,7 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 	await setupFixtureRoute(vault.window);
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -461,7 +459,7 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 0);
 
 	// Re-open to verify it still works after cleanup
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Verify content loads again
@@ -478,26 +476,27 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
-	// Load fixture data and set it in global scope for the plugin to use
-	const fixtureBuffer = readFileSync(FIXTURES.LARGE);
-	const decoder = new TextDecoder("shift-jis");
-	const fixtureData = decoder.decode(fixtureBuffer);
-
-	await vault.window.evaluate((data) => {
-		(window as any).testFixtureData = data;
-		console.log(
-			`🔧 Test: Set fixture data in global scope (${data.length} characters)`
-		);
-	}, fixtureData);
-
-	// Setup fixture route as backup (though we're using direct loading now)
+	// Setup fixture route to serve the 1000 posts fixture
 	await setupFixtureRoute(vault.window, FIXTURES.LARGE);
+
+	// Set the test thread URL to match the 1000 posts fixture
+	await vault.window.evaluate(
+		([id]) => {
+			(app.plugins?.plugins[id] as unknown as NobitPlugin).openWithURL(
+				"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759470805/"
+			);
+			console.log(
+				"🔧 Test: Open testThreadUrl 1759470805 (1000 posts fixture)"
+			);
+		},
+		[PLUGIN_ID]
+	);
 
 	// Measure loading time
 	const startTime = Date.now();
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load with extended timeout for 1000 posts
@@ -608,7 +607,7 @@ test("Large Fixture: Real 1000 posts fixture file test", async ({ vault }) => {
 	const startTime = Date.now();
 
 	// Execute command
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load with extended timeout for 1000 posts

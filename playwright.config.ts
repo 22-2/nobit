@@ -20,6 +20,10 @@ export default defineConfig({
 		video: "on",
 		screenshot: "only-on-failure",
 	},
+	// Set environment variable to indicate Playwright test environment
+	env: {
+		PLAYWRIGHT: "true",
+	},
 	projects: [
 		{
 			name: "chromium",

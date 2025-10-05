@@ -100,6 +100,18 @@ export class ObsidianPageObject {
 		expect(success).toBe(true);
 	}
 
+	async openPluginWithURL(pluginId: string, url: string): Promise<void> {
+		await this.page.evaluate(
+			([id, urlParam]) => {
+				const plugin = app.plugins.getPlugin(id) as any;
+				if (plugin && plugin.openWithURL) {
+					plugin.openWithURL(urlParam);
+				}
+			},
+			[pluginId, url]
+		);
+	}
+
 	async clearActiveEditor(): Promise<void> {
 		await this.activeEditor.focus();
 		await this.page.keyboard.press("Control+A");

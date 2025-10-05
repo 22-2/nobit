@@ -7,8 +7,6 @@ import {
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 
-const CMD_ID_OPEN_THREAD_VIEW = "nobit:open-nobit-test-thread";
-
 // Generate mock thread data with 1000+ posts for performance testing
 function generateLargeThreadData(postCount: number = 1000): string {
 	const posts: string[] = [];
@@ -64,7 +62,7 @@ test("Performance: Handle current thread data smoothly", async ({ vault }) => {
 	// 3. Measure initial load time
 	const startTime = Date.now();
 	
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	
 	// Wait for thread content to load
@@ -112,7 +110,7 @@ test("Performance: Smooth scrolling with thread content", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Load thread (uses real or fallback data)
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
 	
@@ -181,7 +179,7 @@ test("Performance: Memory usage validation", async ({ vault }) => {
 	});
 
 	// 3. Load thread
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 	
@@ -242,7 +240,7 @@ test("Performance: Refresh performance with current thread", async ({ vault }) =
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Initial load
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 	
@@ -305,7 +303,7 @@ test("Performance: Filter operations with current thread", async ({ vault }) => 
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Load thread
-	await obsPage.runCommand(CMD_ID_OPEN_THREAD_VIEW);
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 	
