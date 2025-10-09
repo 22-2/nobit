@@ -1,5 +1,6 @@
 import log from "loglevel";
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
+import { EditableTitleBar, type EditableItemView } from "src/components/EditableTitleView";
 import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
@@ -26,10 +27,11 @@ interface ThreadViewState extends ParsedBbsUrl {
  * - Injects ThreadManager into Svelte component tree via context
  * - Ensures architectural separation (no 'obsidian' imports in Svelte)
  */
-export class ThreadView extends ItemView {
+export class ThreadView extends ItemView implements EditableItemView {
 	private component: ReturnType<typeof mount> | null = null;
 	private plugin: NobitPlugin;
 	private state: ThreadViewState | null = null;
+	private editableTitleView: EditableTitleBar | null = null;
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -39,6 +41,10 @@ export class ThreadView extends ItemView {
 		super(leaf);
 		this.plugin = plugin;
 		// Initialize ThreadManager with Obsidian app instance
+
+		// Setup EditableTitleView
+		this.editableTitleView = new EditableTitleBar(this, plugin);
+		this.editableTitleView.setup();
 	}
 
 	getViewType(): string {
@@ -73,9 +79,18 @@ export class ThreadView extends ItemView {
 		});
 	}
 
-	// @ts-expect-error
-	getState(): ThreadViewState | null {
-		return this.state;
+	getState(): Record<string, unknown> {
+		return this.state || {};
+	}
+
+	// EditableTitleView interface implementation
+	async navigateToThreadFromUrl(url: string): Promise<void> {
+		logger.debug("Navigating to thread from URL:", url);
+		await this.setState({ url }, { history: false });
+	}
+
+	getURL(): string {
+		return this.state?.url || "";
 	}
 
 	async onClose(): Promise<void> {

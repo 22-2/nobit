@@ -21,4 +21,10 @@ declare module "obsidian" {
 	interface WorkspaceLeaf {
 		save(): Promise<void>;
 	}
+
+	interface ItemView {
+		titleEl: HTMLElement;
+		titleContainerEl: HTMLElement;
+	}
 }
+

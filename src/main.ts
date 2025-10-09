@@ -12,7 +12,7 @@ import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
 import { showInputDialog } from "./utils/showInputDialog";
 import { ThreadView } from "./view/ThreadView";
 
-export const logger = log.getLogger("nobit.main");
+const logger = log.getLogger("nobit.main");
 
 export default class NobitPlugin extends Plugin {
 	settings: NobitPluginSettings = DEFAULT_SETTINGS;
@@ -30,6 +30,7 @@ export default class NobitPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_THREAD,
+			// @ts-expect-error
 			(leaf) => new ThreadView(leaf, this, this.threadManager)
 		);
 
