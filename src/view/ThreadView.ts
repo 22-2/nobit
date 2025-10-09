@@ -59,7 +59,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 		return "messages-square";
 	}
 
-	async setState(state: any, result: ViewStateResult): Promise<void> {
+	async setState(state: ThreadViewState, result: ViewStateResult): Promise<void> {
 		super.setState(state, result);
 		this.state = state;
 		// Clear any existing content
@@ -86,7 +86,8 @@ export class ThreadView extends ItemView implements EditableItemView {
 	// EditableTitleView interface implementation
 	async navigateToThreadFromUrl(url: string): Promise<void> {
 		logger.debug("Navigating to thread from URL:", url);
-		await this.setState({ url }, { history: false });
+		const state = this.state || {};
+		await this.setState({ url, ...state } as ThreadViewState, { history: false });
 	}
 
 	getURL(): string {
