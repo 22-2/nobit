@@ -8,6 +8,7 @@ const Logger = log.getLogger("TitleUrlEditor");
 export interface EditableItemView extends ItemView {
 	navigateToThreadFromUrl(url: string): Promise<void>;
 	getURL(): string;
+	getDisplayText(): string;
 }
 
 export class EditableTitleBar {
@@ -81,6 +82,8 @@ export class EditableTitleBar {
 	}
 
 	private handleBlur() {
-		this.titleEl.innerText = this.view.getURL();
+		// Restore the display text (could be title or URL)
+		const displayText = this.view.getDisplayText();
+		this.titleEl.innerText = displayText;
 	}
 }

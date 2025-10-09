@@ -30,7 +30,6 @@ export default class NobitPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_THREAD,
-			// @ts-expect-error
 			(leaf) => new ThreadView(leaf, this, this.threadManager)
 		);
 

@@ -9,8 +9,9 @@
 	// Props
 	interface Props {
 		initialUrl?: string;
+		onTitleChange?: (title: string) => void;
 	}
-	let { initialUrl }: Props = $props();
+	let { initialUrl, onTitleChange }: Props = $props();
 
 	// Get ThreadManager from context (injected by ThreadView ItemView)
 	const threadManager = getContext<ThreadManager>("threadManager");
@@ -22,6 +23,14 @@
 	$effect(() => {
 		console.log("🔍 Filters changed:", JSON.stringify(threadManager.filters));
 		console.log("🔍 Filtered posts count:", threadManager.filteredPosts.length);
+	});
+
+	// Watch thread title changes and notify parent
+	$effect(() => {
+		const title = threadManager.thread?.title;
+		if (title && onTitleChange) {
+			onTitleChange(title);
+		}
 	});
 
 	onMount(async () => {

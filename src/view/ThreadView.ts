@@ -52,7 +52,8 @@ export class ThreadView extends ItemView implements EditableItemView {
 	}
 
 	getDisplayText(): string {
-		return "5ch Thread";
+		// Return thread title if available, otherwise default text
+		return this.threadManager.thread?.title || "5ch Thread";
 	}
 
 	getIcon(): string {
@@ -74,9 +75,16 @@ export class ThreadView extends ItemView implements EditableItemView {
 			target: this.contentEl,
 			props: {
 				initialUrl: state.url, // Pass URL to component
+				onTitleChange: (title: string) => this.updateTitle(title),
 			},
 			context: contextMap,
 		});
+	}
+
+	private updateTitle(title: string): void {
+		if (this.titleEl) {
+			this.titleEl.innerText = title;
+		}
 	}
 
 	getState(): Record<string, unknown> {
