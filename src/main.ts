@@ -23,8 +23,18 @@ export default class NobitPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.configureLogging();
-		this.fetcher = new ObsidianFetcher();
-		this.provider = new DefaultBBSProvider(this.fetcher);
+
+		// In Playwright environment, let DefaultBBSProvider choose the appropriate fetcher
+		const isPlaywright = this.isPlaywrightEnvironment();
+		if (!isPlaywright) {
+			this.fetcher = new ObsidianFetcher();
+			this.provider = new DefaultBBSProvider(this.fetcher);
+		} else {
+			// Let DefaultBBSProvider auto-detect and use TestFetcher
+			this.provider = new DefaultBBSProvider();
+			this.fetcher = (this.provider as any).fetcher; // Access the fetcher for compatibility
+		}
+
 		this.threadManager = new ThreadManager(this.app, this.provider);
 		this.addSettingTab(new NobitSettingTab(this));
 
@@ -49,6 +59,19 @@ export default class NobitPlugin extends Plugin {
 
 	onunload() {
 		logger.debug("Plugin unloaded");
+	}
+
+	/**
+	 * Check if running in Playwright test environment.
+	 */
+	private isPlaywrightEnvironment(): boolean {
+		if (typeof process !== "undefined" && process.env.PLAYWRIGHT) {
+			return true;
+		}
+		if (typeof window !== "undefined" && (window as any).playwright) {
+			return true;
+		}
+		return false;
 	}
 
 	openWithURL(inputUrl: string) {

@@ -94,6 +94,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 		const context = vaultOptions.useSandbox
 			? await obsidianSetup.openSandbox(vaultOptions)
 			: await obsidianSetup.openVault(vaultOptions);
+
 		if (vaultOptions.showLoggerOnNode) {
 			logger.debug("enable browser console");
 
@@ -101,13 +102,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			context.window.on("console", (msg) => {
 				const type = msg.type();
 				const fullText = msg.text();
-				
+
 				// 長文（500文字以上）は抑制
 				if (fullText.length > 500) {
 					console.log(`🖥️ BROWSER [${type.toUpperCase()}]: [長文のため省略: ${fullText.length}文字]`);
 					return;
 				}
-				
+
 				const text = fullText.substring(0, 100);
 				const location = msg.location();
 
@@ -168,3 +169,4 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 });
 
 export { expect } from "@playwright/test";
+

@@ -36,9 +36,20 @@ export class ObsidianTestSetup {
 				...LAUNCH_OPTIONS.args,
 				`--user-data-dir=${this.tempUserDataDir}`,
 			],
+			// Set environment variable for Playwright detection
+			env: {
+				...process.env,
+				PLAYWRIGHT: 'true',
+			},
 		};
 		this.electronApp = await electron.launch(launchOptions);
 		let page = await this.electronApp.waitForEvent("window");
+
+		// Set Playwright marker in window context immediately
+		await page.evaluate(() => {
+			(window as any).playwright = true;
+		});
+
 		this.pageManager = new PageManager(this.electronApp);
 		logger.debug("enable obsidian debug mode");
 		await this.pageManager.waitForPage(page);

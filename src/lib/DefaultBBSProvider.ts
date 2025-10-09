@@ -1,5 +1,8 @@
+import { BaseBBSProvider, type BaseBBSProviderOptions } from "./BaseBBSProvider";
+import { ObsidianFetcher } from "./ObsidianFetcher";
+import { TestFetcher } from "./TestFetcher";
 import { DefaultDecoder } from "./libch/decoder";
-import { type HttpFetcher, DefaultFetcher, HttpError } from "./libch/fetcher";
+import { DefaultFetcher, HttpError, type HttpFetcher } from "./libch/fetcher";
 import { DefaultParser } from "./libch/parser";
 import type { BBSProvider } from "./libch/provider";
 import { parseBbsUrl } from "./libch/url";
@@ -10,7 +13,6 @@ import type {
 	SubjectItem,
 	Thread,
 } from "./types";
-import { BaseBBSProvider, type BaseBBSProviderOptions } from "./BaseBBSProvider";
 
 export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 	readonly id = "default";
@@ -22,11 +24,43 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		parser?: DefaultParser,
 		options?: BaseBBSProviderOptions
 	) {
-		super(fetcher, decoder, parser, options);
+		// If no fetcher is provided, detect environment and use appropriate fetcher
+		const actualFetcher = fetcher ?? (DefaultBBSProvider.isPlaywrightEnvironment()
+			? new TestFetcher()
+			: new ObsidianFetcher());
+
+		super(actualFetcher, decoder, parser, options);
+
+		console.log(
+			`🔧 DefaultBBSProvider: Using ${
+				actualFetcher instanceof TestFetcher ? "TestFetcher" :
+				actualFetcher instanceof ObsidianFetcher ? "ObsidianFetcher" : "DefaultFetcher"
+			} (Playwright environment: ${DefaultBBSProvider.isPlaywrightEnvironment()})`
+		);
 	}
 
 	protected createDefaultFetcher(): HttpFetcher {
 		return new DefaultFetcher();
+	}
+
+	/**
+	 * Check if running in Playwright test environment.
+	 * Playwright sets window.playwright or process.env.PLAYWRIGHT when running tests.
+	 *
+	 * @returns True if running in Playwright environment
+	 */
+	private static isPlaywrightEnvironment(): boolean {
+		// Check for Playwright-specific environment variables
+		if (typeof process !== "undefined" && process.env.PLAYWRIGHT) {
+			return true;
+		}
+
+		// Check for Playwright global object in browser context
+		if (typeof window !== "undefined" && (window as any).playwright) {
+			return true;
+		}
+
+		return false;
 	}
 
 	canHandleUrl(url: string): boolean {
