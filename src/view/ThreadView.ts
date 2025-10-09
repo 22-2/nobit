@@ -1,6 +1,6 @@
 import log from "loglevel";
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
-import { EditableTitleBar, type EditableItemView } from "src/components/EditableTitleView";
+import { EditableTitleBar, type EditableItemView } from "src/components/EditableTitleBar";
 import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";

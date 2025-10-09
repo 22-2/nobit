@@ -123,6 +123,7 @@
 		height: 100%;
 		padding: 1rem;
 		gap: 1rem;
+		position: relative;
 	}
 
 	.filters-section {
@@ -132,6 +133,9 @@
 	.toolbar-section {
 		flex-shrink: 0;
 		margin-top: auto;
+		position: fixed;
+		bottom: 0px;
+		right: 0px;
 	}
 
 	.loading-container {
