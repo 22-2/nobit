@@ -7,11 +7,11 @@ import { DefaultParser } from "./libch/parser";
 import type { BBSProvider } from "./libch/provider";
 import { parseBbsUrl } from "./libch/url";
 import type {
-	BBSMenu,
-	PostData,
-	PostResult,
-	SubjectItem,
-	Thread,
+    BBSMenu,
+    PostData,
+    PostResult,
+    SubjectItem,
+    Thread,
 } from "./types";
 
 export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
@@ -28,6 +28,11 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		const actualFetcher = fetcher ?? (DefaultBBSProvider.isPlaywrightEnvironment()
 			? new TestFetcher()
 			: new ObsidianFetcher());
+
+		// Expose TestFetcher class to global scope for testing
+		if (DefaultBBSProvider.isPlaywrightEnvironment()) {
+			(window as any).TestFetcher = TestFetcher;
+		}
 
 		super(actualFetcher, decoder, parser, options);
 
@@ -132,12 +137,19 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		const datUrl = `https://${host}/${board}/dat/${threadId}.dat`;
 
 		try {
+			console.log('📥 Fetching thread data from:', datUrl);
 			const buffer = await this.fetchWithRetry(datUrl);
+			console.log('✅ Received buffer, size:', buffer.byteLength);
+
 			const text = this.decodeBuffer(buffer);
+			console.log('✅ Decoded text, length:', text.length, 'preview:', text.substring(0, 200));
+
 			const thread = this.parser.parseThread(text, threadId, threadUrl);
 			if (!thread) {
+				console.error('❌ Parser returned undefined');
 				throw new Error(`Failed to parse thread from ${datUrl}`);
 			}
+			console.log('✅ Thread parsed successfully, posts:', thread.posts.length);
 			return thread;
 		} catch (error) {
 			console.error(`Failed to get thread from ${datUrl}:`, error);

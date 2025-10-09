@@ -2,17 +2,17 @@
 import { isValid, parse } from "date-fns";
 import he from "he";
 import type {
-	BBSMenu,
-	BBSMenuCategory,
-	Post,
-	SubjectItem,
-	Thread,
+    BBSMenu,
+    BBSMenuCategory,
+    Post,
+    SubjectItem,
+    Thread,
 } from "../types";
 import {
-	BBSMenuSchema,
-	PostSchema,
-	SubjectItemSchema,
-	ThreadSchema,
+    BBSMenuSchema,
+    PostSchema,
+    SubjectItemSchema,
+    ThreadSchema,
 } from "../types";
 import { invariant, normalizeDateStr } from "./utils";
 
@@ -239,14 +239,23 @@ export abstract class BaseParser implements Parser {
 		threadId: string,
 		url: string
 	): Thread | undefined {
+		console.log('🔍 Parser: Starting to parse thread', {
+			datLength: dat?.length,
+			threadId,
+			url,
+			datPreview: dat?.substring(0, 200)
+		});
+
 		this.onThreadParseStart?.(dat.length);
 
 		if (!dat?.trim().length) {
+			console.log('❌ Parser: Empty dat content');
 			this.onThreadParseEmpty?.();
 			return undefined;
 		}
 
 		const lines = dat.trim().split("\n");
+		console.log('✅ Parser: Split into lines', { lineCount: lines.length, firstLine: lines[0]?.substring(0, 100) });
 		this.onThreadParseLinesCount?.(lines.length);
 
 		invariant(!!lines.length && !!lines[0], "No posts found");

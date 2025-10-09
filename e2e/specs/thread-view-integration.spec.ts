@@ -1,7 +1,7 @@
+import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { NetworkMockHelper } from "../helpers/NetworkMockHelper";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
 
@@ -16,7 +16,16 @@ test.describe("Thread View Integration Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-		const networkHelper = new NetworkMockHelper(vault.window);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock using TestFetcher directly
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 200,
+				body: MockDataFactory.createBasicThreadData()
+			}
+		);
 
 		// Verify initial setup
 		const vaultName = await vault.window.evaluate(() => app.vault.getName());
@@ -27,14 +36,6 @@ test.describe("Thread View Integration Tests", () => {
 			PLUGIN_ID
 		);
 		expect(plugin).toBeTruthy();
-
-		// Setup mock
-		await networkHelper.setupBasicRoute(
-			"**/test/read.cgi/liveedge/1759626688/**",
-			MockDataFactory.createSuccessResponse(
-				MockDataFactory.createBasicThreadData()
-			)
-		);
 
 		// Execute complete flow
 		console.log("Step 1: Executing command");
@@ -72,6 +73,16 @@ test.describe("Thread View Integration Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock using TestFetcher directly
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 200,
+				body: MockDataFactory.createBasicThreadData()
+			}
+		);
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -137,6 +148,16 @@ test.describe("Thread View Integration Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock using TestFetcher directly
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 200,
+				body: MockDataFactory.createBasicThreadData()
+			}
+		);
 
 		// Open and verify ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -200,6 +221,16 @@ test.describe("Thread View Integration Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock using TestFetcher directly
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 200,
+				body: MockDataFactory.createBasicThreadData()
+			}
+		);
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -272,7 +303,16 @@ test.describe("Thread View Integration Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-		const networkHelper = new NetworkMockHelper(vault.window);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock for initial load
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 200,
+				body: MockDataFactory.createBasicThreadData()
+			}
+		);
 
 		// Test normal operation first
 		await threadHelper.openAndVerifyThreadView(
@@ -283,10 +323,14 @@ test.describe("Thread View Integration Tests", () => {
 
 		console.log("Normal operation verified");
 
-		// Simulate network failure
-		await vault.window.route("**/liveedge/1759320900/**", (route) => {
-			route.abort("failed");
-		});
+		// Simulate network failure by returning error status
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 500,
+				body: 'Internal Server Error'
+			}
+		);
 
 		// Trigger refresh to test error handling
 		await threadHelper.clickRefreshButton();
@@ -306,7 +350,13 @@ test.describe("Thread View Integration Tests", () => {
 		}
 
 		// Restore normal operation
-		await vault.window.unroute("**/liveedge/1759320900/**");
+		await mockHelper.setupPatternMock(
+			'.dat',
+			{
+				status: 200,
+				body: MockDataFactory.createBasicThreadData()
+			}
+		);
 
 		// Verify recovery
 		await threadHelper.clickRefreshButton();

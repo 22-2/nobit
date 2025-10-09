@@ -77,8 +77,8 @@ export class MockDataFactory {
 	static createSuccessResponse(body: string): MockResponse {
 		return {
 			status: 200,
-			contentType: "text/html; charset=Shift_JIS",
-			body,
+			contentType: "text/plain; charset=UTF-8",
+			body: body,
 		};
 	}
 }

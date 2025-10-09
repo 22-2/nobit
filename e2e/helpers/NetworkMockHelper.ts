@@ -9,7 +9,14 @@ export class NetworkMockHelper {
 	private requestCount = 0;
 	private requestUrls: string[] = [];
 
-	constructor(private readonly page: Page) {}
+	constructor(private readonly page: Page) {
+		// Log all requests for debugging
+		this.page.on('request', request => {
+			if (request.url().includes('.dat')) {
+				console.log(`📡 Request detected: ${request.url()}`);
+			}
+		});
+	}
 
 	/**
 	 * 基本的なルートモックを設定
@@ -18,11 +25,30 @@ export class NetworkMockHelper {
 		pattern: string,
 		response: MockResponse
 	): Promise<void> {
-		await this.page.route(pattern, (route) => {
+		console.log(`🔧 Setting up route for pattern: ${pattern}`);
+
+		await this.page.route(pattern, async (route) => {
 			this.requestCount++;
 			this.requestUrls.push(route.request().url());
-			route.fulfill(response);
+			console.log(`🎯 Mock intercepted: ${route.request().url()}`);
+
+			// Ensure body is a string or Buffer
+			const body = typeof response.body === 'string'
+				? response.body
+				: response.body.toString();
+
+			// Use headers instead of contentType
+			await route.fulfill({
+				status: response.status,
+				headers: {
+					'Content-Type': response.contentType,
+				},
+				body: body,
+			});
+			console.log(`✅ Mock fulfilled with status ${response.status}, body length: ${body.length}`);
 		});
+
+		console.log(`✅ Route setup complete for pattern: ${pattern}`);
 	}
 
 	/**
@@ -38,7 +64,19 @@ export class NetworkMockHelper {
 			if (urlMatcher(url)) {
 				this.requestCount++;
 				this.requestUrls.push(url);
-				await route.fulfill(response);
+
+				// Ensure body is a string or Buffer
+				const body = typeof response.body === 'string'
+					? response.body
+					: response.body.toString();
+
+				await route.fulfill({
+					status: response.status,
+					headers: {
+						'Content-Type': response.contentType,
+					},
+					body: body,
+				});
 			} else {
 				await route.continue();
 			}

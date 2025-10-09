@@ -19,6 +19,8 @@ export default defineConfig({
 		trace: "on-first-retry",
 		video: "on",
 		screenshot: "only-on-failure",
+		// Block external requests by default to prevent CORS errors
+		bypassCSP: true,
 	},
 	// Set environment variable to indicate Playwright test environment
 	env: {

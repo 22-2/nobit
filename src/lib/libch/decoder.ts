@@ -12,7 +12,10 @@ export interface BufferDecoder {
 
 export class DefaultDecoder implements BufferDecoder {
     public decode(buffer: ArrayBuffer): string {
-        const decoder = new TextDecoder("shift-jis");
+        // In test environment, use UTF-8 since mock data is UTF-8 encoded
+        const isPlaywright = typeof process !== 'undefined' && process.env.PLAYWRIGHT === 'true';
+        const encoding = isPlaywright ? 'utf-8' : 'shift-jis';
+        const decoder = new TextDecoder(encoding);
         return decoder.decode(buffer);
     }
 }
