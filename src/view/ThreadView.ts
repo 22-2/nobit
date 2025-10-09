@@ -12,6 +12,7 @@ const logger = log.getLogger("ThreadView");
 
 interface ThreadViewState extends ParsedBbsUrl {
 	url: string;
+	title: string;
 
 	// Compat for obsidian api
 	[x: string]: any;
@@ -60,11 +61,33 @@ export class ThreadView extends ItemView implements EditableItemView {
 		return "messages-square";
 	}
 
-	async setState(state: ThreadViewState, result: ViewStateResult): Promise<void> {
-		super.setState(state, result);
-		this.state = state;
+	async onOpen(): Promise<void> {
+		await super.onOpen();
+		// Initial render to trigger the request
+		this.render();
+	}
+
+	async setState(newState: ThreadViewState, result: ViewStateResult): Promise<void> {
+		await super.setState(newState, result);
+		const urlChanged = this.state?.url !== newState.url;
+		this.state = newState;
+		// Re-render only when URL changes
+		if (urlChanged) {
+			this.render();
+		}
+	}
+
+	private render(): void {
+		if (!this.state) return;
+
 		// Clear any existing content
 		this.contentEl.empty();
+
+		// Unmount existing component if any
+		if (this.component) {
+			unmount(this.component);
+			this.component = null;
+		}
 
 		// Create a context map for Svelte component
 		const contextMap = new Map();
@@ -74,7 +97,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 		this.component = mount(ThreadViewComponent, {
 			target: this.contentEl,
 			props: {
-				initialUrl: state.url, // Pass URL to component
+				initialUrl: this.state.url, // Pass URL to component
 				onTitleChange: (title: string) => this.updateTitle(title),
 			},
 			context: contextMap,
@@ -84,6 +107,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 	private updateTitle(title: string): void {
 		if (this.titleEl) {
 			this.titleEl.innerText = title;
+			if (this.state) this.state.title = title;
 		}
 	}
 

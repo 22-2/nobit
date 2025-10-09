@@ -134,7 +134,7 @@ test("Large Fixture: Load and display 1759320900.dat file content", async ({
 	});
 
 	// 3. Execute "Open Nobit Test Thread" command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 	// 4. Verify ThreadView opened correctly
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -243,7 +243,7 @@ test("Large Fixture: Debug parsing and content", async ({ vault }) => {
 	console.log("Route setup complete");
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -283,7 +283,7 @@ test("Large Fixture: Performance test with large dataset", async ({
 	const startTime = Date.now();
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -319,7 +319,7 @@ test("Large Fixture: Search functionality with large dataset", async ({
 	await setupFixtureRoute(vault.window);
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -378,7 +378,7 @@ test("Large Fixture: Filter functionality with large dataset", async ({
 	await setupFixtureRoute(vault.window);
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -435,7 +435,7 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 	await setupFixtureRoute(vault.window);
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load
@@ -459,7 +459,7 @@ test("Large Fixture: Memory usage and cleanup", async ({ vault }) => {
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 0);
 
 	// Re-open to verify it still works after cleanup
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Verify content loads again
@@ -496,7 +496,7 @@ test("Large Fixture: 1000 posts performance test", async ({ vault }) => {
 	const startTime = Date.now();
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load with extended timeout for 1000 posts
@@ -607,7 +607,7 @@ test("Large Fixture: Real 1000 posts fixture file test", async ({ vault }) => {
 	const startTime = Date.now();
 
 	// Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Wait for content to load with extended timeout for 1000 posts

@@ -18,7 +18,7 @@ test("Debug: Check what's actually rendered", async ({ vault }) => {
 	expect(plugin).toBeTruthy();
 
 	// 2. Execute command
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 	// 3. Verify ThreadView opened
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);

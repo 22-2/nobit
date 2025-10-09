@@ -52,7 +52,7 @@ export const LAUNCH_OPTIONS = {
 
 
 export const CMD_ID_OPEN_WITH_URL = "nobit:open-with-url";
-export const TEST_THREAD_URL = "https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/";
+export const TEST_THREAD_URL = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/";
 export const CMD_ID_TOGGLE_SOURCE = "editor:toggle-source";
 export const CMD_ID_CLOSE_TAB = "workspace:close";
 export const CMD_ID_UNDO_CLOSE_TAB = "workspace:undo-close-pane";

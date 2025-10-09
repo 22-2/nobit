@@ -34,7 +34,7 @@ test("sandbox test: plugin activation and view creation via command", async ({
 
 	// 2. Create a new sandbox view (via command)
 	// Use ObsidianPageObject method
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 	// 3. Verify the view opened correctly
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);

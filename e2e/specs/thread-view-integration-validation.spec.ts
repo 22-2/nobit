@@ -80,7 +80,7 @@ test("Integration: ThreadManager state changes trigger UI updates correctly", as
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open ThreadView
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -170,7 +170,7 @@ test("Integration: Proper cleanup when ThreadView is closed", async ({ vault }) 
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open ThreadView and verify it's working
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -221,7 +221,7 @@ test("Integration: Proper cleanup when ThreadView is closed", async ({ vault }) 
 	console.log("✓ ThreadView properly cleaned up after closure");
 
 	// 4. Verify we can open a new ThreadView after cleanup
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -232,7 +232,7 @@ test("Integration: Architectural separation validation (no 'obsidian' imports in
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open ThreadView
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -301,7 +301,7 @@ test("Integration: Error handling and recovery", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Test normal operation first
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 	await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 

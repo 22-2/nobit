@@ -1,10 +1,9 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
 import type { App } from "obsidian";
+import { type BBSProvider } from "src/lib/libch/provider";
 import type { Thread, ThreadFilters } from "../lib/types";
 import { BaseManager, type BaseManagerOptions } from "./BaseManager";
-import { getErrorMessage } from "./utils";
-import { type BBSProvider } from "src/lib/libch/provider";
 
 const logger = log.getLogger("ThreadManager");
 
@@ -37,6 +36,9 @@ export class ThreadManager extends BaseManager {
 		internal: false,
 		searchText: "",
 	});
+
+	// Callback for when thread loads successfully
+	onThreadLoaded?: () => void;
 
 	/**
 	 * Get filtered posts based on current filter state.
@@ -156,6 +158,9 @@ export class ThreadManager extends BaseManager {
 			logger.info(
 				`Successfully loaded thread: ${thread.title} (${thread.posts.length} posts)`
 			);
+
+			// Call the callback if set
+			this.onThreadLoaded?.();
 		} catch (error) {
 			this.handleThreadLoadError(error);
 		} finally {

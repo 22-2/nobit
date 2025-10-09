@@ -1,3 +1,4 @@
+import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 import { expect, test } from "../base";
 import {
 	DIST_DIR,
@@ -5,7 +6,6 @@ import {
 	SANDBOX_VAULT_NAME,
 } from "../constants";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 
 // Mock 5ch thread data that matches the expected structure from PostItem stories
 const mockThreadDatContent = `1<>名無しさん@転載は禁止<><>2024/01/01(月) 10:00:00.00 ID:ABC123DE<>これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。<>テストスレッド
@@ -45,7 +45,7 @@ test("MVP: Open Nobit Test Thread command opens ThreadView", async ({ vault }) =
 	});
 
 	// 3. Open thread with URL directly
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 	// 4. Verify ThreadView opened correctly
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -86,7 +86,7 @@ test("MVP: UI structure and states work correctly", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open thread with URL directly
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 	// 2. Verify ThreadView opened
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -118,7 +118,7 @@ test("MVP: Svelte 5 reactivity works correctly", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// 1. Open thread with URL directly
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 	// 2. Verify ThreadView opened
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
@@ -164,7 +164,7 @@ test("MVP: Ensure no Svelte components import from 'obsidian' directly", async (
 	});
 
 	// Open thread with URL directly
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Verify the architectural separation works (Svelte 5 components mount successfully)
@@ -191,7 +191,7 @@ test("MVP: Basic UI structure validation", async ({ vault }) => {
 	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
 	// Open thread with URL directly
-	await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+	await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 
 	// Verify basic UI structure is present

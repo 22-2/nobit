@@ -1,3 +1,4 @@
+import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 import { expect, test } from "../base";
 import {
 	DIST_DIR,
@@ -5,7 +6,6 @@ import {
 	SANDBOX_VAULT_NAME,
 } from "../constants";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
 
 // Mock 5ch thread data that matches the expected structure
 const mockThreadDatContent = `1<>名無しさん@転載は禁止<><>2024/01/01(月) 10:00:00.00 ID:ABC123DE<>これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。<>テストスレッド
@@ -30,7 +30,7 @@ const mockTimeoutResponse = {
 };
 
 test.describe("Complete E2E Test Suite for MVP", () => {
-	
+
 	test("Full user journey: Command → ThreadView → 5ch fetch → UI display", async ({ vault }) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 
@@ -55,7 +55,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 
 		// 3. Execute "Open Nobit Test Thread" command
 		console.log("Step 1: Executing command");
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 
 		// 4. Verify ThreadView opened correctly
 		console.log("Step 2: Verifying ThreadView opened");
@@ -65,7 +65,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		// 5. Verify 5ch fetch and data processing
 		console.log("Step 3: Verifying 5ch fetch and UI display");
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
-		
+
 		// 6. Verify complete UI structure is displayed
 		await expect(vault.window.locator('.thread-header')).toBeVisible();
 		await expect(vault.window.locator('.thread-title')).toBeVisible();
@@ -121,7 +121,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -134,16 +134,16 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		// 1. Verify post structure exists
 		const firstPost = posts.first();
 		await expect(firstPost).toBeVisible();
-		
+
 		// 2. Verify post components exist (may be collapsed/filtered)
 		const postNumber = firstPost.locator('.post-number');
 		const postContent = firstPost.locator('.post-content');
 		const postHeader = firstPost.locator('.post-header');
-		
+
 		expect(await postNumber.count()).toBeGreaterThan(0);
 		expect(await postContent.count()).toBeGreaterThan(0);
 		expect(await postHeader.count()).toBeGreaterThan(0);
-		
+
 		// 3. Test anchor links in posts if they exist
 		const anchorLinks = vault.window.locator('.anchor-link');
 		const anchorCount = await anchorLinks.count();
@@ -161,7 +161,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		const totalPosts = await posts.count();
 		expect(totalPosts).toBeGreaterThan(0);
 		console.log(`Verified ${totalPosts} PostItem components rendered`);
-		
+
 		console.log("✓ PostItem component integration verified");
 	});
 
@@ -178,27 +178,27 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
 		// Verify ThreadToolbar is present and functional
 		const toolbarSection = vault.window.locator('.toolbar-section');
 		await expect(toolbarSection).toBeVisible();
-		
+
 		const threadToolbar = vault.window.locator('.thread-footer-toolbar');
 		await expect(threadToolbar).toBeVisible();
 
 		// Test refresh functionality
 		const refreshButton = vault.window.locator('.toolbar-section .clickable-icon');
 		await expect(refreshButton).toBeVisible();
-		
+
 		// Click refresh and verify it triggers ThreadManager.refreshThread()
 		await refreshButton.click({ force: true });
-		
+
 		// Verify refresh operation completes
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 10000 });
-		
+
 		// Verify ThreadManager state after refresh
 		const threadManagerState = await vault.window.evaluate(() => {
 			const activeLeaf = app.workspace.activeLeaf;
@@ -213,7 +213,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			}
 			return null;
 		});
-		
+
 		expect(threadManagerState?.hasThread).toBe(true);
 		expect(threadManagerState?.isLoading).toBe(false);
 		expect(threadManagerState?.error).toBeNull();
@@ -234,14 +234,14 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
 		// Verify ThreadFilters is present and functional
 		const filtersSection = vault.window.locator('.filters-section');
 		await expect(filtersSection).toBeVisible();
-		
+
 		const threadFilters = vault.window.locator('.thread-filters');
 		await expect(threadFilters).toBeVisible();
 
@@ -251,7 +251,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			// Test search filter
 			await searchInput.fill('テスト');
 			await vault.window.waitForTimeout(300);
-			
+
 			// Verify filter state is updated in ThreadManager
 			const filterState = await vault.window.evaluate(() => {
 				const activeLeaf = app.workspace.activeLeaf;
@@ -261,9 +261,9 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 				}
 				return null;
 			});
-			
+
 			expect(filterState).toBe('テスト');
-			
+
 			// Clear filter
 			await searchInput.clear();
 			await vault.window.waitForTimeout(200);
@@ -272,12 +272,12 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		// Test filter buttons
 		const filterButtons = vault.window.locator('.filter-buttons-group button');
 		const buttonCount = await filterButtons.count();
-		
+
 		if (buttonCount > 0) {
 			// Test button filter functionality
 			await filterButtons.first().click({ force: true });
 			await vault.window.waitForTimeout(200);
-			
+
 			// Verify button filter state is updated
 			const buttonFilterState = await vault.window.evaluate(() => {
 				const activeLeaf = app.workspace.activeLeaf;
@@ -287,9 +287,9 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 				}
 				return null;
 			});
-			
+
 			expect(buttonFilterState).toBeTruthy();
-			
+
 			// Toggle off
 			await filterButtons.first().click({ force: true });
 			await vault.window.waitForTimeout(200);
@@ -310,7 +310,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			});
 		});
 
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -329,13 +329,13 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		try {
 			await expect(vault.window.locator('.error-container')).toBeVisible({ timeout: 5000 });
 			console.log("✓ Error state displayed correctly");
-			
+
 			// Verify error message is user-friendly and in Japanese
 			const errorMessage = await vault.window.locator('.error-message').textContent();
 			expect(errorMessage).toBeTruthy();
 			expect(errorMessage).toContain('失敗'); // Should contain Japanese error text
 			console.log(`Error message: ${errorMessage}`);
-			
+
 		} catch {
 			console.log("Error state was handled too quickly or differently");
 		}
@@ -379,7 +379,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			}
 			return null;
 		});
-		
+
 		expect(threadManagerState?.hasThread).toBe(true);
 		expect(threadManagerState?.isLoading).toBe(false);
 		expect(threadManagerState?.error).toBeNull();
@@ -404,7 +404,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			},
 			{
 				name: "Large thread",
-				data: Array.from({length: 50}, (_, i) => 
+				data: Array.from({length: 50}, (_, i) =>
 					`${i+1}<>名無しさん@転載は禁止<><>2024/01/01(月) 10:${String(i % 60).padStart(2, '0')}:00.00 ID:TEST${i}<>ポスト${i+1}の内容です。<>${i === 0 ? '大規模スレッド' : ''}`
 				).join('\n'),
 				expectedPosts: 50
@@ -413,7 +413,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 
 		for (const scenario of scenarios) {
 			console.log(`Testing scenario: ${scenario.name}`);
-			
+
 			// Mock the specific scenario data
 			await vault.window.route('**/test/read.cgi/liveedge/1759320900/**', route => {
 				route.fulfill({
@@ -424,7 +424,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			});
 
 			// Open new ThreadView for each scenario
-			await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+			await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 			await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 			await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -481,7 +481,7 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 		});
 
 		// Open ThreadView
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
 
@@ -490,24 +490,24 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 			const activeLeaf = app.workspace.activeLeaf;
 			if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
 				const threadView = activeLeaf.view as any;
-				
+
 				return {
 					// Verify ThreadView (Obsidian ItemView) exists
 					hasThreadView: !!threadView,
 					threadViewType: threadView.getViewType(),
-					
+
 					// Verify ThreadManager (Manager layer) exists
 					hasThreadManager: !!threadView.threadManager,
 					threadManagerHasState: !!(threadView.threadManager?.thread !== undefined),
-					
+
 					// Verify Svelte component is mounted
 					hasSvelteComponent: !!threadView.component,
 					contentElHasContent: threadView.contentEl.children.length > 0,
-					
+
 					// Verify Manager → Svelte communication works
 					threadManagerThread: !!threadView.threadManager?.thread,
 					threadManagerFilters: !!threadView.threadManager?.filters,
-					
+
 					// Verify Svelte 5 $state reactivity
 					threadManagerIsLoading: threadView.threadManager?.isLoading,
 					threadManagerError: threadView.threadManager?.error
@@ -551,14 +551,14 @@ test.describe("Complete E2E Test Suite for MVP", () => {
 
 		// Measure load performance
 		const startTime = Date.now();
-		
-		await obsPage.openPluginWithURL(PLUGIN_ID, 'https://eagle.5ch.net/test/read.cgi/livejupiter/1759320900/');
+
+		await obsPage.openPluginWithURL(PLUGIN_ID, 'http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/');
 		await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
-		
+
 		const loadTime = Date.now() - startTime;
 		console.log(`Load time: ${loadTime}ms`);
-		
+
 		// Verify reasonable load time (Requirement 3.1, 3.3)
 		expect(loadTime).toBeLessThan(10000); // Should load within 10 seconds
 
