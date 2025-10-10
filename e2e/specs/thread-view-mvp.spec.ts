@@ -1,6 +1,6 @@
 import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
-import { PLUGIN_ID } from "../constants";
+import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
 import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
