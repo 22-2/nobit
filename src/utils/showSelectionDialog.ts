@@ -1,4 +1,4 @@
-import { App, Scope, SuggestModal } from "obsidian";
+import { App, SuggestModal } from "obsidian";
 
 export class SelectionDialog<T extends string[]> extends SuggestModal<
 	T[number]
@@ -16,23 +16,17 @@ export class SelectionDialog<T extends string[]> extends SuggestModal<
 	) {
 		super(app);
 		this.inputEl.setAttribute("placeholder", this.placeholder || "");
-		this.scope = new Scope();
 
 		// Track input value
 		this.inputEl.addEventListener("input", () => {
 			this.inputValue = this.inputEl.value;
 		});
 
-		this.scope.register(null, "Escape", () => {
+		// Register Escape key handler (don't override the scope)
+		this.scope.register([], "Escape", () => {
 			this.cancelled = true;
 			this.close();
-		});
-		this.scope.register(null, "Enter", () => {
-			// If there's input value and no selection, use the input value
-			if (this.inputValue.trim() && !this.selected) {
-				this.selected = this.inputValue as T[number];
-			}
-			this.close();
+			return false;
 		});
 	}
 
@@ -81,7 +75,12 @@ export class SelectionDialog<T extends string[]> extends SuggestModal<
 				if (this.cancelled) {
 					resolve(null);
 				} else {
-					resolve(this.selected);
+					// If no item was selected but there's input value, use it
+					if (!this.selected && this.inputValue.trim()) {
+						resolve(this.inputValue as T[number]);
+					} else {
+						resolve(this.selected);
+					}
 				}
 			};
 		});

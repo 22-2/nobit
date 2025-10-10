@@ -1,4 +1,5 @@
 import { CMD_ID_CLOSE_TAB, CMD_ID_UNDO_CLOSE_TAB } from "e2e/constants";
+import type { ItemView } from "obsidian";
 import type { JSHandle, Locator, Page } from "playwright";
 import { expect } from "playwright/test";
 import type { VaultOptions, VaultPageTextContext } from "./types";
@@ -262,6 +263,21 @@ export class ObsidianPageObject {
 
 	async waitForLayoutReady(): Promise<void> {
 		await this.page.waitForFunction(() => app.workspace.layoutReady);
+	}
+
+	async waitForView<T extends ItemView>(viewType: string): Promise<JSHandle<T>> {
+		await this.page.waitForFunction(
+			(type) => app.workspace.getLeavesOfType(type).length > 0,
+			viewType
+		);
+		return this.page.evaluateHandle(
+			async (type) => {
+				const leaf = app.workspace.getLeavesOfType(type)?.[0]
+				await app.workspace.revealLeaf(leaf);
+				return leaf.view as unknown as T;
+			},
+			viewType
+		);
 	}
 
 	async waitForFileCreated(path: string, timeout = 5000): Promise<void> {
