@@ -1,8 +1,8 @@
 import log from "loglevel";
-import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
+import { ItemView, type ViewStateResult, WorkspaceLeaf } from "obsidian";
 import {
-	EditableTitleBar,
 	type EditableItemView,
+	EditableTitleBar,
 } from "src/components/EditableTitleBar";
 import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { usePopover } from "src/store/usePopover.svelte";
@@ -116,8 +116,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 	private updateTitle(title: string): void {
 		if (this.state) {
 			this.setState({ ...this.state, title });
-			// @ts-expect-error
-			this.leaf.updateHeader();
+			(this.leaf as any).updateHeader();
 			// Update history with the actual title
 			if (this.state.url) {
 				this.plugin.addToUrlHistory(this.state.url, title);
