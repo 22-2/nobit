@@ -52,11 +52,12 @@ export class ObsidianTestSetup {
 		logger.debug("enable obsidian debug mode");
 		await this.pageManager.waitForPage(page);
 		logger.debug("starter ready");
+
+		// Clear data only once at startup
 		await VaultManager.clearData(this.electronApp);
 		await page.reload({ waitUntil: "domcontentloaded" });
 
 		const currentPage = await this.pageManager.ensureSingleWindow();
-
 		await this.pageManager.waitForStarterReady(currentPage);
 		logger.debug("init start page");
 

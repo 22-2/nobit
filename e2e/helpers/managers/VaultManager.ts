@@ -83,28 +83,21 @@ export class VaultManager {
 			logger.debug("Normal vault opened:", vaultPath);
 		}
 
-		// --- Step 2: Install Plugins (if specified) ---
+		// --- Step 2: Install and Enable Plugins (if specified) ---
 		if (options.plugins && options.plugins.length > 0) {
 			logger.debug("Installing plugins...");
 			await this.pluginManager.installPlugins(vaultPath, options.plugins);
-			shouldReload = true; // Reload is needed after installing
 			logger.debug("Plugins installed.");
-		}
 
-		// --- Step 3: Enable Plugins (if specified) ---
-		if (options.plugins) {
 			logger.debug("Enabling plugins...");
 			await this.pluginManager.enablePlugins(
 				this.app,
 				newPage,
 				options.plugins.map((p) => p.pluginId),
 			);
-			shouldReload = true; // Reload is needed after enabling
 			logger.debug("Plugins enabled.");
-		}
 
-		// --- Step 4: Reload Vault if plugins were modified ---
-		if (shouldReload) {
+			// --- Step 3: Reload Vault once after all plugin changes ---
 			logger.debug(chalk.blue("Reloading vault to apply plugin changes..."));
 			await newPage.reload();
 			await this.pageManager.waitForVaultReady(newPage);

@@ -6,6 +6,7 @@ import chalk from "chalk";
 import log from "loglevel";
 import type { ElectronApplication, Page } from "playwright";
 import invariant from "tiny-invariant";
+
 const logger = log.getLogger("PageManager");
 
 export class PageManager {
@@ -97,9 +98,6 @@ export class PageManager {
 			},
 			{ timeout: 10000 },
 		);
-
-		// 追加の安定化待機
-		await page.waitForTimeout(500);
 	}
 
 	/**
