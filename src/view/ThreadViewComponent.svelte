@@ -117,7 +117,7 @@
 			e.stopPropagation();
 
 			const delta = e.deltaY;
-			const multiplier = 3;
+			const multiplier = 4;
 
 			// Add to velocity instead of direct scroll
 			scrollVelocity += delta * multiplier * 0.1;

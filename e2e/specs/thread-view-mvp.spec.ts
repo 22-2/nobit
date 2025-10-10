@@ -1,7 +1,7 @@
+import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { NetworkMockHelper } from "../helpers/NetworkMockHelper";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
 
@@ -16,7 +16,7 @@ test.describe("Thread View MVP Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-		const networkHelper = new NetworkMockHelper(vault.window);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Verify initial setup
 		const vaultName = await vault.window.evaluate(() => app.vault.getName());
@@ -29,12 +29,10 @@ test.describe("Thread View MVP Tests", () => {
 		expect(plugin).toBeTruthy();
 
 		// Setup mock
-		await networkHelper.setupBasicRoute(
-			"**/test/read.cgi/**",
-			MockDataFactory.createSuccessResponse(
-				MockDataFactory.createBasicThreadData()
-			)
-		);
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData()
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -61,6 +59,13 @@ test.describe("Thread View MVP Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData()
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -88,6 +93,13 @@ test.describe("Thread View MVP Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData()
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -121,15 +133,13 @@ test.describe("Thread View MVP Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-		const networkHelper = new NetworkMockHelper(vault.window);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
-		await networkHelper.setupBasicRoute(
-			"**/test/read.cgi/**",
-			MockDataFactory.createSuccessResponse(
-				MockDataFactory.createBasicThreadData()
-			)
-		);
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData()
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
@@ -159,6 +169,13 @@ test.describe("Thread View MVP Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// Setup mock
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData()
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
