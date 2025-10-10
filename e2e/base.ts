@@ -18,7 +18,7 @@ const logger = log.getLogger("obsidianSetup");
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
 	vaultOptions: {
-		useSandbox: true,
+		useSandbox: false, // 並列実行時はsandboxを使わない
 		showLoggerOnNode: true,
 		plugins: [],
 	},

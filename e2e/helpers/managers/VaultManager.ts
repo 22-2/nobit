@@ -39,7 +39,10 @@ export class VaultManager {
 		let shouldReload = false;
 
 		// --- Step 1: Open Vault (Sandbox or Normal) ---
-		if (options.useSandbox) {
+		// 並列実行時は常に通常のvaultを使用（sandboxは同じパスを返すため）
+		const shouldUseSandbox = options.useSandbox && !process.env.CI;
+
+		if (shouldUseSandbox) {
 			logger.debug(chalk.green("Opening sandbox vault..."));
 			newPage = await this.pageManager.executeActionAndWaitForNewWindow(
 				() => this.ipc.openSandbox(),

@@ -40,6 +40,7 @@ export class ObsidianTestSetup {
 			env: {
 				...process.env,
 				PLAYWRIGHT: 'true',
+				CI: process.env.CI || 'false',
 			},
 		};
 		this.electronApp = await electron.launch(launchOptions);

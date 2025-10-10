@@ -12,18 +12,14 @@ export default defineConfig({
 	reporter: [
 		["html", { outputFolder: path.join(e2eDir, "./playwright-report") }],
 	],
-	fullyParallel: false,
-	workers: 1,
+	fullyParallel: true,
+	workers: process.env.CI ? 2 : 1,
 	use: {
 		trace: "on-first-retry",
 		video: "on",
 		screenshot: "only-on-failure",
 		// Block external requests by default to prevent CORS errors
 		bypassCSP: true,
-	},
-	// Set environment variable to indicate Playwright test environment
-	env: {
-		PLAYWRIGHT: "true",
 	},
 	projects: [
 		{
