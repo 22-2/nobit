@@ -7,6 +7,7 @@ import type { BBSProvider } from "./lib/libch/provider";
 import { ThreadManager } from "./managers";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, VIEW_TYPE_THREAD } from "./utils/constants";
+import { createInstructions } from "./utils/keys";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
 import { showSelectionDialog } from "./utils/showSelectionDialog";
@@ -52,11 +53,20 @@ export default class NobitPlugin extends Plugin {
 					.reverse()
 					.map((item) => `${item.title} - ${item.url}`);
 
+				// デフォルトのキー操作ガイドを作成
+				const instructions = createInstructions({
+					"上へ": [{ modifiers: [], key: "ArrowUp" }],
+					"下へ": [{ modifiers: [], key: "ArrowDown" }],
+					"確定": [{ modifiers: [], key: "Enter" }],
+					"キャンセル": [{ modifiers: [], key: "Escape" }],
+				});
+
 				const selected = await showSelectionDialog({
 					app: this.app,
-					message: "URLを選択または入力してください",
+					message: "URLを選択または入力してEnterを押してください",
 					items: historyItems,
-					placeholder: "URLを選択または入力してください",
+					placeholder: "URLを選択または入力してEnterを押してください",
+					instructions: instructions,
 				});
 
 				if (!selected) return;

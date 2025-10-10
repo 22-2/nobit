@@ -1,4 +1,4 @@
-import { App, SuggestModal } from "obsidian";
+import { App, SuggestModal, type Instruction } from "obsidian";
 
 export class SelectionDialog<T extends string[]> extends SuggestModal<
 	T[number]
@@ -13,16 +13,22 @@ export class SelectionDialog<T extends string[]> extends SuggestModal<
 		public items: T,
 		public placeholder?: string,
 		public defaultValue?: T[number],
+		public instructions?: Instruction[],
 	) {
 		super(app);
 		this.inputEl.setAttribute("placeholder", this.placeholder || "");
 
-		// Track input value
+		// インストラクションを設定
+		if (this.instructions && this.instructions.length > 0) {
+			this.setInstructions(this.instructions);
+		}
+
+		// 入力値を追跡
 		this.inputEl.addEventListener("input", () => {
 			this.inputValue = this.inputEl.value;
 		});
 
-		// Register Escape key handler (don't override the scope)
+		// Escapeキーハンドラーを登録
 		this.scope.register([], "Escape", () => {
 			this.cancelled = true;
 			this.close();
@@ -91,9 +97,19 @@ export class SelectionDialog<T extends string[]> extends SuggestModal<
  * 選択肢ダイアログを表示し、選択された値を返却します。
  * キャンセル時はnullを返却します。
  *
+ * @example
  * ```ts
- * await showSelectionDialog()
- * // "選択したファイル(TFile)"
+ * await showSelectionDialog({
+ *   app: this.app,
+ *   message: "ファイルを選択",
+ *   items: ["file1.md", "file2.md"],
+ *   placeholder: "ファイル名を入力または選択",
+ *   instructions: [
+ *     { command: "[↑↓]", purpose: "移動" },
+ *     { command: "[↵]", purpose: "選択" },
+ *     { command: "[ESC]", purpose: "キャンセル" }
+ *   ]
+ * });
  * ```
  */
 export async function showSelectionDialog<T extends string[]>(args: {
@@ -102,6 +118,7 @@ export async function showSelectionDialog<T extends string[]>(args: {
 	items: T;
 	placeholder?: string;
 	defaultValue?: T[number];
+	instructions?: Instruction[];
 }): Promise<T[number] | null> {
 	return new SelectionDialog(
 		args.app,
@@ -109,6 +126,7 @@ export async function showSelectionDialog<T extends string[]>(args: {
 		args.items,
 		args.placeholder,
 		args.defaultValue,
+		args.instructions,
 	).open();
 }
 
