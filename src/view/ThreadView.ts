@@ -110,7 +110,13 @@ export class ThreadView extends ItemView implements EditableItemView {
 	private updateTitle(title: string): void {
 		if (this.titleEl) {
 			this.titleEl.innerText = title;
-			if (this.state) this.state.title = title;
+			if (this.state) {
+				this.state.title = title;
+				// Update history with the actual title
+				if (this.state.url) {
+					this.plugin.addToUrlHistory(this.state.url, title);
+				}
+			}
 		}
 	}
 

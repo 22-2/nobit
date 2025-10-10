@@ -2,17 +2,17 @@
 import { isValid, parse } from "date-fns";
 import he from "he";
 import type {
-    BBSMenu,
-    BBSMenuCategory,
-    Post,
-    SubjectItem,
-    Thread,
+	BBSMenu,
+	BBSMenuCategory,
+	Post,
+	SubjectItem,
+	Thread,
 } from "../types";
 import {
-    BBSMenuSchema,
-    PostSchema,
-    SubjectItemSchema,
-    ThreadSchema,
+	BBSMenuSchema,
+	PostSchema,
+	SubjectItemSchema,
+	ThreadSchema,
 } from "../types";
 import { invariant, normalizeDateStr } from "./utils";
 
@@ -261,11 +261,21 @@ export abstract class BaseParser implements Parser {
 		invariant(!!lines.length && !!lines[0], "No posts found");
 
 		const firstLineParts = lines[0].split("<>");
+		console.log('🔍 Parser: First line parts', {
+			partsCount: firstLineParts.length,
+			parts: firstLineParts,
+			part4: firstLineParts[4],
+			part5: firstLineParts[5]
+		});
+		// Title is in the 5th element (index 4) for most boards
+		// Some boards may have it in the 6th element (index 5)
 		const rawTitle =
-			firstLineParts.length > 5 ? firstLineParts?.[5]?.trim() : "無題";
+			firstLineParts.length > 4 ? (firstLineParts[4]?.trim() || firstLineParts[5]?.trim() || "無題") : "無題";
+		console.log('🔍 Parser: Raw title', { rawTitle });
 		invariant(rawTitle, "failed to parse title");
 
 		const title = this.decodeHtmlEntities(rawTitle);
+		console.log('✅ Parser: Final title', { title });
 		this.onThreadParseTitle?.(title);
 
 		const postsToProcess = lines.slice(0, 1000);

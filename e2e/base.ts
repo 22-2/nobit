@@ -64,7 +64,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
 				if (!process.env.CI) {
 					logger.debug(testInfo.errors);
-					await setup.getCurrentPage()?.pause();
+					// await setup.getCurrentPage()?.pause();
 				}
 				// エラーログをより詳細に出力
 				if (testInfo.error) {
@@ -77,7 +77,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			// フィクスチャ自体のセットアップ中にエラーが発生した場合
 			logger.error(`Error during fixture setup: ${err.message || err}`);
 			if (!process.env.CI) {
-				await setup.getCurrentPage()?.pause();
+				// await setup.getCurrentPage()?.pause();
 			}
 			throw err;
 		} finally {
