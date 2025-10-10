@@ -64,7 +64,7 @@ export class InputDialog extends Modal {
                 if (ev.isComposing) {
                     return;
                 }
-                if (ev.code === "Enter") {
+                if (ev.key === "Enter") {
                     ev.preventDefault();
                     resolve(this.inputEl.value);
                     this.submitted = true;
