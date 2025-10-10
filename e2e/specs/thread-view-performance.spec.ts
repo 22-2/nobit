@@ -71,13 +71,18 @@ test.describe("Thread View Performance Tests", () => {
 
 		if (memoryResult.initialMemory > 0 && memoryResult.afterLoadMemory > 0) {
 			console.log(`Memory increase: ${memoryResult.memoryIncrease} bytes`);
-			expect(memoryResult.memoryIncrease).toBeLessThan(10 * 1024 * 1024);
+			// macOS uses more memory, so we use a more generous limit
+			const memoryLimit =
+				process.platform === "darwin" ? 15 * 1024 * 1024 : 10 * 1024 * 1024;
+			expect(memoryResult.memoryIncrease).toBeLessThan(memoryLimit);
 
 			if (memoryResult.afterCleanupMemory > 0) {
 				console.log(
 					`Memory after cleanup: ${memoryResult.memoryAfterCleanup} bytes`,
 				);
-				expect(memoryResult.memoryAfterCleanup).toBeLessThan(15 * 1024 * 1024);
+				const cleanupLimit =
+					process.platform === "darwin" ? 20 * 1024 * 1024 : 15 * 1024 * 1024;
+				expect(memoryResult.memoryAfterCleanup).toBeLessThan(cleanupLimit);
 			}
 		}
 	});

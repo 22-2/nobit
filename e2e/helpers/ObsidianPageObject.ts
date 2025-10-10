@@ -102,6 +102,16 @@ export class ObsidianPageObject {
 	}
 
 	async openPluginWithURL(pluginId: string, url: string): Promise<void> {
+		// Wait for plugin to be loaded
+		await this.page.waitForFunction(
+			(id) => {
+				const plugin = app.plugins.getPlugin(id);
+				return plugin !== null && plugin !== undefined;
+			},
+			pluginId,
+			{ timeout: 10000 },
+		);
+
 		await this.page.evaluate(
 			([id, urlParam]) => {
 				const plugin = app.plugins.getPlugin(id) as any;
