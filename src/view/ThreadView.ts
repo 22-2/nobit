@@ -36,7 +36,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 	private component: ReturnType<typeof mount> | null = null;
 	private plugin: NobitPlugin;
 	private state: ThreadViewState | null = null;
-	private editableTitleView: EditableTitleBar | null = null;
+	private editableUrlView: EditableTitleBar | null = null;
 	private popoverService = usePopover();
 
 	constructor(
@@ -49,8 +49,8 @@ export class ThreadView extends ItemView implements EditableItemView {
 		// Initialize ThreadManager with Obsidian app instance
 
 		// Setup EditableTitleView
-		this.editableTitleView = new EditableTitleBar(this, plugin);
-		this.editableTitleView.setup();
+		this.editableUrlView = new EditableTitleBar(this, plugin);
+		this.editableUrlView.setup();
 	}
 
 	getViewType(): string {
@@ -81,6 +81,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 		// Re-render only when URL changes
 		if (urlChanged) {
 			this.render();
+			this.editableUrlView?.setText(newState.url);
 		}
 		await super.setState(newState, result);
 	}

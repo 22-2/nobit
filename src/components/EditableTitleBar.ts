@@ -84,4 +84,8 @@ export class EditableTitleBar {
 		const displayText = this.view.getDisplayText();
 		this.titleEl.innerText = displayText;
 	}
+
+	public setText(text: string) {
+		this.titleEl.innerText = text;
+	}
 }
