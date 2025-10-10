@@ -1,4 +1,6 @@
 <script lang="ts">
+	import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
+	import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 	import { getContext, onMount } from "svelte";
 	import { ThreadManager } from "../managers/ThreadManager.svelte";
 	import type { UsePopoverReturn } from "../store/usePopover.svelte";
@@ -37,6 +39,19 @@
 
 	let postsContainer = $state<HTMLElement>();
 	let popoverContainer = $state<HTMLElement>();
+	let viewContentEl = $state<HTMLElement>();
+
+	// Setup wheel refresh for down direction
+	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
+		getScrollElement: () => viewContentEl,
+		isEnabled: () => !threadManager.isLoading,
+		down: {
+			onRefresh: async () => {
+				await threadManager.refreshThread();
+			},
+			threshold: 7,
+		},
+	});
 
 	// Update popoverService with thread data when thread changes
 	$effect(() => {
@@ -46,6 +61,9 @@
 	});
 
 	onMount(() => {
+		// Get view-content element
+		viewContentEl = postsContainer?.closest('.view-content') as HTMLElement | undefined;
+
 		// Initialize popover container
 		if (popoverContainer) {
 			popoverService.init(popoverContainer);
@@ -147,6 +165,9 @@
 </script>
 
 <div class="thread-view">
+	<!-- Wheel Progress Indicator -->
+	<WheelProgressIndicator {wheelState} position="bottom" />
+
 	<!-- Popover container -->
 	<div class="popover-container" bind:this={popoverContainer}></div>
 	<!-- Thread Filters Component -->
@@ -195,6 +216,8 @@
 						onShowReplyTree={handleShowReplyTree}
 					/>
 				{/each}
+				<!-- Refresh trigger line for down direction -->
+				<div use:bindRefreshTriggerLine></div>
 			</div>
 		</div>
 	{:else}

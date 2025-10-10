@@ -54,51 +54,52 @@
 <style>
     .wheel-progress-indicator {
         position: absolute;
-        top: var(--nobit-size-4-4);
+        top: var(--size-4-4);
         left: 50%;
         transform: translateX(-50%);
-        z-index: var(--nobit-layer-tooltip);
+        z-index: var(--layer-tooltip);
         user-select: none;
+        position: fixed;
     }
 
     .indicator-content {
         display: flex;
         align-items: center;
-        gap: var(--nobit-size-4-2);
-        background-color: var(--nobit-background-secondary);
-        color: var(--nobit-text-normal);
-        border-radius: var(--nobit-radius-l);
-        padding: var(--nobit-size-2-3) var(--nobit-size-4-3);
-        font-size: var(--nobit-font-ui-medium);
-        font-weight: var(--nobit-font-semibold);
-        box-shadow: var(--nobit-shadow-s);
-        border: var(--nobit-border-width) solid
-            var(--nobit-background-modifier-border);
+        gap: var(--size-4-2);
+        background-color: var(--background-secondary);
+        color: var(--text-normal);
+        border-radius: var(--radius-l);
+        padding: var(--size-2-3) var(--size-4-3);
+        font-size: var(--font-ui-medium);
+        font-weight: var(--font-semibold);
+        box-shadow: var(--shadow-s);
+        border: var(--border-width) solid
+            var(--background-modifier-border);
     }
 
     .wheel-progress-indicator.bottom {
         top: unset;
-        bottom: var(--nobit-size-4-8);
+        bottom: var(--size-4-8);
     }
 
     .icon {
         line-height: 1;
-        height: var(--nobit-size-4-4);
-        width: var(--nobit-size-4-4);
+        height: var(--size-4-4);
+        width: var(--size-4-4);
     }
 
     .progress-bar-wrapper {
-        width: var(--nobit-size-4-12);
-        height: var(--nobit-size-4-2);
-        background-color: var(--nobit-background-modifier-border);
-        border-radius: var(--nobit-radius-s);
+        width: var(--size-4-12);
+        height: var(--size-4-2);
+        background-color: var(--background-modifier-border);
+        border-radius: var(--radius-s);
         overflow: hidden;
     }
 
     .progress-bar {
         height: 100%;
-        background-color: var(--nobit-interactive-accent);
+        background-color: var(--interactive-accent);
         transition: width 0.1s linear;
-        border-radius: var(--nobit-radius-s);
+        border-radius: var(--radius-s);
     }
 </style>
