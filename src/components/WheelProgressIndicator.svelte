@@ -1,12 +1,11 @@
 <script lang="ts">
     import type { WheelState } from "src/store/useWheelRefresh.svelte.ts";
     import { fade } from "svelte/transition";
-    import LoadingSpinner from "./LoadingSpinner.svelte";
 
-    let { wheelState, position = "top" } = $props<{
+    let { wheelState, position = "top" }: {
         wheelState: WheelState;
         position?: "top" | "bottom";
-    }>();
+    } = $props();
 
     let shouldBeVisible = $derived(
         (wheelState.count > 0 && wheelState.status === "wheeling") ||
@@ -14,6 +13,11 @@
             wheelState.status === "success" ||
             wheelState.status === "error"
     );
+
+    let width = $derived((wheelState.count / wheelState.threshold) * 100);
+    let isAnimating = $derived(wheelState.status === "refreshing");
+    let shouldTransition = $derived(wheelState.status === "wheeling");
+
 </script>
 
 {#if shouldBeVisible}
@@ -24,7 +28,7 @@
     >
         <div class="indicator-content">
             {#if wheelState.status === "refreshing"}
-                <LoadingSpinner size="small" strokeWidth={2.5} />
+                <span class="icon">🔄</span>
             {:else if wheelState.status === "success"}
                 <span class="icon">✅️</span>
             {:else if wheelState.status === "error"}
@@ -38,13 +42,9 @@
             <span class="progress-bar-wrapper">
                 <div
                     class="progress-bar"
-                    style="
-                width: {wheelState.status === 'success'
-                        ? '100%'
-                        : Math.min(
-                              (wheelState.count / wheelState.threshold) * 100,
-                              100
-                          )}%;"
+                    class:animating={isAnimating}
+                    class:no-transition={!shouldTransition}
+                    style="width: {width}%;"
                 ></div>
             </span>
         </div>
@@ -101,5 +101,22 @@
         background-color: var(--interactive-accent);
         transition: width 0.1s linear;
         border-radius: var(--radius-s);
+    }
+
+    .progress-bar.animating {
+        animation: pulse 1s ease-in-out infinite;
+    }
+
+    .progress-bar.no-transition {
+        transition: none !important;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
     }
 </style>

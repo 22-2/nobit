@@ -68,7 +68,6 @@ export function useWheelRefresh({
         duration: number
     ): void {
         wheelState.status = newStatus;
-        wheelState.count = 0;
         wheelState.direction = null;
 
         clearTimer(transitionTimer);
@@ -76,6 +75,7 @@ export function useWheelRefresh({
             if (wheelState.status === newStatus) {
                 wheelState.status = "idle";
             }
+            wheelState.count = 0;
             transitionTimer = null;
         }, duration);
     }
@@ -168,6 +168,7 @@ export function useWheelRefresh({
         clearTimer(resetTimer);
         resetTimer = null;
 
+        wheelState.count = wheelState.threshold;
         wheelState.status = "refreshing";
 
         try {
