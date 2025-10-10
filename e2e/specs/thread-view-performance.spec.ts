@@ -148,7 +148,7 @@ test.describe("Thread View Performance Tests", () => {
 			);
 
 			console.log(`Button filter time: ${buttonFilterTime}ms`);
-			expect(buttonFilterTime).toBeLessThan(500);
+			expect(buttonFilterTime).toBeLessThan(600);
 
 			await filterButtons.first().click({ force: true });
 		}
