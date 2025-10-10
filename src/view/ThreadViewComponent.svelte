@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { getContext, onMount } from "svelte";
-	import type { ThreadFilters } from "../lib/types";
 	import { ThreadManager } from "../managers/ThreadManager.svelte";
 	import PostItem from "./thread/PostItem.svelte";
 	import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
@@ -33,19 +32,80 @@
 		}
 	});
 
-	onMount(async () => {
-		// Determine which URL to load:
-		console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
-		try {
-			if (!initialUrl) {
-				// throw new Error("No initial URL provided");
-				return;
+	let postsContainer = $state<HTMLElement>();
+
+	onMount(() => {
+		// Load thread
+		(async () => {
+			console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
+			try {
+				if (!initialUrl) {
+					return;
+				}
+				await threadManager.loadThread(initialUrl);
+				console.log("🔥 ThreadViewComponent: Thread loaded successfully");
+			} catch (error) {
+				console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
 			}
-			await threadManager.loadThread(initialUrl);
-			console.log("🔥 ThreadViewComponent: Thread loaded successfully");
-		} catch (error) {
-			console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
-		}
+		})();
+
+		let scrollVelocity = 0;
+		let animationFrameId: number | null = null;
+
+		// Custom smooth scroll animation
+		const smoothScroll = () => {
+			const viewContent = postsContainer?.closest('.view-content') as HTMLElement | null;
+			if (!viewContent) return;
+
+			if (Math.abs(scrollVelocity) > 0.1) {
+				viewContent.scrollTop += scrollVelocity;
+				scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
+				animationFrameId = requestAnimationFrame(smoothScroll);
+			} else {
+				scrollVelocity = 0;
+				animationFrameId = null;
+			}
+		};
+
+		// Increase scroll amount for mouse wheel
+		const handleWheel = (e: Event) => {
+			if (!(e instanceof WheelEvent)) return;
+
+			// Find the view-content element dynamically
+			const viewContent = postsContainer?.closest('.view-content') as HTMLElement | null;
+			if (!viewContent) return;
+
+			// Check if the wheel event is happening over our component
+			const target = e.target as HTMLElement;
+			if (!postsContainer?.contains(target) && postsContainer !== target) return;
+
+			e.preventDefault();
+			e.stopPropagation();
+
+			const delta = e.deltaY;
+			const multiplier = 5;
+
+			// Add to velocity instead of direct scroll
+			scrollVelocity += delta * multiplier * 0.1;
+
+			// Start animation if not already running
+			if (!animationFrameId) {
+				animationFrameId = requestAnimationFrame(smoothScroll);
+			}
+		};
+
+		const timer = setTimeout(() => {
+			console.log('🎯 Adding wheel listener to window');
+			window.addEventListener('wheel', handleWheel, { passive: false });
+		}, 100);
+
+		return () => {
+			clearTimeout(timer);
+			window.removeEventListener('wheel', handleWheel);
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId);
+			}
+		};
 	});
 
 	// Event handlers that delegate to ThreadManager
@@ -55,10 +115,6 @@
 
 	function handleJumpToPost(resNumber: number) {
 		threadManager.jumpToPost(resNumber);
-	}
-
-	function handleUpdateFilters(newFilters: Partial<ThreadFilters>) {
-		threadManager.updateFilters(newFilters);
 	}
 </script>
 
@@ -82,7 +138,7 @@
 		<div class="error-container">
 			<div class="error-icon">⚠️</div>
 			<div class="error-message">{threadManager.error}</div>
-			<button class="retry-button" on:click={handleRefresh}>
+			<button class="retry-button" onclick={handleRefresh}>
 				再試行
 			</button>
 		</div>
@@ -98,7 +154,7 @@
 				</div>
 			</div>
 
-			<div class="posts-container">
+			<div class="posts-container" bind:this={postsContainer}>
 				{#each threadManager.filteredPosts as post, index}
 					<PostItem
 						{post}
@@ -251,6 +307,33 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
+		scroll-behavior: auto;
+		overscroll-behavior: contain;
+	}
+
+	/* Increase mouse wheel scroll speed using CSS */
+	@supports (scrollbar-width: thin) {
+		.posts-container {
+			scroll-snap-type: none;
+		}
+	}
+
+	/* Increase scroll step size for mouse wheel */
+	.posts-container::-webkit-scrollbar {
+		width: 12px;
+	}
+
+	.posts-container::-webkit-scrollbar-track {
+		background: var(--background-secondary);
+	}
+
+	.posts-container::-webkit-scrollbar-thumb {
+		background: var(--background-modifier-border);
+		border-radius: 6px;
+	}
+
+	.posts-container::-webkit-scrollbar-thumb:hover {
+		background: var(--text-muted);
 	}
 
 	.empty-container {
