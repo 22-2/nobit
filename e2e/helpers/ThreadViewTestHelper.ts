@@ -178,7 +178,7 @@ export class ThreadViewTestHelper {
 		managerState: string | null;
 		allMatch: boolean;
 	}> {
-		const titleBar = await this.getTitleBarText();
+		const titleBar = await this.getTabHeaderText();
 		const threadHeader = await this.getThreadHeaderTitle();
 		const state = await this.getThreadManagerState();
 		const managerState = state?.threadTitle || null;
