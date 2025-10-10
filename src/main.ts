@@ -74,7 +74,7 @@ export default class NobitPlugin extends Plugin {
 		return false;
 	}
 
-	openWithURL(inputUrl: string) {
+	async openWithURL(inputUrl: string) {
 		if (!inputUrl || !isURL(inputUrl)) {
 			return;
 		}
@@ -85,13 +85,15 @@ export default class NobitPlugin extends Plugin {
 			return void new Notice("Invalid URL");
 		}
 
-		activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
+		const view = await (activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
 			type: VIEW_TYPE_THREAD,
 			state: {
 				...state,
 				url: inputUrl,
+				active: true,
 			},
-		});
+		}));
+		this.app.workspace.revealLeaf(view.leaf);
 	}
 
 	configureLogging(): void {
