@@ -2,6 +2,7 @@ import log from "loglevel";
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
 import { EditableTitleBar, type EditableItemView } from "src/components/EditableTitleBar";
 import type { ParsedBbsUrl } from "src/lib/libch/url";
+import { usePopover } from "src/store/usePopover.svelte";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
 import { ThreadManager } from "../managers/ThreadManager.svelte";
@@ -33,6 +34,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 	private plugin: NobitPlugin;
 	private state: ThreadViewState | null = null;
 	private editableTitleView: EditableTitleBar | null = null;
+	private popoverService = usePopover();
 
 	constructor(
 		leaf: WorkspaceLeaf,
@@ -92,8 +94,9 @@ export class ThreadView extends ItemView implements EditableItemView {
 		// Create a context map for Svelte component
 		const contextMap = new Map();
 		contextMap.set("threadManager", this.threadManager);
+		contextMap.set("popoverService", this.popoverService);
 
-		// Mount Svelte component with ThreadManager injected via context
+		// Mount Svelte component with ThreadManager and popoverService injected via context
 		this.component = mount(ThreadViewComponent, {
 			target: this.contentEl,
 			props: {
@@ -127,6 +130,9 @@ export class ThreadView extends ItemView implements EditableItemView {
 	}
 
 	async onClose(): Promise<void> {
+		// Cleanup popover service
+		this.popoverService.destroy();
+
 		// Properly unmount Svelte component and cleanup
 		if (this.component) {
 			unmount(this.component);

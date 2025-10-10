@@ -19,8 +19,16 @@ export class Component {
         const index = this.children.indexOf(component);
         if (index > -1) {
             this.children.splice(index, 1);
-            component.onunload();
+            component.unload();
         }
+    }
+
+    unload() {
+        // Unload all children first
+        this.children.forEach(child => child.unload());
+        this.children = [];
+        // Then call onunload hook
+        this.onunload();
     }
 }
 

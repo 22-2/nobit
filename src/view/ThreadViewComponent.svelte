@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getContext, onMount } from "svelte";
 	import { ThreadManager } from "../managers/ThreadManager.svelte";
+	import type { UsePopoverReturn } from "../store/usePopover.svelte";
 	import PostItem from "./thread/PostItem.svelte";
 	import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
 	import ThreadToolbar from "./thread/ThreadToolbar.svelte";
@@ -12,10 +13,12 @@
 	}
 	let { initialUrl, onTitleChange }: Props = $props();
 
-	// Get ThreadManager from context (injected by ThreadView ItemView)
+	// Get ThreadManager and popoverService from context (injected by ThreadView ItemView)
 	const threadManager = getContext<ThreadManager>("threadManager");
+	const popoverService = getContext<UsePopoverReturn>("popoverService");
 
 	console.log("🔥 ThreadViewComponent: Script loaded, threadManager:", threadManager);
+	console.log("🔥 ThreadViewComponent: popoverService:", popoverService);
 	console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
 
 	// Debug: Watch filters changes
@@ -33,8 +36,21 @@
 	});
 
 	let postsContainer = $state<HTMLElement>();
+	let popoverContainer = $state<HTMLElement>();
+
+	// Update popoverService with thread data when thread changes
+	$effect(() => {
+		if (threadManager.thread) {
+			popoverService.setThreadData(threadManager.thread);
+		}
+	});
 
 	onMount(() => {
+		// Initialize popover container
+		if (popoverContainer) {
+			popoverService.init(popoverContainer);
+		}
+
 		// Load thread
 		(async () => {
 			console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
@@ -116,9 +132,23 @@
 	function handleJumpToPost(resNumber: number) {
 		threadManager.jumpToPost(resNumber);
 	}
+
+	function handleHoverPostLink(detail: { targetEl: HTMLElement; index: number; event: MouseEvent }) {
+		popoverService.handleHover(detail.targetEl, detail.index, 0, detail.event);
+	}
+
+	function handleLeavePostLink() {
+		popoverService.startHideTimer();
+	}
+
+	function handleShowReplyTree(detail: { targetEl: HTMLElement; originResNumber: number; event: MouseEvent }) {
+		popoverService.handleShowReplyTree(detail.targetEl, detail.originResNumber, 0, detail.event);
+	}
 </script>
 
 <div class="thread-view">
+	<!-- Popover container -->
+	<div class="popover-container" bind:this={popoverContainer}></div>
 	<!-- Thread Filters Component -->
 	<div class="filters-section">
 		<ThreadFiltersComponent
@@ -160,6 +190,9 @@
 						{post}
 						{index}
 						onJumpToPost={handleJumpToPost}
+						onHoverPostLink={handleHoverPostLink}
+						onLeavePostLink={handleLeavePostLink}
+						onShowReplyTree={handleShowReplyTree}
 					/>
 				{/each}
 			</div>
@@ -353,5 +386,19 @@
 
 	.empty-message {
 		font-size: 0.9rem;
+	}
+
+	.popover-container {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+		z-index: 1000;
+	}
+
+	.popover-container :global(*) {
+		pointer-events: auto;
 	}
 </style>

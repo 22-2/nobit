@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Post, Thread } from "src/lib/types";
-    import { usePopover } from "src/store/usePopover.svelte";
+    import type { PopoverService } from "src/store/usePopover.svelte";
+    import { getContext } from "svelte";
     import type {
     	HoverDetail,
     	ShowIdPostsDetail,
@@ -40,11 +41,14 @@
         .map((replyNum) => thread.posts[replyNum - 1])
         .filter((p): p is Post => p !== undefined);
 
-    const popover = usePopover();
+    // Get popoverService from context if available
+    const popoverService = getContext<PopoverService | undefined>("popoverService");
 
     // --- [修正] onLeavePostLinkの処理をまとめる ---
     function handleLeavePostLink() {
-        popover.startHideTimer();
+        if (popoverService) {
+            popoverService.startHideTimer();
+        }
         if (onLeavePostLink) {
             onLeavePostLink();
         }
