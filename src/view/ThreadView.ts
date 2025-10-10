@@ -123,6 +123,8 @@ export class ThreadView extends ItemView implements EditableItemView {
 		logger.debug("Navigating to thread from URL:", url);
 		const state = this.state || {};
 		await this.setState({ url, ...state } as ThreadViewState, { history: false });
+		// Directly load the thread with the new URL
+		await this.threadManager.loadThread(url);
 	}
 
 	getURL(): string {
