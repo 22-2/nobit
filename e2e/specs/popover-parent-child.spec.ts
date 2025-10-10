@@ -1,4 +1,4 @@
-import { test } from "../base";
+import { expect, test } from "../base";
 import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
 import { PopoverTestHelper } from "../helpers/PopoverTestHelper";
 import "../setup/logger-setup";
