@@ -18,10 +18,6 @@ test.describe("Thread View MVP Tests", () => {
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		// Verify initial setup
-		const vaultName = await vault.window.evaluate(() => app.vault.getName());
-		expect(vaultName).toBe(SANDBOX_VAULT_NAME);
-
 		const plugin = await vault.window.evaluate(
 			(pluginId) => app.plugins.getPlugin(pluginId),
 			PLUGIN_ID

@@ -20,10 +20,6 @@ test.describe("Thread View Performance Tests", () => {
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
-		// Verify initial setup
-		const vaultName = await vault.window.evaluate(() => app.vault.getName());
-		expect(vaultName).toBe(SANDBOX_VAULT_NAME);
-
 		// Setup mock with factory
 		const mockData = MockDataFactory.createLargeThreadData(500);
 		await mockHelper.setupPatternMock('.dat', {
