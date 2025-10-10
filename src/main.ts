@@ -9,7 +9,7 @@ import { type NobitPluginSettings, NobitSettingTab } from "./settings";
 import { DEFAULT_SETTINGS, VIEW_TYPE_THREAD } from "./utils/constants";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
-import { showInputDialog } from "./utils/showInputDialog";
+import { showSelectionDialog } from "./utils/showSelectionDialog";
 import { ThreadView } from "./view/ThreadView";
 
 const logger = log.getLogger("nobit.main");
@@ -47,11 +47,28 @@ export default class NobitPlugin extends Plugin {
 			id: "open-with-url",
 			name: "Open with-url",
 			callback: async () => {
-				const inputUrl = await showInputDialog(this.app, {
-					message: "URLを入力してください",
-					placeholder: "URLを入力してください",
+				const historyItems = this.settings.urlHistory
+					.slice()
+					.reverse()
+					.map((item) => `${item.title} - ${item.url}`);
+
+				const selected = await showSelectionDialog({
+					app: this.app,
+					message: "URLを選択または入力してください",
+					items: historyItems,
+					placeholder: "URLを選択または入力してください",
 				});
-				if (inputUrl) this.openWithURL(inputUrl);
+
+				if (!selected) return;
+
+				// Check if selected is from history (contains " - ")
+				if (selected.includes(" - ")) {
+					const url = selected.split(" - ").pop();
+					if (url) this.openWithURL(url);
+				} else {
+					// Treat as direct URL input
+					this.openWithURL(selected);
+				}
 			},
 		});
 		logger.debug("Plugin loaded");
@@ -94,6 +111,33 @@ export default class NobitPlugin extends Plugin {
 			},
 		}));
 		this.app.workspace.revealLeaf(view.leaf);
+
+		// Save to history
+		const title = (state.state as any).title || state.state.threadId || inputUrl;
+		await this.addToUrlHistory(inputUrl, title);
+	}
+
+	async addToUrlHistory(url: string, title: string) {
+		const MAX_HISTORY = 20;
+
+		// Remove duplicate if exists
+		this.settings.urlHistory = this.settings.urlHistory.filter(
+			(item) => item.url !== url
+		);
+
+		// Add new item at the end
+		this.settings.urlHistory.push({
+			url,
+			title,
+			timestamp: Date.now(),
+		});
+
+		// Keep only the last MAX_HISTORY items
+		if (this.settings.urlHistory.length > MAX_HISTORY) {
+			this.settings.urlHistory = this.settings.urlHistory.slice(-MAX_HISTORY);
+		}
+
+		await this.saveSettings();
 	}
 
 	configureLogging(): void {

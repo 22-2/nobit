@@ -1,8 +1,15 @@
 import { PluginSettingTab, Setting } from "obsidian";
 import type NobitPlugin from "./main";
 
+export interface UrlHistoryItem {
+	url: string;
+	title: string;
+	timestamp: number;
+}
+
 export interface NobitPluginSettings {
 	showLogger: boolean;
+	urlHistory: UrlHistoryItem[];
 }
 export class NobitSettingTab extends PluginSettingTab {
 	constructor(public plugin: NobitPlugin) {

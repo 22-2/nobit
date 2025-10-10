@@ -12,6 +12,7 @@ log.debug("ENABLE_LOGGER", DEBUG_MODE);
 
 export const DEFAULT_SETTINGS: NobitPluginSettings = {
 	showLogger: DEBUG_MODE,
+	urlHistory: [],
 };
 
 export const APP_NAME = manifest.name;
