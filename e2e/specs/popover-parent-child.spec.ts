@@ -109,7 +109,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		await vault.window.waitForSelector(".post", { timeout: 10000 });
 
 		const replyTreeLink = vault.window.locator(".reply-tree-link").first();
-		await popoverHelper.testParentClickClosesChild(replyTreeLink);
+		await popoverHelper.testParentClickClosesChildWithClick(replyTreeLink);
 	});
 });
 

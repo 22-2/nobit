@@ -112,6 +112,70 @@ export class PopoverTestHelper {
 	}
 
 	/**
+	 * Click on link and verify popover appears
+	 */
+	async clickAndVerifyPopover(link: Locator): Promise<Locator> {
+		await link.click();
+		await this.window.waitForTimeout(300);
+
+		const popover = this.getFirstPopover();
+		await expect(popover).toBeVisible();
+
+		return popover;
+	}
+
+	/**
+	 * Test parent-child popover interaction for click-based links
+	 */
+	async testParentChildPopoverWithClick(
+		parentLink: Locator,
+	): Promise<{ parent: Locator; child: Locator | null }> {
+		const parentPopover = await this.clickAndVerifyPopover(parentLink);
+
+		const childAnchorLink = parentPopover.locator(".internal-res-link").first();
+		const childLinkCount = await childAnchorLink.count();
+
+		if (childLinkCount === 0) {
+			console.log("No child anchor link found in parent popover");
+			return { parent: parentPopover, child: null };
+		}
+
+		await childAnchorLink.hover();
+		await this.window.waitForTimeout(200);
+
+		const allPopovers = this.getAllPopovers();
+		await expect(allPopovers).toHaveCount(2);
+
+		return { parent: parentPopover, child: allPopovers.nth(1) };
+	}
+
+	/**
+	 * Test clicking parent closes child popover (for click-based parent links)
+	 */
+	async testParentClickClosesChildWithClick(
+		parentLink: Locator,
+	): Promise<void> {
+		const { parent, child } =
+			await this.testParentChildPopoverWithClick(parentLink);
+
+		if (!child) {
+			console.log("Skipping test - no child popover");
+			return;
+		}
+
+		const parentPostContent = parent.locator(".post-content").first();
+		await expect(parentPostContent).toBeVisible();
+		await parentPostContent.click();
+		await this.window.waitForTimeout(200);
+
+		const allPopovers = this.getAllPopovers();
+		await expect(allPopovers).toHaveCount(1);
+		await expect(parent).toBeVisible();
+
+		console.log("✓ Child popover closed when parent clicked");
+	}
+
+	/**
 	 * Test reply tree link popover
 	 */
 	async testReplyTreePopover(): Promise<void> {
