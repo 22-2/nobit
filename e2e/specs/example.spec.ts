@@ -7,14 +7,11 @@ import "../setup/logger-setup";
 
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject"; // Import ObsidianPageObject
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 test("sandbox test: plugin activation and view creation via command", async ({
 	vault,
 }) => {
-	// Instantiate ObsidianPageObject
-	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-
 	if (!process.env.CI) {
 		// 1. Initial setup verification
 		// Verify Vault name
@@ -31,15 +28,19 @@ test("sandbox test: plugin activation and view creation via command", async ({
 	).toBeTruthy();
 
 	// 2. Create a new sandbox view (via command)
-	// Use ObsidianPageObject method
-	await obsPage.openPluginWithURL(
+	// Use ThreadViewPageObject (which extends ObsidianPageObject)
+	const threadPage = new ThreadViewPageObject(
+		vault.window,
+		vault.pluginHandleMap,
+	);
+	await threadPage.openPluginWithURL(
 		PLUGIN_ID,
 		"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 	);
 
 	// 3. Verify the view opened correctly
-	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-	await obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
+	await threadPage.expectViewCount(VIEW_TYPE_THREAD, 1);
+	await threadPage.expectActiveTabType(VIEW_TYPE_THREAD);
 });
 
 // Custom settings are maintained

@@ -2,8 +2,7 @@ import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 /**
  * EditableTitleBar URL入力機能のテスト
@@ -12,8 +11,10 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 	test("should navigate to thread when URL is entered in title bar", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock for initial thread
@@ -25,8 +26,8 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 		// Open initial ThreadView
 		const initialUrl =
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, initialUrl);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, initialUrl);
+		await threadPage.waitForThreadContent();
 
 		console.log("Initial thread loaded");
 
@@ -58,10 +59,10 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 		console.log("Pressed Enter to navigate to new URL");
 
 		// Wait for new thread to load
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.waitForThreadContent(10000);
 
 		// Verify navigation occurred
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		console.log("Thread state after navigation:", state);
 
 		expect(state?.threadUrl).toBe(newUrl);
@@ -76,8 +77,10 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 	test("should restore display text on blur without Enter", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
@@ -88,8 +91,8 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 
 		// Open ThreadView
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
 		// Get original title for the active thread view
 		const titleEl = vault.window.locator(

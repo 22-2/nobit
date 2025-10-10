@@ -1,9 +1,8 @@
 import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
+import { PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 /**
  * MVP基本機能テスト
@@ -11,8 +10,10 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  */
 test.describe("Thread View MVP Tests", () => {
 	test("should open ThreadView via command", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const plugin = await vault.window.evaluate(
@@ -28,27 +29,29 @@ test.describe("Thread View MVP Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// Verify content loaded
-		await threadHelper.waitForThreadContent(10000);
-		await threadHelper.verifyBasicUIStructure();
+		await threadPage.waitForThreadContent(10000);
+		await threadPage.verifyBasicUIStructure();
 
 		// Verify posts
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 
 		// Verify no errors
-		await threadHelper.verifyErrorState(false);
-		await threadHelper.verifyLoadingState(false);
+		await threadPage.expectErrorState(false);
+		await threadPage.expectLoadingState(false);
 	});
 
 	test("should display UI structure correctly", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
@@ -58,14 +61,14 @@ test.describe("Thread View MVP Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// Verify UI structure
-		await threadHelper.waitForThreadContent(10000);
-		await threadHelper.verifyBasicUIStructure();
+		await threadPage.waitForThreadContent(10000);
+		await threadPage.verifyBasicUIStructure();
 
 		// Verify interactive elements
 		await expect(
@@ -73,13 +76,15 @@ test.describe("Thread View MVP Tests", () => {
 		).toBeVisible();
 
 		// Verify successful load
-		await threadHelper.verifyErrorState(false);
-		await threadHelper.verifyLoadingState(false);
+		await threadPage.expectErrorState(false);
+		await threadPage.expectLoadingState(false);
 	});
 
 	test("should support Svelte 5 reactivity", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
@@ -89,12 +94,12 @@ test.describe("Thread View MVP Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.waitForThreadContent(10000);
 
 		// Verify reactive components
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
@@ -103,7 +108,7 @@ test.describe("Thread View MVP Tests", () => {
 		await expect(vault.window.locator(".post-count")).toContainText("posts");
 
 		// Verify posts (reactive state)
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 
 		// Verify interactive elements
@@ -113,8 +118,10 @@ test.describe("Thread View MVP Tests", () => {
 	});
 
 	test("should maintain architectural separation", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
@@ -124,12 +131,12 @@ test.describe("Thread View MVP Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.waitForThreadContent(10000);
 
 		// Verify Svelte components work (no 'obsidian' imports)
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
@@ -146,8 +153,10 @@ test.describe("Thread View MVP Tests", () => {
 	});
 
 	test("should validate basic UI structure", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
@@ -157,12 +166,12 @@ test.describe("Thread View MVP Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.waitForThreadContent(10000);
 
 		// Verify all sections
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
@@ -173,7 +182,7 @@ test.describe("Thread View MVP Tests", () => {
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
 
 		// Verify posts
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 
 		// Verify interactive elements

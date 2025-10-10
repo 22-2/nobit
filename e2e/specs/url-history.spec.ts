@@ -1,15 +1,16 @@
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID } from "../constants";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { TestFetcherMockHelper } from "../helpers/TestFetcherMockHelper";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 test.describe("URL History", () => {
 	test("should save thread title to history after loading", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock with a thread that has a proper title (5 fields format)
@@ -25,11 +26,11 @@ test.describe("URL History", () => {
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 
 		// Open thread
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, testUrl);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, testUrl);
+		await threadPage.waitForThreadContent();
 
 		// Get the thread title from the UI
-		const threadTitle = await threadHelper.getThreadHeaderTitle();
+		const threadTitle = await threadPage.getThreadHeaderTitle();
 		expect(threadTitle).toBe("【テスト】タイトルテストスレッド");
 
 		// Wait for history to be saved
@@ -54,8 +55,10 @@ test.describe("URL History", () => {
 	test("should handle dat format with 5 fields correctly", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// This is the actual format from eddibb.cc (5 fields, title in index 4)
@@ -71,11 +74,11 @@ test.describe("URL History", () => {
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 
 		// Open thread
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, testUrl);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, testUrl);
+		await threadPage.waitForThreadContent();
 
 		// Get the thread title
-		const threadTitle = await threadHelper.getThreadHeaderTitle();
+		const threadTitle = await threadPage.getThreadHeaderTitle();
 		expect(threadTitle).toBe("【政治】実際のスレッドタイトル");
 		expect(threadTitle).not.toBe("無題");
 	});

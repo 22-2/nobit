@@ -1,10 +1,9 @@
 import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
+import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { PerformanceTestHelper } from "../helpers/PerformanceTestHelper";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 /**
  * パフォーマンステスト
@@ -12,8 +11,10 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  */
 test.describe("Thread View Performance Tests", () => {
 	test("should handle current thread data smoothly", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
@@ -26,28 +27,28 @@ test.describe("Thread View Performance Tests", () => {
 
 		// Measure load time
 		const loadTime = await perfHelper.measureExecutionTime(async () => {
-			await threadHelper.openAndVerifyThreadView(
+			await threadPage.openAndVerifyThreadView(
 				PLUGIN_ID,
 				"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 			);
-			await threadHelper.waitForThreadContent();
+			await threadPage.waitForThreadContent();
 		});
 
 		console.log(`Thread load time: ${loadTime}ms`);
 
 		// Verify posts are loaded
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		console.log(`Loaded post count: ${postCount}`);
 		expect(postCount).toBeGreaterThan(0);
 
 		// Verify UI structure
-		await threadHelper.verifyBasicUIStructure();
+		await threadPage.verifyBasicUIStructure();
 
 		// Performance should be reasonable
 		expect(loadTime).toBeLessThan(10000);
 
 		// Verify ThreadManager state
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state?.hasThread).toBe(true);
 		expect(state?.threadPostsLength).toBeGreaterThan(0);
 		expect(state?.isLoading).toBe(false);
@@ -55,8 +56,10 @@ test.describe("Thread View Performance Tests", () => {
 	});
 
 	test("should provide smooth scrolling", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
@@ -67,13 +70,13 @@ test.describe("Thread View Performance Tests", () => {
 		});
 
 		// Load thread
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		console.log(`Testing scrolling with ${postCount} posts`);
 
 		// Measure scroll performance
@@ -88,8 +91,10 @@ test.describe("Thread View Performance Tests", () => {
 	});
 
 	test("should validate memory usage", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
@@ -104,11 +109,11 @@ test.describe("Thread View Performance Tests", () => {
 		const memoryResult = await perfHelper.checkMemoryLeak(
 			async () => {
 				// Before: Load thread
-				await threadHelper.openAndVerifyThreadView(
+				await threadPage.openAndVerifyThreadView(
 					PLUGIN_ID,
 					"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 				);
-				await threadHelper.waitForThreadContent();
+				await threadPage.waitForThreadContent();
 			},
 			async () => {
 				// Action: Use the thread
@@ -116,7 +121,7 @@ test.describe("Thread View Performance Tests", () => {
 			},
 			async () => {
 				// After: Close thread
-				await threadHelper.closeThreadView();
+				await threadPage.closeThreadView();
 			},
 		);
 
@@ -139,8 +144,10 @@ test.describe("Thread View Performance Tests", () => {
 	});
 
 	test("should refresh efficiently", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
@@ -151,38 +158,40 @@ test.describe("Thread View Performance Tests", () => {
 		});
 
 		// Initial load
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
-		const initialPostCount = await threadHelper.getPostCount();
+		const initialPostCount = await threadPage.getPostCount();
 		console.log(`Initial post count: ${initialPostCount}`);
 
 		// Measure refresh performance
 		const refreshTime = await perfHelper.measureExecutionTime(async () => {
-			await threadHelper.clickRefreshButton();
-			await threadHelper.waitForThreadContent(10000);
+			await threadPage.clickRefreshButton();
+			await threadPage.waitForThreadContent(10000);
 		});
 
 		console.log(`Refresh time: ${refreshTime}ms`);
 
 		// Verify refresh completed
-		const postCountAfterRefresh = await threadHelper.getPostCount();
+		const postCountAfterRefresh = await threadPage.getPostCount();
 		expect(postCountAfterRefresh).toBeGreaterThan(0);
 		expect(refreshTime).toBeLessThan(10000);
 
 		// Verify state consistency
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state?.hasThread).toBe(true);
 		expect(state?.isLoading).toBe(false);
 		expect(state?.error).toBeNull();
 	});
 
 	test("should filter efficiently", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
@@ -193,13 +202,13 @@ test.describe("Thread View Performance Tests", () => {
 		});
 
 		// Load thread
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		console.log(`Testing filters with ${postCount} posts`);
 
 		// Test search filter performance
@@ -208,13 +217,13 @@ test.describe("Thread View Performance Tests", () => {
 		);
 		if ((await searchInput.count()) > 0) {
 			const filterTime = await perfHelper.measureExecutionTime(async () => {
-				await threadHelper.applySearchFilter("test");
+				await threadPage.applyThreadSearchFilter("test");
 			});
 
 			console.log(`Search filter operation time: ${filterTime}ms`);
 			expect(filterTime).toBeLessThan(1000);
 
-			await threadHelper.clearSearchFilter();
+			await threadPage.clearThreadSearchFilter();
 		}
 
 		// Test filter button performance
@@ -236,7 +245,7 @@ test.describe("Thread View Performance Tests", () => {
 		}
 
 		// Verify filter state management
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state?.hasThread).toBe(true);
 		expect(state?.filtersInitialized).toBe(true);
 	});

@@ -1,15 +1,18 @@
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { TestFetcherMockHelper } from "../helpers/TestFetcherMockHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 import "../setup/logger-setup";
 
 test.describe("ポップアップの挙動テスト", () => {
 	test("アンカーリンクからポップアップにカーソルを移動できる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -19,7 +22,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		});
 
 		// スレッドビューを開く
-		await obsPage.openPluginWithURL(
+		await threadPage.openPluginWithURL(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
@@ -47,7 +50,10 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("親ポップアップをクリックしたら子ポップアップが閉じる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -57,7 +63,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		});
 
 		// スレッドビューを開く
-		await obsPage.openPluginWithURL(
+		await threadPage.openPluginWithURL(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
@@ -107,7 +113,10 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("親ポップアップの外側をクリックしたら全てのポップアップが閉じる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -117,7 +126,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		});
 
 		// スレッドビューを開く
-		await obsPage.openPluginWithURL(
+		await threadPage.openPluginWithURL(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
@@ -144,7 +153,10 @@ test.describe("ポップアップの挙動テスト", () => {
 	});
 
 	test("返信ツリーリンクが存在することを確認", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -154,7 +166,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		});
 
 		// スレッドビューを開く
-		await obsPage.openPluginWithURL(
+		await threadPage.openPluginWithURL(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
@@ -191,7 +203,10 @@ test.describe("ポップアップの挙動テスト", () => {
 	});
 
 	test("返信ツリーポップアップが正しく表示される", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -201,7 +216,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		});
 
 		// スレッドビューを開く
-		await obsPage.openPluginWithURL(
+		await threadPage.openPluginWithURL(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
@@ -241,7 +256,10 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("返信ツリーポップアップ内のアンカーリンクから子ポップアップを開いて親をクリックすると子が閉じる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -251,7 +269,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		});
 
 		// スレッドビューを開く
-		await obsPage.openPluginWithURL(
+		await threadPage.openPluginWithURL(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);

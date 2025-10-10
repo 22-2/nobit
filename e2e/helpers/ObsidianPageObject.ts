@@ -329,6 +329,80 @@ export class ObsidianPageObject {
 	async expectActiveEditorToContain(text: string): Promise<void> {
 		await expect(this.activeEditor).toContainText(text);
 	}
+
+	// ===== 汎用UI検証 =====
+
+	/**
+	 * エラー状態を検証
+	 */
+	async expectErrorState(shouldBeVisible: boolean): Promise<void> {
+		if (shouldBeVisible) {
+			await expect(this.page.locator(".error-container")).toBeVisible({
+				timeout: 5000,
+			});
+		} else {
+			await expect(this.page.locator(".error-container")).not.toBeVisible();
+		}
+	}
+
+	/**
+	 * ローディング状態を検証
+	 */
+	async expectLoadingState(shouldBeVisible: boolean): Promise<void> {
+		if (shouldBeVisible) {
+			await expect(this.page.locator(".loading-container")).toBeVisible();
+		} else {
+			await expect(this.page.locator(".loading-container")).not.toBeVisible();
+		}
+	}
+
+	/**
+	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
+	 */
+	async getTitleBarText(): Promise<string | null> {
+		return await this.page
+			.locator(".workspace-leaf.mod-active .view-header-title")
+			.textContent();
+	}
+
+	/**
+	 * タブヘッダーのタイトルを取得（アクティブなリーフのみ）
+	 */
+	async getTabHeaderText(): Promise<string | null> {
+		return await this.page
+			.locator(".workspace-tab-header.mod-active .workspace-tab-header-inner")
+			.textContent();
+	}
+
+	/**
+	 * パフォーマンス測定用のヘルパー
+	 */
+	async measureLoadTime(action: () => Promise<void>): Promise<number> {
+		const startTime = Date.now();
+		await action();
+		return Date.now() - startTime;
+	}
+
+	/**
+	 * 検索フィルターを適用
+	 */
+	async applySearchFilter(
+		searchText: string,
+		selector = 'input[type="text"]',
+	): Promise<void> {
+		const searchInput = this.page.locator(selector);
+		await searchInput.fill(searchText);
+		await this.page.waitForTimeout(300);
+	}
+
+	/**
+	 * 検索フィルターをクリア
+	 */
+	async clearSearchFilter(selector = 'input[type="text"]'): Promise<void> {
+		const searchInput = this.page.locator(selector);
+		await searchInput.clear();
+		await this.page.waitForTimeout(200);
+	}
 }
 
 /**

@@ -1,9 +1,8 @@
 import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
+import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 /**
  * 統合テスト
@@ -11,8 +10,10 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  */
 test.describe("Thread View Integration Tests", () => {
 	test("should complete full user journey", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
@@ -29,22 +30,22 @@ test.describe("Thread View Integration Tests", () => {
 
 		// Execute complete flow
 		console.log("Step 1: Executing command");
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/",
 		);
 
 		console.log("Step 2: Verifying 5ch fetch and UI display");
-		await threadHelper.waitForThreadContent();
-		await threadHelper.verifyBasicUIStructure();
+		await threadPage.waitForThreadContent();
+		await threadPage.verifyBasicUIStructure();
 
 		// Verify posts are loaded
-		const postCount = await threadHelper.getPostCount();
+		const postCount = await threadPage.getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 		console.log(`Verified ${postCount} posts loaded and displayed`);
 
 		// Verify ThreadManager state
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state).toBeTruthy();
 		expect(state?.hasThread).toBe(true);
 		expect(state?.threadPostsLength).toBeGreaterThan(0);
@@ -58,8 +59,10 @@ test.describe("Thread View Integration Tests", () => {
 	});
 
 	test("should handle state changes correctly", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
@@ -69,20 +72,20 @@ test.describe("Thread View Integration Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
 		console.log("Testing loading state UI updates");
 
 		// Trigger refresh
-		await threadHelper.clickRefreshButton();
+		await threadPage.clickRefreshButton();
 
 		// Check for loading state
 		try {
-			await threadHelper.verifyLoadingState(true);
+			await threadPage.expectLoadingState(true);
 			console.log("✓ Loading state UI update detected");
 		} catch {
 			console.log(
@@ -91,8 +94,8 @@ test.describe("Thread View Integration Tests", () => {
 		}
 
 		// Verify loading completes
-		await threadHelper.waitForThreadContent(10000);
-		await threadHelper.verifyLoadingState(false);
+		await threadPage.waitForThreadContent(10000);
+		await threadPage.expectLoadingState(false);
 
 		console.log("Testing filter state UI updates");
 
@@ -101,7 +104,7 @@ test.describe("Thread View Integration Tests", () => {
 			'.thread-filters input[type="text"]',
 		);
 		if ((await searchInput.count()) > 0) {
-			await threadHelper.applySearchFilter("test");
+			await threadPage.applyThreadSearchFilter("test");
 
 			const filterState = await vault.window.evaluate(() => {
 				const activeLeaf = app.workspace.activeLeaf;
@@ -115,15 +118,17 @@ test.describe("Thread View Integration Tests", () => {
 			expect(filterState).toBe("test");
 			console.log("✓ Search filter state update verified");
 
-			await threadHelper.clearSearchFilter();
+			await threadPage.clearThreadSearchFilter();
 		}
 
 		console.log("✓ ThreadManager state changes trigger UI updates correctly");
 	});
 
 	test("should cleanup properly when closed", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
@@ -133,11 +138,11 @@ test.describe("Thread View Integration Tests", () => {
 		});
 
 		// Open and verify ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
 		// Verify initialization
 		const initialState = await vault.window.evaluate(() => {
@@ -160,7 +165,7 @@ test.describe("Thread View Integration Tests", () => {
 		console.log("ThreadView initialized properly");
 
 		// Close the ThreadView
-		await threadHelper.closeThreadView();
+		await threadPage.closeThreadView();
 
 		// Verify cleanup
 		const afterCloseState = await vault.window.evaluate(() => {
@@ -179,18 +184,20 @@ test.describe("Thread View Integration Tests", () => {
 		console.log("✓ ThreadView properly cleaned up after closure");
 
 		// Verify we can open a new ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
 		console.log("✓ New ThreadView can be opened after cleanup");
 	});
 
 	test("should validate architectural separation", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
@@ -200,11 +207,11 @@ test.describe("Thread View Integration Tests", () => {
 		});
 
 		// Open ThreadView
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
 		// Verify architectural layers
 		const componentValidation = await vault.window.evaluate(() => {
@@ -255,7 +262,7 @@ test.describe("Thread View Integration Tests", () => {
 		);
 		await expect(refreshButton).toBeVisible();
 		await refreshButton.click({ force: true });
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.waitForThreadContent(10000);
 
 		console.log(
 			"✓ Architectural separation validated - Manager layer successfully bridges Obsidian and Svelte",
@@ -263,8 +270,10 @@ test.describe("Thread View Integration Tests", () => {
 	});
 
 	test("should handle errors and recover", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock for initial load
@@ -274,11 +283,11 @@ test.describe("Thread View Integration Tests", () => {
 		});
 
 		// Test normal operation first
-		await threadHelper.openAndVerifyThreadView(
+		await threadPage.openAndVerifyThreadView(
 			PLUGIN_ID,
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadHelper.waitForThreadContent();
+		await threadPage.waitForThreadContent();
 
 		console.log("Normal operation verified");
 
@@ -289,11 +298,11 @@ test.describe("Thread View Integration Tests", () => {
 		});
 
 		// Trigger refresh to test error handling
-		await threadHelper.clickRefreshButton();
+		await threadPage.clickRefreshButton();
 
 		// Wait for error state
 		try {
-			await threadHelper.verifyErrorState(true);
+			await threadPage.expectErrorState(true);
 			console.log("✓ Error state displayed correctly");
 
 			const errorMessage = await vault.window
@@ -312,8 +321,8 @@ test.describe("Thread View Integration Tests", () => {
 		});
 
 		// Verify recovery
-		await threadHelper.clickRefreshButton();
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.clickRefreshButton();
+		await threadPage.waitForThreadContent(10000);
 
 		console.log("✓ Error handling and recovery validated");
 	});

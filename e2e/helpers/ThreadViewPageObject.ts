@@ -1,24 +1,31 @@
 import { expect, type Page } from "@playwright/test";
 import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
-import type { ObsidianPageObject } from "./ObsidianPageObject";
+import {
+	ObsidianPageObject,
+	type PageObjectConfig,
+} from "./ObsidianPageObject";
+import type { VaultPageTextContext } from "./types";
 
 /**
  * ThreadView専用のテストヘルパークラス
  * Single Responsibility: ThreadViewのテスト操作のみを担当
  */
-export class ThreadViewTestHelper {
+export class ThreadViewPageObject extends ObsidianPageObject {
 	constructor(
-		private readonly page: Page,
-		private readonly obsPage: ObsidianPageObject,
-	) {}
+		page: Page,
+		pluginHandleMap?: VaultPageTextContext["pluginHandleMap"],
+		config: PageObjectConfig = { viewType: VIEW_TYPE_THREAD },
+	) {
+		super(page, pluginHandleMap, config);
+	}
 
 	/**
 	 * ThreadViewを開いて基本的な検証を行う
 	 */
 	async openAndVerifyThreadView(pluginId: string, url: string): Promise<void> {
-		await this.obsPage.openPluginWithURL(pluginId, url);
-		await this.obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-		await this.obsPage.expectActiveTabType(VIEW_TYPE_THREAD);
+		await this.openPluginWithURL(pluginId, url);
+		await this.expectViewCount(VIEW_TYPE_THREAD, 1);
+		await this.expectActiveTabType(VIEW_TYPE_THREAD);
 		await expect(this.page.locator(".thread-view")).toBeVisible();
 	}
 
@@ -84,30 +91,6 @@ export class ThreadViewTestHelper {
 	}
 
 	/**
-	 * エラー状態を検証
-	 */
-	async verifyErrorState(shouldBeVisible: boolean): Promise<void> {
-		if (shouldBeVisible) {
-			await expect(this.page.locator(".error-container")).toBeVisible({
-				timeout: 5000,
-			});
-		} else {
-			await expect(this.page.locator(".error-container")).not.toBeVisible();
-		}
-	}
-
-	/**
-	 * ローディング状態を検証
-	 */
-	async verifyLoadingState(shouldBeVisible: boolean): Promise<void> {
-		if (shouldBeVisible) {
-			await expect(this.page.locator(".loading-container")).toBeVisible();
-		} else {
-			await expect(this.page.locator(".loading-container")).not.toBeVisible();
-		}
-	}
-
-	/**
 	 * ThreadViewを閉じる
 	 */
 	async closeThreadView(): Promise<void> {
@@ -121,45 +104,17 @@ export class ThreadViewTestHelper {
 	}
 
 	/**
-	 * フィルター操作のヘルパー
+	 * ThreadView専用のフィルター操作
 	 */
-	async applySearchFilter(searchText: string): Promise<void> {
-		const searchInput = this.page.locator('.thread-filters input[type="text"]');
-		await searchInput.fill(searchText);
-		await this.page.waitForTimeout(300);
+	async applyThreadSearchFilter(searchText: string): Promise<void> {
+		await this.applySearchFilter(
+			searchText,
+			'.thread-filters input[type="text"]',
+		);
 	}
 
-	async clearSearchFilter(): Promise<void> {
-		const searchInput = this.page.locator('.thread-filters input[type="text"]');
-		await searchInput.clear();
-		await this.page.waitForTimeout(200);
-	}
-
-	/**
-	 * パフォーマンス測定用のヘルパー
-	 */
-	async measureLoadTime(action: () => Promise<void>): Promise<number> {
-		const startTime = Date.now();
-		await action();
-		return Date.now() - startTime;
-	}
-
-	/**
-	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
-	 */
-	async getTitleBarText(): Promise<string | null> {
-		return await this.page
-			.locator(".workspace-leaf.mod-active .view-header-title")
-			.textContent();
-	}
-
-	/**
-	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
-	 */
-	async getTabHeaderText(): Promise<string | null> {
-		return await this.page
-			.locator(".workspace-tab-header.mod-active .workspace-tab-header-inner")
-			.textContent();
+	async clearThreadSearchFilter(): Promise<void> {
+		await this.clearSearchFilter('.thread-filters input[type="text"]');
 	}
 
 	/**

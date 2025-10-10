@@ -2,16 +2,17 @@ import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 /**
  * タイトルパースのデバッグテスト
  */
 test.describe("Debug Title Parsing", () => {
 	test("should parse title correctly from DAT format", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const testData = MockDataFactory.createBasicThreadData();
@@ -23,8 +24,8 @@ test.describe("Debug Title Parsing", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
 		// ThreadManagerの状態を詳細に確認
 		const debugInfo = await vault.window.evaluate(() => {

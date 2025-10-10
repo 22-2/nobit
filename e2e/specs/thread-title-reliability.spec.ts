@@ -2,8 +2,7 @@ import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
-import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
+import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
 
 /**
  * スレッドタイトル取得の信頼性テスト
@@ -13,8 +12,10 @@ test.describe("Thread Title Reliability Tests", () => {
 	test("should display thread title immediately after load", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		await mockHelper.setupPatternMock(".dat", {
@@ -26,23 +27,23 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
 		// タイトルバーのタイトルを確認
-		const tabHeaderText = await threadHelper.getTabHeaderText();
+		const tabHeaderText = await threadPage.getTabHeaderText();
 		expect(tabHeaderText).toBeTruthy();
 		expect(tabHeaderText).toBe("基本テストスレッド");
 		console.log("✓ Tab header displays thread title:", tabHeaderText);
 
 		// スレッドヘッダーのタイトルを確認
-		const headerTitle = await threadHelper.getThreadHeaderTitle();
+		const headerTitle = await threadPage.getThreadHeaderTitle();
 		expect(headerTitle).toBeTruthy();
 		expect(headerTitle).toBe(tabHeaderText);
 		console.log("✓ Thread header displays same title:", headerTitle);
 
 		// ThreadManagerの状態を確認
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state?.threadTitle).toBeTruthy();
 		expect(state?.threadTitle).toBe(tabHeaderText);
 		console.log("✓ ThreadManager state has correct title:", state?.threadTitle);
@@ -51,8 +52,10 @@ test.describe("Thread Title Reliability Tests", () => {
 	test("should update title when navigating to different thread", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// 最初のスレッド用のモック
@@ -65,10 +68,10 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const firstUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
+		await threadPage.waitForThreadContent();
 
-		const firstTitle = await threadHelper.getTabHeaderText();
+		const firstTitle = await threadPage.getTabHeaderText();
 		expect(firstTitle).toContain("最初のスレッドタイトル");
 		console.log("✓ First thread title:", firstTitle);
 
@@ -93,24 +96,26 @@ test.describe("Thread Title Reliability Tests", () => {
 		await titleEl.press("Enter");
 		await vault.window.waitForTimeout(500);
 
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.waitForThreadContent(10000);
 
 		// タイトルが更新されたことを確認
-		const secondTitle = await threadHelper.getTabHeaderText();
+		const secondTitle = await threadPage.getTabHeaderText();
 		expect(secondTitle).toContain("2番目のスレッドタイトル");
 		expect(secondTitle).not.toBe(firstTitle);
 		console.log("✓ Second thread title:", secondTitle);
 
 		// ThreadManagerの状態も更新されていることを確認
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state?.threadTitle).toContain("2番目のスレッドタイトル");
 		expect(state?.threadUrl).toBe(secondUrl);
 		console.log("✓ ThreadManager state updated correctly");
 	});
 
 	test("should preserve title after refresh", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		await mockHelper.setupPatternMock(".dat", {
@@ -122,26 +127,28 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
-		const originalTitle = await threadHelper.getTabHeaderText();
+		const originalTitle = await threadPage.getTabHeaderText();
 		expect(originalTitle).toContain("リフレッシュテストスレッド");
 		console.log("✓ Original title:", originalTitle);
 
 		// リフレッシュ
-		await threadHelper.clickRefreshButton();
-		await threadHelper.waitForThreadContent(10000);
+		await threadPage.clickRefreshButton();
+		await threadPage.waitForThreadContent(10000);
 
 		// タイトルが保持されていることを確認
-		const titleAfterRefresh = await threadHelper.getTabHeaderText();
+		const titleAfterRefresh = await threadPage.getTabHeaderText();
 		expect(titleAfterRefresh).toBe(originalTitle);
 		console.log("✓ Title preserved after refresh:", titleAfterRefresh);
 	});
 
 	test("should handle title with special characters", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const specialTitle = "【速報】テスト特殊文字スレッド🔥💯";
@@ -154,16 +161,16 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
-		const displayedTitle = await threadHelper.getTabHeaderText();
+		const displayedTitle = await threadPage.getTabHeaderText();
 		expect(displayedTitle).toBeTruthy();
 		expect(displayedTitle).toContain("速報");
 		console.log("✓ Special characters title displayed:", displayedTitle);
 
 		// ThreadManagerの状態も確認
-		const state = await threadHelper.getThreadManagerState();
+		const state = await threadPage.getThreadManagerState();
 		expect(state?.threadTitle).toBeTruthy();
 		console.log(
 			"✓ ThreadManager has title with special chars:",
@@ -175,8 +182,10 @@ test.describe("Thread Title Reliability Tests", () => {
 		vault,
 	}) => {
 		// TODO: Implement delay support - mock handler must be synchronous
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		await mockHelper.setupPatternMock(".dat", {
@@ -185,18 +194,20 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760077207/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent(15000);
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent(15000);
 
-		const finalTitle = await threadHelper.getTabHeaderText();
+		const finalTitle = await threadPage.getTabHeaderText();
 		expect(finalTitle).toBeTruthy();
 		expect(finalTitle).not.toBe("5ch Thread");
 		console.log("✓ Title updated after load:", finalTitle);
 	});
 
 	test("should handle title in multiple ThreadViews", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// 1つ目のスレッド
@@ -209,10 +220,10 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const firstUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
+		await threadPage.waitForThreadContent();
 
-		const firstTitle = await threadHelper.getTabHeaderText();
+		const firstTitle = await threadPage.getTabHeaderText();
 		expect(firstTitle).toContain("1つ目のスレッド");
 		console.log("✓ First view title:", firstTitle);
 
@@ -226,11 +237,11 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const secondUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
-		await obsPage.openPluginWithURL(PLUGIN_ID, secondUrl);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openPluginWithURL(PLUGIN_ID, secondUrl);
+		await threadPage.waitForThreadContent();
 
 		// 2つ目のタイトルを確認（アクティブなタブ）
-		const secondTitle = await threadHelper.getTabHeaderText();
+		const secondTitle = await threadPage.getTabHeaderText();
 		expect(secondTitle).toContain("2つ目のスレッド");
 		console.log("✓ Second view title:", secondTitle);
 
@@ -243,8 +254,10 @@ test.describe("Thread Title Reliability Tests", () => {
 	});
 
 	test("should update title in getDisplayText method", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		await mockHelper.setupPatternMock(".dat", {
@@ -256,8 +269,8 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
 		// getDisplayText()の戻り値を確認
 		const displayText = await vault.window.evaluate(() => {
@@ -278,8 +291,10 @@ test.describe("Thread Title Reliability Tests", () => {
 	}) => {
 		// TODO: Parser currently throws error for empty titles
 		// Consider allowing empty titles with fallback to "無題"
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// タイトルなしのスレッドデータ
@@ -292,11 +307,11 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
 		// デフォルトタイトルが表示されることを確認
-		const displayedTitle = await threadHelper.getTabHeaderText();
+		const displayedTitle = await threadPage.getTabHeaderText();
 		expect(displayedTitle).toBeTruthy();
 		console.log("✓ Fallback title displayed for empty title:", displayedTitle);
 	});
@@ -304,8 +319,10 @@ test.describe("Thread Title Reliability Tests", () => {
 	test("should sync title between ThreadManager and ThreadView", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		await mockHelper.setupPatternMock(".dat", {
@@ -317,11 +334,11 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
 		// 3箇所のタイトルが一致することを確認
-		const consistency = await threadHelper.verifyTitleConsistency();
+		const consistency = await threadPage.verifyTitleConsistency();
 
 		expect(consistency.titleBar).toBeTruthy();
 		expect(consistency.allMatch).toBe(true);
@@ -332,8 +349,10 @@ test.describe("Thread Title Reliability Tests", () => {
 	});
 
 	test("should maintain title after applying filters", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const threadPage = new ThreadViewPageObject(
+			vault.window,
+			vault.pluginHandleMap,
+		);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		await mockHelper.setupPatternMock(".dat", {
@@ -345,27 +364,27 @@ test.describe("Thread Title Reliability Tests", () => {
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadHelper.waitForThreadContent();
+		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadPage.waitForThreadContent();
 
-		const originalTitle = await threadHelper.getTabHeaderText();
+		const originalTitle = await threadPage.getTabHeaderText();
 		expect(originalTitle).toContain("フィルターテストスレッド");
 
 		// フィルターを適用
-		await threadHelper.applySearchFilter("test");
+		await threadPage.applyThreadSearchFilter("test");
 		await vault.window.waitForTimeout(500);
 
 		// タイトルが変わっていないことを確認
-		const titleAfterFilter = await threadHelper.getTabHeaderText();
+		const titleAfterFilter = await threadPage.getTabHeaderText();
 		expect(titleAfterFilter).toBe(originalTitle);
 		console.log("✓ Title maintained after applying filter");
 
 		// フィルターをクリア
-		await threadHelper.clearSearchFilter();
+		await threadPage.clearThreadSearchFilter();
 		await vault.window.waitForTimeout(300);
 
 		// タイトルがまだ同じことを確認
-		const titleAfterClear = await threadHelper.getTabHeaderText();
+		const titleAfterClear = await threadPage.getTabHeaderText();
 		expect(titleAfterClear).toBe(originalTitle);
 		console.log("✓ Title maintained after clearing filter");
 	});
