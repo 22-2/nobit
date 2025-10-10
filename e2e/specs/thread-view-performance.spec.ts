@@ -1,7 +1,7 @@
+import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
 import { DIST_DIR, PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { NetworkMockHelper } from "../helpers/NetworkMockHelper";
 import { ObsidianPageObject } from "../helpers/ObsidianPageObject";
 import { PerformanceTestHelper } from "../helpers/PerformanceTestHelper";
 import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
@@ -17,7 +17,7 @@ test.describe("Thread View Performance Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-		const networkHelper = new NetworkMockHelper(vault.window);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Verify initial setup
@@ -26,10 +26,10 @@ test.describe("Thread View Performance Tests", () => {
 
 		// Setup mock with factory
 		const mockData = MockDataFactory.createLargeThreadData(500);
-		await networkHelper.setupBasicRoute(
-			"**/liveedge/1759320900/**",
-			MockDataFactory.createSuccessResponse(mockData)
-		);
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: mockData
+		});
 
 		// Measure load time
 		const loadTime = await perfHelper.measureExecutionTime(async () => {
@@ -67,7 +67,14 @@ test.describe("Thread View Performance Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
+
+		// Setup mock with large thread
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createLargeThreadData(1000)
+		});
 
 		// Load thread
 		await threadHelper.openAndVerifyThreadView(
@@ -97,15 +104,15 @@ test.describe("Thread View Performance Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-		const networkHelper = new NetworkMockHelper(vault.window);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Setup large thread mock
 		const mockData = MockDataFactory.createLargeThreadData(1000);
-		await networkHelper.setupBasicRoute(
-			"**/test/read.cgi/**",
-			MockDataFactory.createSuccessResponse(mockData)
-		);
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: mockData
+		});
 
 		// Check memory leak
 		const memoryResult = await perfHelper.checkMemoryLeak(
@@ -153,7 +160,14 @@ test.describe("Thread View Performance Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
+
+		// Setup mock with large thread
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createLargeThreadData(1000)
+		});
 
 		// Initial load
 		await threadHelper.openAndVerifyThreadView(
@@ -191,7 +205,14 @@ test.describe("Thread View Performance Tests", () => {
 			vault.pluginHandleMap
 		);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
+
+		// Setup mock with large thread
+		await mockHelper.setupPatternMock('.dat', {
+			status: 200,
+			body: MockDataFactory.createLargeThreadData(1000)
+		});
 
 		// Load thread
 		await threadHelper.openAndVerifyThreadView(
