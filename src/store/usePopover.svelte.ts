@@ -22,6 +22,12 @@ export interface UsePopoverReturn {
 		level: number,
 		event: MouseEvent,
 	) => void;
+	handleShowIdPosts: (
+		targetEl: HTMLElement,
+		post: Post,
+		level: number,
+		event: MouseEvent,
+	) => void;
 	startHideTimer: () => void;
 	setThreadData: (data: Thread | null) => void;
 	init: (container: HTMLElement) => void;
@@ -284,10 +290,130 @@ export function usePopover(): UsePopoverReturn {
 		showPostTreePreview(targetEl, post, level + 1, event);
 	}
 
+	function handleShowIdPosts(
+		targetEl: HTMLElement,
+		post: Post,
+		level: number,
+		event: MouseEvent,
+	) {
+		clearHideTimer();
+
+		if (!threadData) {
+			log.error("[PopoverService] Thread data is not set.");
+			return;
+		}
+
+		// Get all posts with the same ID
+		const idPosts = threadData.posts.filter(
+			(p) => p.authorId === post.authorId,
+		);
+
+		if (idPosts.length === 0) {
+			showSimplePopup("該当レス無し", event);
+			return;
+		}
+
+		hidePopoversFrom(level + 1);
+		showIdPostsPreview(targetEl, idPosts, post.authorId, level + 1, event);
+	}
+
+	function showIdPostsPreview(
+		targetEl: HTMLElement,
+		posts: Post[],
+		authorId: string,
+		level: number,
+		event: MouseEvent,
+	) {
+		if (!popoverContainer || !threadData) {
+			log.error(
+				"[PopoverService] Popover container or thread data is not set.",
+			);
+			return;
+		}
+
+		const popover = new CustomHoverPopover(
+			serviceInterface,
+			popoverContainer,
+			targetEl,
+			level,
+			event,
+		);
+
+		popover.show((target) => {
+			// Create a container for ID posts
+			const container = document.createElement("div");
+			container.className = "id-posts-container";
+
+			// Add header
+			const header = document.createElement("div");
+			header.className = "id-posts-header";
+			header.textContent = `ID: ${authorId} (${posts.length}件)`;
+			container.appendChild(header);
+
+			// Add posts
+			posts.forEach((post) => {
+				mount(PostItemComponent, {
+					target: container,
+					props: {
+						post,
+						index: post.resNum - 1,
+						onHoverPostLink: (detail: {
+							targetEl: HTMLElement;
+							index: number;
+							event: MouseEvent;
+						}) =>
+							handleHover(
+								detail.targetEl,
+								detail.index,
+								level + 1,
+								detail.event,
+							),
+						onShowReplyTree: (detail: {
+							targetEl: HTMLElement;
+							originResNumber: number;
+							event: MouseEvent;
+						}) => {
+							handleShowReplyTree(
+								detail.targetEl,
+								detail.originResNumber,
+								level,
+								detail.event,
+							);
+						},
+						onJumpToPost: (resNumber: number) => {
+							// Close popovers and jump
+							hidePopoversFrom(0);
+							const postElement = document.getElementById(`res-${resNumber}`);
+							if (postElement) {
+								postElement.scrollIntoView({
+									behavior: "smooth",
+									block: "center",
+								});
+								postElement.classList.add("post-highlight");
+								setTimeout(() => {
+									postElement.classList.remove("post-highlight");
+								}, 2000);
+							}
+						},
+					},
+				});
+			});
+
+			target.appendChild(container);
+			return {};
+		});
+
+		const newPopovers = activePopovers.slice(0, level);
+		newPopovers.push(popover);
+		activePopovers.length = 0;
+		activePopovers.push(...newPopovers);
+	}
+
 	// --- Public API ---
 	return {
 		handleHover,
 		handleShowReplyTree,
+		handleShowIdPosts,
 		startHideTimer,
 		setThreadData(data: Thread | null) {
 			threadData = data;

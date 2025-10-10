@@ -6,3 +6,56 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* Post highlight animation when jumping to a post */
+.post-highlight {
+	animation: highlight-flash 0.25s ease-out;
+}
+
+@keyframes highlight-flash {
+	0% {
+		background-color: var(--interactive-accent);
+		opacity: 0.3;
+	}
+	50% {
+		background-color: var(--interactive-accent);
+		opacity: 0.2;
+	}
+	100% {
+		background-color: transparent;
+		opacity: 1;
+	}
+}
+
+/* ID posts popup container */
+.id-posts-container {
+	max-height: 600px;
+	overflow-y: auto;
+	padding: 0.5rem;
+	min-width: 400px;
+	max-width: 600px;
+}
+
+.id-posts-header {
+	font-weight: bold;
+	font-size: 1rem;
+	padding: 0.5rem;
+	margin-bottom: 0.5rem;
+	border-bottom: 2px solid var(--background-modifier-border);
+	color: var(--text-normal);
+	background-color: var(--background-secondary);
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.id-posts-container .post {
+	margin-bottom: 0.5rem;
+	padding: 0.5rem;
+	background-color: var(--background-primary);
+	border-radius: 4px;
+}
+
+.id-posts-container .post:hover {
+	background-color: var(--background-secondary);
+}

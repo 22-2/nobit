@@ -105,6 +105,21 @@ function handleClick(event: MouseEvent) {
 		}
 	}
 
+	// Check if clicking on post number
+	const postNumberEl = target.closest<HTMLElement>(".post-number");
+	if (postNumberEl && onJumpToPost) {
+		const resNumber = parseInt(
+			postNumberEl.textContent?.replace(":", "") || "0",
+			10,
+		);
+		if (resNumber > 0) {
+			event.preventDefault();
+			event.stopPropagation();
+			onJumpToPost(resNumber);
+			return;
+		}
+	}
+
 	const triggerEl = target.closest<HTMLElement>(
 		".internal-res-link, .reply-tree-link, .post-author-id a",
 	);
@@ -237,7 +252,13 @@ function handleContextMenu(event: MouseEvent) {
 
     .post-number {
         font-weight: bold;
-        color: var(--text-normal);
+        color: var(--text-accent);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .post-number:hover {
+        text-decoration: underline;
     }
 
     .post-content {

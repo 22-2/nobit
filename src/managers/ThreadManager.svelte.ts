@@ -190,14 +190,27 @@ export class ThreadManager extends BaseManager {
 
 	/**
 	 * Jump to a specific post number within the thread.
-	 * This method can be extended to handle UI scrolling in the future.
+	 * Scrolls to the target post element.
 	 *
 	 * @param resNumber - The post number to jump to
 	 */
 	jumpToPost(resNumber: number): void {
-		// For now, this is a placeholder for future UI integration
-		// The actual scrolling logic will be handled by Svelte components
 		logger.debug(`Jumping to post ${resNumber}`);
+
+		// Find the post element by ID
+		const postElement = activeDocument.getElementById(`res-${resNumber}`);
+		if (postElement) {
+			// Scroll to the post with smooth behavior
+			postElement.scrollIntoView({ behavior: "instant", block: "start" });
+
+			// Add a highlight effect
+			postElement.classList.add("post-highlight");
+			setTimeout(() => {
+				postElement.classList.remove("post-highlight");
+			}, 2000);
+		} else {
+			logger.warn(`Post ${resNumber} not found in DOM`);
+		}
 	}
 
 	/**

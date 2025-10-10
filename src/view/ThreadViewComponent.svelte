@@ -184,6 +184,20 @@ function handleShowReplyTree(detail: {
 		detail.event,
 	);
 }
+
+function handleShowIdPosts(detail: {
+	targetEl: HTMLElement;
+	post: import("src/lib/types").Post;
+	siblingPostNumbers: number[];
+	event: MouseEvent;
+}) {
+	popoverService.handleShowIdPosts(
+		detail.targetEl,
+		detail.post,
+		0,
+		detail.event,
+	);
+}
 </script>
 
 <div class="thread-view">
@@ -236,6 +250,7 @@ function handleShowReplyTree(detail: {
 						onHoverPostLink={handleHoverPostLink}
 						onLeavePostLink={handleLeavePostLink}
 						onShowReplyTree={handleShowReplyTree}
+						onShowIdPosts={handleShowIdPosts}
 					/>
 				{/each}
 				<!-- Refresh trigger line for down direction -->

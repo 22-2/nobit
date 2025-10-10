@@ -8,6 +8,7 @@ import { sveltePreprocess } from "svelte-preprocess";
 
 import { copyPlugin } from "./copyPlugin.mts";
 import manifest from "./manifest.json";
+
 dotenv.config();
 
 const banner = `/*
@@ -45,7 +46,7 @@ if (process.env.OBSIDIAN_SANDBOX_PATH)
 				process.env.OBSIDIAN_SANDBOX_PATH!,
 				".obsidian",
 				"plugins",
-				manifest.id
+				manifest.id,
 			) || "",
 	});
 
@@ -71,7 +72,7 @@ const context = await esbuild.context({
 				timeZoneName: "long",
 			})
 				.format(new Date())
-				.replace(/[\\/:*?"<>|\s.]/g, "-")
+				.replace(/[\\/:*?"<>|\s.]/g, "-"),
 		),
 	},
 	plugins: [
@@ -113,6 +114,7 @@ const context = await esbuild.context({
 
 if (prod) {
 	await context.rebuild();
+	await context.dispose();
 	process.exit(0);
 } else {
 	await context.watch();
