@@ -262,7 +262,7 @@ export abstract class BaseParser implements Parser {
 
 		const firstLineParts = lines[0].split("<>");
 		const rawTitle =
-			firstLineParts.length > 4 ? firstLineParts?.[4]?.trim() : "無題";
+			firstLineParts.length > 5 ? firstLineParts?.[5]?.trim() : "無題";
 		invariant(rawTitle, "failed to parse title");
 
 		const title = this.decodeHtmlEntities(rawTitle);

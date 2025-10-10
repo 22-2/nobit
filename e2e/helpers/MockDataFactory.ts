@@ -7,7 +7,7 @@ export class MockDataFactory {
 	 * 基本的なスレッドDATコンテンツを生成
 	 */
 	static createBasicThreadData(): string {
-		return `1<>名無しさん@転載は禁止<><>2024/01/01(月) 10:00:00.00 ID:ABC123DE<>これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。<>テストスレッド
+		return `1<>名無しさん@転載は禁止<><>2024/01/01(月) 10:00:00.00 ID:ABC123DE<>これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。<>基本テストスレッド
 2<>名無しさん@転載は禁止<><>2024/01/01(月) 10:05:00.00 ID:DEF456GH<>画像付きのポストです。<br>複数の画像が添付されています。<>
 3<>名無しさん@転載は禁止<>sage<>2024/01/01(月) 10:10:00.00 ID:GHI789JK<>>>1 >>2<br>アンカー付きのポストです。<br>複数のレスを参照しています。<>
 4<>名無しさん@転載は禁止<><>2024/01/01(月) 10:15:00.00 ID:JKL012MN<>同じIDで複数回投稿しているユーザーです。<br>このIDは3回投稿しています。<>
@@ -44,6 +44,31 @@ export class MockDataFactory {
 			}
 
 			const threadTitle = i === 1 ? "パフォーマンステスト用大規模スレッド" : "";
+
+			posts.push(
+				`${i}<>${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`
+			);
+		}
+
+		return posts.join("\n");
+	}
+
+	/**
+	 * カスタムタイトルとポスト数でスレッドデータを生成
+	 */
+	static createThreadData(options: {
+		title: string;
+		postCount: number;
+	}): string {
+		const posts: string[] = [];
+
+		for (let i = 1; i <= options.postCount; i++) {
+			const authorName = `テストユーザー${i}`;
+			const mail = i % 5 === 0 ? "sage" : "";
+			const authorId = `ID${String(i).padStart(3, "0")}ABC`;
+			const timestamp = `2024/01/01(月) ${String(10 + (i % 14)).padStart(2, "0")}:${String(i % 60).padStart(2, "0")}:00.00`;
+			const content = `これは投稿番号${i}のテストポストです。`;
+			const threadTitle = i === 1 ? options.title : "";
 
 			posts.push(
 				`${i}<>${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`

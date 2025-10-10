@@ -23,10 +23,10 @@ export class ThreadViewTestHelper {
 	}
 
 	/**
-	 * スレッドコンテンツの読み込みを待機
+	 * スレッドコンテンツの読み込みを待機（アクティブなリーフのみ）
 	 */
 	async waitForThreadContent(timeout = 15000): Promise<void> {
-		await expect(this.page.locator(".thread-content")).toBeVisible({
+		await expect(this.page.locator(".workspace-leaf.mod-active .thread-content")).toBeVisible({
 			timeout,
 		});
 	}
@@ -146,6 +146,44 @@ export class ThreadViewTestHelper {
 		const startTime = Date.now();
 		await action();
 		return Date.now() - startTime;
+	}
+
+	/**
+	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
+	 */
+	async getTitleBarText(): Promise<string | null> {
+		return await this.page.locator(".workspace-leaf.mod-active .view-header-title").textContent();
+	}
+
+	/**
+	 * スレッドヘッダーのタイトルを取得
+	 */
+	async getThreadHeaderTitle(): Promise<string | null> {
+		return await this.page.locator(".thread-title").textContent();
+	}
+
+	/**
+	 * タイトルが一致することを検証
+	 */
+	async verifyTitleConsistency(): Promise<{
+		titleBar: string | null;
+		threadHeader: string | null;
+		managerState: string | null;
+		allMatch: boolean;
+	}> {
+		const titleBar = await this.getTitleBarText();
+		const threadHeader = await this.getThreadHeaderTitle();
+		const state = await this.getThreadManagerState();
+		const managerState = state?.threadTitle || null;
+
+		const allMatch = titleBar === threadHeader && threadHeader === managerState;
+
+		return {
+			titleBar,
+			threadHeader,
+			managerState,
+			allMatch,
+		};
 	}
 }
 

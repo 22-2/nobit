@@ -29,7 +29,7 @@ export class TestFetcherMockHelper {
 	/**
 	 * Set up a simple URL pattern matcher
 	 */
-	async setupPatternMock(pattern: string | RegExp, response: { status: number; body: string }): Promise<void> {
+	async setupPatternMock(pattern: string | RegExp, response: { status: number; body: string; delay?: number }): Promise<void> {
 		const patternStr = pattern instanceof RegExp ? pattern.source : pattern;
 		const isRegex = pattern instanceof RegExp;
 
@@ -50,7 +50,12 @@ export class TestFetcherMockHelper {
 
 					if (matches) {
 						console.log(`🎯 TestFetcher mock matched: ${url}`);
-						return response;
+						console.log(`📦 Returning mock response:`, { status: response.status, bodyLength: response.body?.length });
+
+						// Note: delay is not supported in synchronous mock handler
+						// The mock handler must be synchronous to work with TestFetcher
+
+						return { status: response.status, body: response.body };
 					}
 					return null;
 				});
