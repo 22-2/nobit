@@ -22,7 +22,8 @@ test.describe("URL History", () => {
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
-		await setup.setupBasicThread(testUrl);
+		await setup.getThreadPage().openAndVerifyThreadView(PLUGIN_ID, testUrl);
+		await setup.getThreadPage().waitForThreadContent();
 
 		const threadTitle = await setup.getThreadPage().getThreadHeaderTitle();
 		expect(threadTitle).toBe("【テスト】タイトルテストスレッド");
@@ -59,7 +60,8 @@ test.describe("URL History", () => {
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
-		await setup.setupBasicThread(testUrl);
+		await setup.getThreadPage().openAndVerifyThreadView(PLUGIN_ID, testUrl);
+		await setup.getThreadPage().waitForThreadContent();
 
 		const threadTitle = await setup.getThreadPage().getThreadHeaderTitle();
 		expect(threadTitle).toBe("【政治】実際のスレッドタイトル");
