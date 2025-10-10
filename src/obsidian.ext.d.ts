@@ -27,4 +27,3 @@ declare module "obsidian" {
 		titleContainerEl: HTMLElement;
 	}
 }
-

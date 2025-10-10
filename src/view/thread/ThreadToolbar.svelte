@@ -1,14 +1,14 @@
 <!-- src/components/ThreadToolbar.svelte -->
 <script lang="ts">
-    // Tabler Icons
-    import { RefreshCw, Pencil } from "lucide-svelte";
+// Tabler Icons
+import { RefreshCw, Pencil } from "lucide-svelte";
 
-    let { isCoolingDown, isLoading, onRefresh, onWriteButtonClick } = $props<{
-        isCoolingDown?: boolean;
-        isLoading?: boolean;
-        onRefresh?: () => void;
-        onWriteButtonClick?: () => void;
-    }>();
+let { isCoolingDown, isLoading, onRefresh, onWriteButtonClick } = $props<{
+	isCoolingDown?: boolean;
+	isLoading?: boolean;
+	onRefresh?: () => void;
+	onWriteButtonClick?: () => void;
+}>();
 </script>
 
 <div class="thread-footer-toolbar">

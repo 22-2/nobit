@@ -1,44 +1,43 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
-    import PopoverTester from "../helpers/PopoverTester.svelte";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import PopoverTester from "../helpers/PopoverTester.svelte";
 
-    import { expect, userEvent, within, waitFor } from "storybook/test";
+import { expect, userEvent, within, waitFor } from "storybook/test";
 
-    const { Story } = defineMeta({
-        title: "Common/usePopover",
-        component: PopoverTester,
-        tags: ["autodocs", "test"],
-        argTypes: {
-            threadData: {
-                control: "object",
-                description:
-                    "スレッドデータ（nullの場合はサンプルデータを使用）",
-            },
-            showTestPosts: {
-                control: "boolean",
-                description: "テスト用の投稿リンクを表示するかどうか",
-            },
-            containerHeight: {
-                control: "text",
-                description: "コンテナの高さ",
-            },
-            containerWidth: {
-                control: "text",
-                description: "コンテナの幅",
-            },
-        },
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    minHeight: "var(--size-4-100)",
-                    padding: "var(--size-4-4)",
-                },
-            }),
-        ],
-    });
+const { Story } = defineMeta({
+	title: "Common/usePopover",
+	component: PopoverTester,
+	tags: ["autodocs", "test"],
+	argTypes: {
+		threadData: {
+			control: "object",
+			description: "スレッドデータ（nullの場合はサンプルデータを使用）",
+		},
+		showTestPosts: {
+			control: "boolean",
+			description: "テスト用の投稿リンクを表示するかどうか",
+		},
+		containerHeight: {
+			control: "text",
+			description: "コンテナの高さ",
+		},
+		containerWidth: {
+			control: "text",
+			description: "コンテナの幅",
+		},
+	},
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				minHeight: "var(--size-4-100)",
+				padding: "var(--size-4-4)",
+			},
+		}),
+	],
+});
 </script>
 
 <script>

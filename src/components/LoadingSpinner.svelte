@@ -1,33 +1,33 @@
 <script lang="ts">
-    interface Props {
-        size?: "small" | "medium" | "large" | "extra-large";
-        color?: string;
-        strokeWidth?: number;
-        speed?: "slow" | "normal" | "fast";
-    }
+interface Props {
+	size?: "small" | "medium" | "large" | "extra-large";
+	color?: string;
+	strokeWidth?: number;
+	speed?: "slow" | "normal" | "fast";
+}
 
-    let {
-        size = "medium",
-        color = "var(--nobit-interactive-accent)",
-        strokeWidth = 2,
-        speed = "normal",
-    }: Props = $props();
+let {
+	size = "medium",
+	color = "var(--nobit-interactive-accent)",
+	strokeWidth = 2,
+	speed = "normal",
+}: Props = $props();
 
-    const sizeMap = {
-        small: "var(--nobit-size-4-4)", // 16px
-        medium: "var(--nobit-size-4-6)", // 24px
-        large: "var(--nobit-size-4-8)", // 32px
-        "extra-large": "var(--nobit-size-4-12)", // 48px
-    };
+const sizeMap = {
+	small: "var(--nobit-size-4-4)", // 16px
+	medium: "var(--nobit-size-4-6)", // 24px
+	large: "var(--nobit-size-4-8)", // 32px
+	"extra-large": "var(--nobit-size-4-12)", // 48px
+};
 
-    const speedMap = {
-        slow: "2s",
-        normal: "1s",
-        fast: "0.5s",
-    };
+const speedMap = {
+	slow: "2s",
+	normal: "1s",
+	fast: "0.5s",
+};
 
-    const diameter = $derived(sizeMap[size]);
-    const animationDuration = $derived(speedMap[speed]);
+const diameter = $derived(sizeMap[size]);
+const animationDuration = $derived(speedMap[speed]);
 </script>
 
 <div

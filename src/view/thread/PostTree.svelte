@@ -1,58 +1,58 @@
 <script lang="ts">
-    import type { Post, Thread } from "src/lib/types";
-    import type { PopoverService } from "src/store/usePopover.svelte";
-    import { getContext } from "svelte";
-    import type {
-    	HoverDetail,
-    	ShowIdPostsDetail,
-    	ShowPostContextMenuDetail,
-    	ShowReplyTreeDetail,
-    	ThreadLinkClickDetail,
-    } from "./PostItem.svelte";
-    import PostItem from "./PostItem.svelte";
-    import PostTree from "./PostTree.svelte";
+import type { Post, Thread } from "src/lib/types";
+import type { PopoverService } from "src/store/usePopover.svelte";
+import { getContext } from "svelte";
+import type {
+	HoverDetail,
+	ShowIdPostsDetail,
+	ShowPostContextMenuDetail,
+	ShowReplyTreeDetail,
+	ThreadLinkClickDetail,
+} from "./PostItem.svelte";
+import PostItem from "./PostItem.svelte";
+import PostTree from "./PostTree.svelte";
 
-    let {
-        post,
-        thread,
-        level = 0,
-        onHoverPostLink,
-        onLeavePostLink,
-        onJumpToPost,
-        onShowReplyTree,
-        onShowIdPosts,
-        onShowPostContextMenu,
-        onThreadLinkClick,
-    }: {
-        post: Post;
-        thread: Thread;
-        level?: number;
-        // PostItemに合わせてオプショナルにする
-        onHoverPostLink?: (detail: HoverDetail) => void;
-        onLeavePostLink?: () => void;
-        onJumpToPost?: (resNumber: number) => void;
-        onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
-        onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
-        onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
-        onThreadLinkClick?: (detail: ThreadLinkClickDetail) => void;
-    } = $props();
+let {
+	post,
+	thread,
+	level = 0,
+	onHoverPostLink,
+	onLeavePostLink,
+	onJumpToPost,
+	onShowReplyTree,
+	onShowIdPosts,
+	onShowPostContextMenu,
+	onThreadLinkClick,
+}: {
+	post: Post;
+	thread: Thread;
+	level?: number;
+	// PostItemに合わせてオプショナルにする
+	onHoverPostLink?: (detail: HoverDetail) => void;
+	onLeavePostLink?: () => void;
+	onJumpToPost?: (resNumber: number) => void;
+	onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
+	onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
+	onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
+	onThreadLinkClick?: (detail: ThreadLinkClickDetail) => void;
+} = $props();
 
-    const replies = post.replies
-        .map((replyNum) => thread.posts[replyNum - 1])
-        .filter((p): p is Post => p !== undefined);
+const replies = post.replies
+	.map((replyNum) => thread.posts[replyNum - 1])
+	.filter((p): p is Post => p !== undefined);
 
-    // Get popoverService from context if available
-    const popoverService = getContext<PopoverService | undefined>("popoverService");
+// Get popoverService from context if available
+const popoverService = getContext<PopoverService | undefined>("popoverService");
 
-    // --- [修正] onLeavePostLinkの処理をまとめる ---
-    function handleLeavePostLink() {
-        if (popoverService) {
-            popoverService.startHideTimer();
-        }
-        if (onLeavePostLink) {
-            onLeavePostLink();
-        }
-    }
+// --- [修正] onLeavePostLinkの処理をまとめる ---
+function handleLeavePostLink() {
+	if (popoverService) {
+		popoverService.startHideTimer();
+	}
+	if (onLeavePostLink) {
+		onLeavePostLink();
+	}
+}
 </script>
 
 <div class="post-tree-node" style="--level: {level}" onclick={(e) => {

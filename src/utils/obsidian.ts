@@ -5,7 +5,7 @@ import { VIEW_TYPE_THREAD } from "./constants";
 export async function activateView<T = any, U = any>(
 	getLeaf: Workspace["getLeaf"],
 	viewState: UViewState,
-	eState?: U
+	eState?: U,
 ): Promise<T> {
 	const leaf: WorkspaceLeaf = getLeaf("tab");
 
@@ -47,7 +47,7 @@ export function createViewState(type: string, state: ParsedBbsUrl): ViewResult {
 export function getViewStateByUrl(
 	url: string,
 	log: (message: string) => void,
-	options?: OpenWithUrlOptions
+	options?: OpenWithUrlOptions,
 ): ViewResult | void {
 	const result = parseBbsUrl(url);
 

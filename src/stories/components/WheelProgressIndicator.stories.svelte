@@ -1,42 +1,42 @@
 <!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\common\WheelProgressIndicator.stories.svelte -->
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
 
-    // defineMeta で Storybook のメタ情報を定義します
-    const { Story } = defineMeta({
-        // Storybook のサイドバーに表示されるタイトル
-        title: "Common/WheelProgressIndicator",
-        // 対象のコンポーネント
-        component: WheelProgressIndicator,
-        // Storybook の Docs ページを自動生成するタグ
-        tags: ["autodocs"],
-        // Storybook の Controls パネルで操作できる引数を定義
-        argTypes: {
-            position: {
-                control: { type: "select" },
-                options: ["top", "bottom"],
-                description: "インジケーターの表示位置",
-            },
-            wheelState: {
-                control: "object",
-                description: "進捗状況を管理するオブジェクト",
-            },
-        },
-        // CenterDecoratorを使用してコンポーネントを中央に配置し、
-        // 絶対配置のコンテキストを提供します
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    minHeight: "var(--size-4-50)" /* 200px相当 */,
-                    padding: "var(--size-4-4)" /* 16px */,
-                },
-            }),
-        ],
-    });
+// defineMeta で Storybook のメタ情報を定義します
+const { Story } = defineMeta({
+	// Storybook のサイドバーに表示されるタイトル
+	title: "Common/WheelProgressIndicator",
+	// 対象のコンポーネント
+	component: WheelProgressIndicator,
+	// Storybook の Docs ページを自動生成するタグ
+	tags: ["autodocs"],
+	// Storybook の Controls パネルで操作できる引数を定義
+	argTypes: {
+		position: {
+			control: { type: "select" },
+			options: ["top", "bottom"],
+			description: "インジケーターの表示位置",
+		},
+		wheelState: {
+			control: "object",
+			description: "進捗状況を管理するオブジェクト",
+		},
+	},
+	// CenterDecoratorを使用してコンポーネントを中央に配置し、
+	// 絶対配置のコンテキストを提供します
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				minHeight: "var(--size-4-50)" /* 200px相当 */,
+				padding: "var(--size-4-4)" /* 16px */,
+			},
+		}),
+	],
+});
 </script>
 
 <!--

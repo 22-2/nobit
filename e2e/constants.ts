@@ -26,36 +26,38 @@ export const SANDBOX_VAULT_NAME = "Obsidian Sandbox";
 export const APP_MAIN_JS_PATH = path.join(
 	E2E_ROOT_DIR,
 	paths.obsidianUnpackedDir,
-	paths.appMainFile
+	paths.appMainFile,
 );
 
 console.log("E2E_ROOT_DIR", E2E_ROOT_DIR);
 console.log("APP_MAIN_JS_PATH", APP_MAIN_JS_PATH);
 
 // --- Pre-flight checks ---
-invariant(
-	existsSync(E2E_ROOT_DIR),
-	`E2E root not found at: ${E2E_ROOT_DIR}.`
-);
+invariant(existsSync(E2E_ROOT_DIR), `E2E root not found at: ${E2E_ROOT_DIR}.`);
 invariant(
 	existsSync(APP_MAIN_JS_PATH),
-	`Obsidian app not found at: ${APP_MAIN_JS_PATH}. Did you run 'pnpm build:e2e' and 'e2e-setup' script?`
+	`Obsidian app not found at: ${APP_MAIN_JS_PATH}. Did you run 'pnpm build:e2e' and 'e2e-setup' script?`,
 );
 
 export const LAUNCH_OPTIONS = {
-	args: [APP_MAIN_JS_PATH, "--no-sandbox", "--disable-setuid-sandbox", "--unsafely-disable-devtools-self-xss-warnings"],
+	args: [
+		APP_MAIN_JS_PATH,
+		"--no-sandbox",
+		"--disable-setuid-sandbox",
+		"--unsafely-disable-devtools-self-xss-warnings",
+	],
 	env: {
 		...process.env,
 		NODE_ENV: "development",
 	},
 };
 
-
 export const CMD_ID_OPEN_WITH_URL = "nobit:open-with-url";
-export const TEST_THREAD_URL = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/";
+export const TEST_THREAD_URL =
+	"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/";
 export const CMD_ID_TOGGLE_SOURCE = "editor:toggle-source";
 export const CMD_ID_CLOSE_TAB = "workspace:close";
 export const CMD_ID_UNDO_CLOSE_TAB = "workspace:undo-close-pane";
 export const DATAT_TYPE_MARKDOWN = "markdown";
 export const DATA_TYPE_EMPTY = "empty";
-export const DATA_TYPE_HOT_THREAD = VIEW_TYPE_THREAD
+export const DATA_TYPE_HOT_THREAD = VIEW_TYPE_THREAD;

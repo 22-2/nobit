@@ -44,14 +44,13 @@ export function ensureError(error: unknown): Error {
 
 export function isTestEnvironment(): boolean {
 	return (
-		typeof process !== "undefined" &&
-		(process.env?.NODE_ENV === "test" ||
-			process.env?.VITEST === "true" ||
-			(typeof global !== "undefined" &&
-				(global as any).describe !== undefined)) ||
+		(typeof process !== "undefined" &&
+			(process.env?.NODE_ENV === "test" ||
+				process.env?.VITEST === "true" ||
+				(typeof global !== "undefined" &&
+					(global as any).describe !== undefined))) ||
 		// Playwright test environment detection
-		(typeof window !== "undefined" && 
-			(window as any).playwright !== undefined)
+		(typeof window !== "undefined" && (window as any).playwright !== undefined)
 	);
 }
 /**

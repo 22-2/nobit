@@ -1,163 +1,165 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import PostItem from "../../view/thread/PostItem.svelte";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
-    import { fn } from "storybook/test";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import PostItem from "../../view/thread/PostItem.svelte";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { fn } from "storybook/test";
 
-    // 実際の5chデータ構造に基づくサンプルデータの生成
-    const generateBasicPost = () => ({
-        resNum: 1,
-        authorName: "名無しさん@転載は禁止",
-        mail: "",
-        authorId: "ABC123DE",
-        content: "これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。",
-        date: new Date("2024-01-01T10:00:00Z"),
-        references: [],
-        replies: [],
-        hasImage: false,
-        hasExternalLink: false,
-        postIdCount: 1,
-        siblingPostNumbers: [1],
-        imageUrls: [],
-    });
+// 実際の5chデータ構造に基づくサンプルデータの生成
+const generateBasicPost = () => ({
+	resNum: 1,
+	authorName: "名無しさん@転載は禁止",
+	mail: "",
+	authorId: "ABC123DE",
+	content:
+		"これは基本的なポストの例です。<br>5chの実際のデータ構造に基づいています。",
+	date: new Date("2024-01-01T10:00:00Z"),
+	references: [],
+	replies: [],
+	hasImage: false,
+	hasExternalLink: false,
+	postIdCount: 1,
+	siblingPostNumbers: [1],
+	imageUrls: [],
+});
 
-    const generatePostWithReplies = () => ({
-        resNum: 1,
-        authorName: "名無しさん@転載は禁止",
-        mail: "",
-        authorId: "ABC123DE",
-        content: "返信があるポストです。<br>このレスには複数の返信が付いています。",
-        date: new Date("2024-01-01T10:00:00Z"),
-        references: [],
-        replies: [2, 3, 5],
-        hasImage: false,
-        hasExternalLink: false,
-        postIdCount: 1,
-        siblingPostNumbers: [1],
-        imageUrls: [],
-    });
+const generatePostWithReplies = () => ({
+	resNum: 1,
+	authorName: "名無しさん@転載は禁止",
+	mail: "",
+	authorId: "ABC123DE",
+	content: "返信があるポストです。<br>このレスには複数の返信が付いています。",
+	date: new Date("2024-01-01T10:00:00Z"),
+	references: [],
+	replies: [2, 3, 5],
+	hasImage: false,
+	hasExternalLink: false,
+	postIdCount: 1,
+	siblingPostNumbers: [1],
+	imageUrls: [],
+});
 
-    const generatePostWithImages = () => ({
-        resNum: 2,
-        authorName: "名無しさん@転載は禁止",
-        mail: "",
-        authorId: "DEF456GH",
-        content: "画像付きのポストです。<br>複数の画像が添付されています。",
-        date: new Date("2024-01-01T10:05:00Z"),
-        references: [],
-        replies: [],
-        hasImage: true,
-        hasExternalLink: false,
-        postIdCount: 1,
-        siblingPostNumbers: [2],
-        imageUrls: [
-            "https://i.imgur.com/sample1.jpg",
-            "https://i.imgur.com/sample2.png",
-        ],
-    });
+const generatePostWithImages = () => ({
+	resNum: 2,
+	authorName: "名無しさん@転載は禁止",
+	mail: "",
+	authorId: "DEF456GH",
+	content: "画像付きのポストです。<br>複数の画像が添付されています。",
+	date: new Date("2024-01-01T10:05:00Z"),
+	references: [],
+	replies: [],
+	hasImage: true,
+	hasExternalLink: false,
+	postIdCount: 1,
+	siblingPostNumbers: [2],
+	imageUrls: [
+		"https://i.imgur.com/sample1.jpg",
+		"https://i.imgur.com/sample2.png",
+	],
+});
 
-    const generatePostWithAnchors = () => ({
-        resNum: 3,
-        authorName: "名無しさん@転載は禁止",
-        mail: "sage",
-        authorId: "GHI789JK",
-        content:
-            '<a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> <a class="internal-res-link" data-res-number="2">&gt;&gt;2</a><br>アンカー付きのポストです。<br>複数のレスを参照しています。',
-        date: new Date("2024-01-01T10:10:00Z"),
-        references: [1, 2],
-        replies: [],
-        hasImage: false,
-        hasExternalLink: false,
-        postIdCount: 1,
-        siblingPostNumbers: [3],
-        imageUrls: [],
-    });
+const generatePostWithAnchors = () => ({
+	resNum: 3,
+	authorName: "名無しさん@転載は禁止",
+	mail: "sage",
+	authorId: "GHI789JK",
+	content:
+		'<a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> <a class="internal-res-link" data-res-number="2">&gt;&gt;2</a><br>アンカー付きのポストです。<br>複数のレスを参照しています。',
+	date: new Date("2024-01-01T10:10:00Z"),
+	references: [1, 2],
+	replies: [],
+	hasImage: false,
+	hasExternalLink: false,
+	postIdCount: 1,
+	siblingPostNumbers: [3],
+	imageUrls: [],
+});
 
-    const generatePostWithMultipleIds = () => ({
-        resNum: 4,
-        authorName: "名無しさん@転載は禁止",
-        mail: "",
-        authorId: "JKL012MN",
-        content: "同じIDで複数回投稿しているユーザーです。<br>このIDは3回投稿しています。",
-        date: new Date("2024-01-01T10:15:00Z"),
-        references: [],
-        replies: [],
-        hasImage: false,
-        hasExternalLink: false,
-        postIdCount: 3,
-        siblingPostNumbers: [4, 7, 9],
-        imageUrls: [],
-    });
+const generatePostWithMultipleIds = () => ({
+	resNum: 4,
+	authorName: "名無しさん@転載は禁止",
+	mail: "",
+	authorId: "JKL012MN",
+	content:
+		"同じIDで複数回投稿しているユーザーです。<br>このIDは3回投稿しています。",
+	date: new Date("2024-01-01T10:15:00Z"),
+	references: [],
+	replies: [],
+	hasImage: false,
+	hasExternalLink: false,
+	postIdCount: 3,
+	siblingPostNumbers: [4, 7, 9],
+	imageUrls: [],
+});
 
-    const generateLongContentPost = () => ({
-        resNum: 5,
-        authorName: "長文投稿者@転載は禁止",
-        mail: "",
-        authorId: "LONG123OP",
-        content: `これは非常に長いコンテンツのポストです。<br>複数行にわたって書かれており、改行も含まれています。<br><br>段落も分かれていて、読みやすさをテストするためのものです。<br><a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> のようなアンカーも含まれています。<br><br>さらに外部リンクも含まれています: <a href="https://example.com" target="_blank">https://example.com</a><br><br>最後の段落です。このように長いテキストがどのように表示されるかを確認できます。<br>5chの実際の投稿では、このような長文も珍しくありません。`,
-        date: new Date("2024-01-01T10:20:00Z"),
-        references: [1],
-        replies: [6],
-        hasImage: false,
-        hasExternalLink: true,
-        postIdCount: 1,
-        siblingPostNumbers: [5],
-        imageUrls: [],
-    });
+const generateLongContentPost = () => ({
+	resNum: 5,
+	authorName: "長文投稿者@転載は禁止",
+	mail: "",
+	authorId: "LONG123OP",
+	content: `これは非常に長いコンテンツのポストです。<br>複数行にわたって書かれており、改行も含まれています。<br><br>段落も分かれていて、読みやすさをテストするためのものです。<br><a class="internal-res-link" data-res-number="1">&gt;&gt;1</a> のようなアンカーも含まれています。<br><br>さらに外部リンクも含まれています: <a href="https://example.com" target="_blank">https://example.com</a><br><br>最後の段落です。このように長いテキストがどのように表示されるかを確認できます。<br>5chの実際の投稿では、このような長文も珍しくありません。`,
+	date: new Date("2024-01-01T10:20:00Z"),
+	references: [1],
+	replies: [6],
+	hasImage: false,
+	hasExternalLink: true,
+	postIdCount: 1,
+	siblingPostNumbers: [5],
+	imageUrls: [],
+});
 
-    const { Story } = defineMeta({
-        title: "Thread/PostItem",
-        component: PostItem,
-        tags: ["autodocs"],
-        argTypes: {
-            post: {
-                control: false,
-                description: "表示するポストオブジェクト",
-            },
-            index: {
-                control: { type: "number", min: 0, max: 1000 },
-                description: "ポストのインデックス（レス番号-1）",
-            },
-            onHoverPostLink: {
-                action: "onHoverPostLink",
-                description: "ポストリンクホバー時のコールバック",
-            },
-            onLeavePostLink: {
-                action: "onLeavePostLink",
-                description: "ポストリンクから離れた時のコールバック",
-            },
-            onJumpToPost: {
-                action: "onJumpToPost",
-                description: "ポストジャンプ時のコールバック",
-            },
-            onShowReplyTree: {
-                action: "onShowReplyTree",
-                description: "返信ツリー表示時のコールバック",
-            },
-            onShowIdPosts: {
-                action: "onShowIdPosts",
-                description: "ID投稿一覧表示時のコールバック",
-            },
-            onShowPostContextMenu: {
-                action: "onShowPostContextMenu",
-                description: "ポストコンテキストメニュー表示時のコールバック",
-            },
-            onThreadLinkClick: {
-                action: "onThreadLinkClick",
-                description: "スレッドリンククリック時のコールバック",
-            },
-        },
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    padding: "var(--size-4-4)",
-                    minHeight: "var(--size-4-50)",
-                },
-            }),
-        ],
-    });
+const { Story } = defineMeta({
+	title: "Thread/PostItem",
+	component: PostItem,
+	tags: ["autodocs"],
+	argTypes: {
+		post: {
+			control: false,
+			description: "表示するポストオブジェクト",
+		},
+		index: {
+			control: { type: "number", min: 0, max: 1000 },
+			description: "ポストのインデックス（レス番号-1）",
+		},
+		onHoverPostLink: {
+			action: "onHoverPostLink",
+			description: "ポストリンクホバー時のコールバック",
+		},
+		onLeavePostLink: {
+			action: "onLeavePostLink",
+			description: "ポストリンクから離れた時のコールバック",
+		},
+		onJumpToPost: {
+			action: "onJumpToPost",
+			description: "ポストジャンプ時のコールバック",
+		},
+		onShowReplyTree: {
+			action: "onShowReplyTree",
+			description: "返信ツリー表示時のコールバック",
+		},
+		onShowIdPosts: {
+			action: "onShowIdPosts",
+			description: "ID投稿一覧表示時のコールバック",
+		},
+		onShowPostContextMenu: {
+			action: "onShowPostContextMenu",
+			description: "ポストコンテキストメニュー表示時のコールバック",
+		},
+		onThreadLinkClick: {
+			action: "onThreadLinkClick",
+			description: "スレッドリンククリック時のコールバック",
+		},
+	},
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				padding: "var(--size-4-4)",
+				minHeight: "var(--size-4-50)",
+			},
+		}),
+	],
+});
 </script>
 
 <!-- 基本的なポスト -->

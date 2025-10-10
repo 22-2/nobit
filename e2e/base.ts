@@ -40,23 +40,22 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			if (testInfo.status !== "passed" && testInfo.status !== "skipped") {
 				// テストが失敗、またはタイムアウトした場合
 				logger.error(
-					`Test finished with status: ${testInfo.status}. Pausing for debug.`
+					`Test finished with status: ${testInfo.status}. Pausing for debug.`,
 				);
 
 				// エラーメッセージをカラー付きで出力する
 				if (testInfo.error) {
 					console.error(
-						"\n" + "=".repeat(20) + " TEST FAILED " + "=".repeat(20)
+						"\n" + "=".repeat(20) + " TEST FAILED " + "=".repeat(20),
 					);
 					// Playwrightが生成したカラー付きのエラーメッセージを直接コンソールに出力
 					console.error(testInfo.error.message);
 					if (testInfo.error.stack) {
 						// スタックトレースも出力（多くの場合 message に含まれるが、念のため）
 						// messageと重複する部分を避けるためにstackからmessageを削除する
-						const stackWithoutMessage =
-							testInfo.error.stack.substring(
-								testInfo.error.stack.indexOf("\n") + 1
-							);
+						const stackWithoutMessage = testInfo.error.stack.substring(
+							testInfo.error.stack.indexOf("\n") + 1,
+						);
 						console.error(stackWithoutMessage);
 					}
 					console.error("=".repeat(53) + "\n");
@@ -105,7 +104,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
 				// 長文（500文字以上）は抑制
 				if (fullText.length > 500) {
-					console.log(`🖥️ BROWSER [${type.toUpperCase()}]: [長文のため省略: ${fullText.length}文字]`);
+					console.log(
+						`🖥️ BROWSER [${type.toUpperCase()}]: [長文のため省略: ${fullText.length}文字]`,
+					);
 					return;
 				}
 
@@ -115,7 +116,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 				console.log(`🖥️ BROWSER [${type.toUpperCase()}]: ${text}`);
 				if (location.url && location.url !== "about:blank") {
 					console.log(
-						`   📍 Location: ${location.url}:${location.lineNumber}:${location.columnNumber}`
+						`   📍 Location: ${location.url}:${location.lineNumber}:${location.columnNumber}`,
 					);
 				}
 
@@ -147,7 +148,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 			context.window.on("response", (response) => {
 				if (!response.ok()) {
 					console.log(
-						`🖥️ HTTP ERROR: ${response.status()} ${response.statusText()} - ${response.url()}`
+						`🖥️ HTTP ERROR: ${response.status()} ${response.statusText()} - ${response.url()}`,
 					);
 				}
 			});
@@ -160,7 +161,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 		await Promise.all(
 			notices.map(async (notice) => {
 				await notice.click();
-			})
+			}),
 		);
 		logger.debug("enter test");
 		await use(context);
@@ -169,4 +170,3 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 });
 
 export { expect } from "@playwright/test";
-

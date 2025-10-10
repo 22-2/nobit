@@ -1,6 +1,9 @@
 import log from "loglevel";
 import { ItemView, WorkspaceLeaf, type ViewStateResult } from "obsidian";
-import { EditableTitleBar, type EditableItemView } from "src/components/EditableTitleBar";
+import {
+	EditableTitleBar,
+	type EditableItemView,
+} from "src/components/EditableTitleBar";
 import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { usePopover } from "src/store/usePopover.svelte";
 import { mount, unmount } from "svelte";
@@ -39,7 +42,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 	constructor(
 		leaf: WorkspaceLeaf,
 		plugin: NobitPlugin,
-		private threadManager: ThreadManager
+		private threadManager: ThreadManager,
 	) {
 		super(leaf);
 		this.plugin = plugin;
@@ -69,7 +72,10 @@ export class ThreadView extends ItemView implements EditableItemView {
 		this.render();
 	}
 
-	async setState(newState: ThreadViewState, result: ViewStateResult = {history: false}): Promise<void> {
+	async setState(
+		newState: ThreadViewState,
+		result: ViewStateResult = { history: false },
+	): Promise<void> {
 		const urlChanged = this.state?.url !== newState.url;
 		this.state = newState;
 		// Re-render only when URL changes
@@ -109,13 +115,13 @@ export class ThreadView extends ItemView implements EditableItemView {
 
 	private updateTitle(title: string): void {
 		if (this.state) {
-				this.setState({...this.state, title});
-				// @ts-expect-error
-				this.leaf.updateHeader();
-				// Update history with the actual title
-				if (this.state.url) {
-					this.plugin.addToUrlHistory(this.state.url, title);
-				}
+			this.setState({ ...this.state, title });
+			// @ts-expect-error
+			this.leaf.updateHeader();
+			// Update history with the actual title
+			if (this.state.url) {
+				this.plugin.addToUrlHistory(this.state.url, title);
+			}
 		}
 	}
 

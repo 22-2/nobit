@@ -1,48 +1,47 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import LoadingSpinner from "src/components/LoadingSpinner.svelte";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import LoadingSpinner from "src/components/LoadingSpinner.svelte";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
 
-    // defineMeta で Storybook のメタ情報を定義します
-    const { Story } = defineMeta({
-        // Storybook のサイドバーに表示されるタイトル
-        title: "Common/LoadingSpinner",
-        // 対象のコンポーネント
-        component: LoadingSpinner,
-        // Storybook の Docs ページを自動生成するタグ
-        tags: ["autodocs"],
-        // Storybook の Controls パネルで操作できる引数を定義
-        argTypes: {
-            size: {
-                control: { type: "select" },
-                options: ["small", "medium", "large", "extra-large"],
-                description:
-                    "スピナーのサイズ（Obsidianの4pxグリッドに基づく）",
-            },
-            color: {
-                control: { type: "color" },
-                description: "スピナーの色（Obsidianのカラー変数推奨）",
-            },
-            strokeWidth: {
-                control: { type: "range", min: 1, max: 5, step: 0.5 },
-                description: "線の太さ",
-            },
-            speed: {
-                control: { type: "select" },
-                options: ["slow", "normal", "fast"],
-                description: "アニメーションの速度",
-            },
-        },
-        // CenterDecoratorを使用してコンポーネントを中央に配置
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                },
-            }),
-        ],
-    });
+// defineMeta で Storybook のメタ情報を定義します
+const { Story } = defineMeta({
+	// Storybook のサイドバーに表示されるタイトル
+	title: "Common/LoadingSpinner",
+	// 対象のコンポーネント
+	component: LoadingSpinner,
+	// Storybook の Docs ページを自動生成するタグ
+	tags: ["autodocs"],
+	// Storybook の Controls パネルで操作できる引数を定義
+	argTypes: {
+		size: {
+			control: { type: "select" },
+			options: ["small", "medium", "large", "extra-large"],
+			description: "スピナーのサイズ（Obsidianの4pxグリッドに基づく）",
+		},
+		color: {
+			control: { type: "color" },
+			description: "スピナーの色（Obsidianのカラー変数推奨）",
+		},
+		strokeWidth: {
+			control: { type: "range", min: 1, max: 5, step: 0.5 },
+			description: "線の太さ",
+		},
+		speed: {
+			control: { type: "select" },
+			options: ["slow", "normal", "fast"],
+			description: "アニメーションの速度",
+		},
+	},
+	// CenterDecoratorを使用してコンポーネントを中央に配置
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+			},
+		}),
+	],
+});
 </script>
 
 <!--

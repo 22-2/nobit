@@ -11,12 +11,9 @@ export class IPCBridge {
 		await this.ensurePageLoaded();
 		return (await this.pageManager.ensureSingleWindow()).evaluate(
 			([ch, ...restArgs]) => {
-				return (window as any).electron.ipcRenderer.sendSync(
-					ch,
-					...restArgs
-				);
+				return (window as any).electron.ipcRenderer.sendSync(ch, ...restArgs);
 			},
-			[channel, ...args]
+			[channel, ...args],
 		);
 	}
 
@@ -31,10 +28,7 @@ export class IPCBridge {
 		}
 	}
 
-	async openVault(
-		vaultPath: string,
-		forceNew = false
-	): Promise<true | string> {
+	async openVault(vaultPath: string, forceNew = false): Promise<true | string> {
 		return this.send<true | string>("vault-open", vaultPath, forceNew);
 	}
 

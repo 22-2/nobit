@@ -9,32 +9,31 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  * EditableTitleBar URL入力機能のテスト
  */
 test.describe("EditableTitleBar URL Navigation Tests", () => {
-	test("should navigate to thread when URL is entered in title bar", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+	test("should navigate to thread when URL is entered in title bar", async ({
+		vault,
+	}) => {
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock for initial thread
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Open initial ThreadView
-		const initialUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
+		const initialUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, initialUrl);
 		await threadHelper.waitForThreadContent();
 
 		console.log("Initial thread loaded");
 
 		// Get the title element for the active thread view
-		const titleEl = vault.window.locator(".workspace-leaf.mod-active .view-header-title");
+		const titleEl = vault.window.locator(
+			".workspace-leaf.mod-active .view-header-title",
+		);
 		await expect(titleEl).toBeVisible();
 
 		// Click on title to focus
@@ -69,25 +68,23 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 		expect(state?.hasThread).toBe(true);
 		expect(state?.isLoading).toBe(false);
 
-		console.log("✓ Successfully navigated to new thread via title bar URL input");
+		console.log(
+			"✓ Successfully navigated to new thread via title bar URL input",
+		);
 	});
 
-	test("should restore display text on blur without Enter", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+	test("should restore display text on blur without Enter", async ({
+		vault,
+	}) => {
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Open ThreadView
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -95,7 +92,9 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 		await threadHelper.waitForThreadContent();
 
 		// Get original title for the active thread view
-		const titleEl = vault.window.locator(".workspace-leaf.mod-active .view-header-title");
+		const titleEl = vault.window.locator(
+			".workspace-leaf.mod-active .view-header-title",
+		);
 		const originalTitle = await titleEl.textContent();
 		console.log("Original title:", originalTitle);
 

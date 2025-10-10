@@ -1,99 +1,99 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import ThreadFilters from "../../view/thread/ThreadFilters.svelte";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
-    import { fn } from "storybook/test";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import ThreadFilters from "../../view/thread/ThreadFilters.svelte";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { fn } from "storybook/test";
 
-    // サンプルフィルター状態の生成
-    const generateDefaultFilters = () => ({
-        popular: false,
-        image: false,
-        video: false,
-        external: false,
-        internal: false,
-        searchText: "",
-    });
+// サンプルフィルター状態の生成
+const generateDefaultFilters = () => ({
+	popular: false,
+	image: false,
+	video: false,
+	external: false,
+	internal: false,
+	searchText: "",
+});
 
-    const generateActiveFilters = () => ({
-        popular: true,
-        image: true,
-        video: false,
-        external: true,
-        internal: false,
-        searchText: "検索テキスト",
-    });
+const generateActiveFilters = () => ({
+	popular: true,
+	image: true,
+	video: false,
+	external: true,
+	internal: false,
+	searchText: "検索テキスト",
+});
 
-    const generateAllActiveFilters = () => ({
-        popular: true,
-        image: true,
-        video: true,
-        external: true,
-        internal: true,
-        searchText: "全てのフィルターが有効",
-    });
+const generateAllActiveFilters = () => ({
+	popular: true,
+	image: true,
+	video: true,
+	external: true,
+	internal: true,
+	searchText: "全てのフィルターが有効",
+});
 
-    // 個別フィルター用の関数
-    const generatePopularOnlyFilters = () => ({
-        popular: true,
-        image: false,
-        video: false,
-        external: false,
-        internal: false,
-        searchText: "",
-    });
+// 個別フィルター用の関数
+const generatePopularOnlyFilters = () => ({
+	popular: true,
+	image: false,
+	video: false,
+	external: false,
+	internal: false,
+	searchText: "",
+});
 
-    const generateImageOnlyFilters = () => ({
-        popular: false,
-        image: true,
-        video: false,
-        external: false,
-        internal: false,
-        searchText: "",
-    });
+const generateImageOnlyFilters = () => ({
+	popular: false,
+	image: true,
+	video: false,
+	external: false,
+	internal: false,
+	searchText: "",
+});
 
-    const generateVideoOnlyFilters = () => ({
-        popular: false,
-        image: false,
-        video: true,
-        external: false,
-        internal: false,
-        searchText: "",
-    });
+const generateVideoOnlyFilters = () => ({
+	popular: false,
+	image: false,
+	video: true,
+	external: false,
+	internal: false,
+	searchText: "",
+});
 
-    const generateExternalInternalFilters = () => ({
-        popular: false,
-        image: false,
-        video: false,
-        external: true,
-        internal: true,
-        searchText: "",
-    });
+const generateExternalInternalFilters = () => ({
+	popular: false,
+	image: false,
+	video: false,
+	external: true,
+	internal: true,
+	searchText: "",
+});
 
-    const { Story } = defineMeta({
-        title: "Thread/ThreadFilters",
-        component: ThreadFilters,
-        tags: ["autodocs"],
-        argTypes: {
-            filters: {
-                control: "object",
-                description: "フィルターの状態オブジェクト",
-            },
-            isVisible: {
-                control: "boolean",
-                description: "フィルターの表示/非表示",
-            },
-        },
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    padding: "var(--size-4-4)",
-                    minHeight: "var(--size-4-25)",
-                },
-            }),
-        ],
-    });
+const { Story } = defineMeta({
+	title: "Thread/ThreadFilters",
+	component: ThreadFilters,
+	tags: ["autodocs"],
+	argTypes: {
+		filters: {
+			control: "object",
+			description: "フィルターの状態オブジェクト",
+		},
+		isVisible: {
+			control: "boolean",
+			description: "フィルターの表示/非表示",
+		},
+	},
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				padding: "var(--size-4-4)",
+				minHeight: "var(--size-4-25)",
+			},
+		}),
+	],
+});
 </script>
 
 <!-- デフォルトの状態 -->

@@ -9,7 +9,7 @@ import { join } from "path";
 export class FixtureHelper {
 	private static readonly FIXTURES_DIR = join(
 		process.cwd(),
-		"src/__tests__/fixtures"
+		"src/__tests__/fixtures",
 	);
 
 	/**
@@ -33,7 +33,7 @@ export class FixtureHelper {
 	static async setupFixtureRoute(
 		page: Page,
 		fixturePath: string,
-		urlPattern: string
+		urlPattern: string,
 	): Promise<void> {
 		console.log(`🔧 Setting up fixture route with file: ${fixturePath}`);
 
@@ -47,7 +47,7 @@ export class FixtureHelper {
 					const buffer = readFileSync(fixturePath);
 
 					console.log(
-						`📁 Serving fixture file: ${fixturePath} (${buffer.length} bytes)`
+						`📁 Serving fixture file: ${fixturePath} (${buffer.length} bytes)`,
 					);
 
 					await route.fulfill({
@@ -58,10 +58,7 @@ export class FixtureHelper {
 					console.log(`✅ Successfully served fixture file`);
 					return;
 				} catch (error) {
-					console.error(
-						"❌ Failed to load fixture file in route:",
-						error
-					);
+					console.error("❌ Failed to load fixture file in route:", error);
 					await route.fulfill({
 						status: 500,
 						body: "Failed to load fixture",

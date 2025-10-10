@@ -1,23 +1,25 @@
 <script lang="ts">
-    import type { WheelState } from "src/store/useWheelRefresh.svelte.ts";
-    import { fade } from "svelte/transition";
+import type { WheelState } from "src/store/useWheelRefresh.svelte.ts";
+import { fade } from "svelte/transition";
 
-    let { wheelState, position = "top" }: {
-        wheelState: WheelState;
-        position?: "top" | "bottom";
-    } = $props();
+let {
+	wheelState,
+	position = "top",
+}: {
+	wheelState: WheelState;
+	position?: "top" | "bottom";
+} = $props();
 
-    let shouldBeVisible = $derived(
-        (wheelState.count > 0 && wheelState.status === "wheeling") ||
-            wheelState.status === "refreshing" ||
-            wheelState.status === "success" ||
-            wheelState.status === "error"
-    );
+let shouldBeVisible = $derived(
+	(wheelState.count > 0 && wheelState.status === "wheeling") ||
+		wheelState.status === "refreshing" ||
+		wheelState.status === "success" ||
+		wheelState.status === "error",
+);
 
-    let width = $derived((wheelState.count / wheelState.threshold) * 100);
-    let isAnimating = $derived(wheelState.status === "refreshing");
-    let shouldTransition = $derived(wheelState.status === "wheeling");
-
+let width = $derived((wheelState.count / wheelState.threshold) * 100);
+let isAnimating = $derived(wheelState.status === "refreshing");
+let shouldTransition = $derived(wheelState.status === "wheeling");
 </script>
 
 {#if shouldBeVisible}

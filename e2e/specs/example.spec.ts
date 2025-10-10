@@ -18,9 +18,7 @@ test("sandbox test: plugin activation and view creation via command", async ({
 	if (!process.env.CI) {
 		// 1. Initial setup verification
 		// Verify Vault name
-		const vaultName = await vault.window.evaluate(() =>
-			app.vault.getName()
-		);
+		const vaultName = await vault.window.evaluate(() => app.vault.getName());
 		expect(vaultName).toBe(SANDBOX_VAULT_NAME);
 	}
 
@@ -28,15 +26,15 @@ test("sandbox test: plugin activation and view creation via command", async ({
 	expect(
 		await vault.window.evaluate(
 			(pluginId) => app.plugins.getPlugin(pluginId),
-			PLUGIN_ID
-		)
+			PLUGIN_ID,
+		),
 	).toBeTruthy();
 
 	// 2. Create a new sandbox view (via command)
 	// Use ObsidianPageObject method
 	await obsPage.openPluginWithURL(
 		PLUGIN_ID,
-		"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+		"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 	);
 
 	// 3. Verify the view opened correctly

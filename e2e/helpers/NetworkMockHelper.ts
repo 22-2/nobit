@@ -11,8 +11,8 @@ export class NetworkMockHelper {
 
 	constructor(private readonly page: Page) {
 		// Log all requests for debugging
-		this.page.on('request', request => {
-			if (request.url().includes('.dat')) {
+		this.page.on("request", (request) => {
+			if (request.url().includes(".dat")) {
 				console.log(`📡 Request detected: ${request.url()}`);
 			}
 		});
@@ -23,7 +23,7 @@ export class NetworkMockHelper {
 	 */
 	async setupBasicRoute(
 		pattern: string,
-		response: MockResponse
+		response: MockResponse,
 	): Promise<void> {
 		console.log(`🔧 Setting up route for pattern: ${pattern}`);
 
@@ -33,19 +33,22 @@ export class NetworkMockHelper {
 			console.log(`🎯 Mock intercepted: ${route.request().url()}`);
 
 			// Ensure body is a string or Buffer
-			const body = typeof response.body === 'string'
-				? response.body
-				: response.body.toString();
+			const body =
+				typeof response.body === "string"
+					? response.body
+					: response.body.toString();
 
 			// Use headers instead of contentType
 			await route.fulfill({
 				status: response.status,
 				headers: {
-					'Content-Type': response.contentType,
+					"Content-Type": response.contentType,
 				},
 				body: body,
 			});
-			console.log(`✅ Mock fulfilled with status ${response.status}, body length: ${body.length}`);
+			console.log(
+				`✅ Mock fulfilled with status ${response.status}, body length: ${body.length}`,
+			);
 		});
 
 		console.log(`✅ Route setup complete for pattern: ${pattern}`);
@@ -56,7 +59,7 @@ export class NetworkMockHelper {
 	 */
 	async setupConditionalRoute(
 		urlMatcher: (url: string) => boolean,
-		response: MockResponse
+		response: MockResponse,
 	): Promise<void> {
 		await this.page.route("**/*", async (route: Route) => {
 			const url = route.request().url();
@@ -66,14 +69,15 @@ export class NetworkMockHelper {
 				this.requestUrls.push(url);
 
 				// Ensure body is a string or Buffer
-				const body = typeof response.body === 'string'
-					? response.body
-					: response.body.toString();
+				const body =
+					typeof response.body === "string"
+						? response.body
+						: response.body.toString();
 
 				await route.fulfill({
 					status: response.status,
 					headers: {
-						'Content-Type': response.contentType,
+						"Content-Type": response.contentType,
 					},
 					body: body,
 				});

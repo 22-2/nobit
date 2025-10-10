@@ -20,7 +20,7 @@ prefix.apply(log, {
 			colors[level.toUpperCase() as keyof typeof colors] || chalk.white;
 		const nameStr = name ? `[${name}]` : "";
 		return `${chalk.gray(`[${timestamp}]`)} ${color(level)} ${chalk.green(
-			nameStr
+			nameStr,
 		)}`;
 	},
 });

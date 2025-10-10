@@ -8,7 +8,7 @@ export const normalizeDateStr = (str: string) => {
 export function invariant(
 	condition: any,
 	message: string,
-	onError?: () => void
+	onError?: () => void,
 ): asserts condition {
 	if (!condition) {
 		onError?.();

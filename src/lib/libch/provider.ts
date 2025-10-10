@@ -61,7 +61,7 @@ export interface BBSProvider {
 		threadUrl: string,
 		postData: PostData,
 		headers?: Record<string, string>,
-		confirmationData?: Record<string, string>
+		confirmationData?: Record<string, string>,
 	): Promise<PostResult>;
 
 	/**

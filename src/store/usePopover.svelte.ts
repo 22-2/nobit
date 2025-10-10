@@ -14,13 +14,13 @@ export interface UsePopoverReturn {
 		targetEl: HTMLElement,
 		postIndex: number,
 		level: number,
-		event: MouseEvent
+		event: MouseEvent,
 	) => void;
 	handleShowReplyTree: (
 		targetEl: HTMLElement,
 		originResNumber: number,
 		level: number,
-		event: MouseEvent
+		event: MouseEvent,
 	) => void;
 	startHideTimer: () => void;
 	setThreadData: (data: Thread | null) => void;
@@ -46,9 +46,13 @@ export function usePopover(): UsePopoverReturn {
 	}
 
 	function hidePopoversFrom(fromLevel: number) {
-		console.log(`[PopoverService] hidePopoversFrom called with level ${fromLevel}, activePopovers.length: ${activePopovers.length}`);
+		console.log(
+			`[PopoverService] hidePopoversFrom called with level ${fromLevel}, activePopovers.length: ${activePopovers.length}`,
+		);
 		if (activePopovers.length <= fromLevel) {
-			console.log(`[PopoverService] No popovers to hide (length ${activePopovers.length} <= ${fromLevel})`);
+			console.log(
+				`[PopoverService] No popovers to hide (length ${activePopovers.length} <= ${fromLevel})`,
+			);
 			return;
 		}
 
@@ -58,7 +62,9 @@ export function usePopover(): UsePopoverReturn {
 		const toClose = activePopovers.slice(fromLevel);
 		const remainingPopovers = activePopovers.slice(0, fromLevel);
 
-		console.log(`[PopoverService] toClose count: ${toClose.length}, remaining count: ${remainingPopovers.length}`);
+		console.log(
+			`[PopoverService] toClose count: ${toClose.length}, remaining count: ${remainingPopovers.length}`,
+		);
 
 		activePopovers.length = 0;
 		activePopovers.push(...remainingPopovers);
@@ -79,7 +85,7 @@ export function usePopover(): UsePopoverReturn {
 	function handleDocumentClick(event: MouseEvent) {
 		const target = event.target as Node;
 		const isClickInsidePopover = activePopovers.some((popover) =>
-			popover.hoverEl.contains(target)
+			popover.hoverEl.contains(target),
 		);
 
 		if (!isClickInsidePopover) {
@@ -100,11 +106,11 @@ export function usePopover(): UsePopoverReturn {
 		post: Post,
 		index: number,
 		level: number,
-		event: MouseEvent
+		event: MouseEvent,
 	) {
 		if (!popoverContainer) {
 			log.error(
-				"[PopoverService] Popover container is not set. Call init() first."
+				"[PopoverService] Popover container is not set. Call init() first.",
 			);
 			return;
 		}
@@ -114,7 +120,7 @@ export function usePopover(): UsePopoverReturn {
 			popoverContainer,
 			targetEl,
 			level,
-			event
+			event,
 		);
 
 		popover.show((target) =>
@@ -128,12 +134,7 @@ export function usePopover(): UsePopoverReturn {
 						index: number;
 						event: MouseEvent;
 					}) =>
-						handleHover(
-							detail.targetEl,
-							detail.index,
-							level + 1,
-							detail.event
-						),
+						handleHover(detail.targetEl, detail.index, level + 1, detail.event),
 					onShowReplyTree: (detail: {
 						targetEl: HTMLElement;
 						originResNumber: number;
@@ -143,11 +144,11 @@ export function usePopover(): UsePopoverReturn {
 							detail.targetEl,
 							detail.originResNumber,
 							level, // Pass the current level
-							detail.event
+							detail.event,
 						);
 					},
 				},
-			})
+			}),
 		);
 
 		const newPopovers = activePopovers.slice(0, level);
@@ -160,11 +161,11 @@ export function usePopover(): UsePopoverReturn {
 		targetEl: HTMLElement,
 		post: Post,
 		level: number,
-		event: MouseEvent
+		event: MouseEvent,
 	) {
 		if (!popoverContainer || !threadData) {
 			log.error(
-				"[PopoverService] Popover container or thread data is not set. Call init() and setThreadData() first."
+				"[PopoverService] Popover container or thread data is not set. Call init() and setThreadData() first.",
 			);
 			return;
 		}
@@ -174,7 +175,7 @@ export function usePopover(): UsePopoverReturn {
 			popoverContainer,
 			targetEl,
 			level,
-			event
+			event,
 		);
 
 		popover.show((target) =>
@@ -188,12 +189,7 @@ export function usePopover(): UsePopoverReturn {
 						index: number;
 						event: MouseEvent;
 					}) => {
-						handleHover(
-							detail.targetEl,
-							detail.index,
-							level + 1,
-							detail.event
-						);
+						handleHover(detail.targetEl, detail.index, level + 1, detail.event);
 					},
 					onShowReplyTree: (detail: {
 						targetEl: HTMLElement;
@@ -207,11 +203,11 @@ export function usePopover(): UsePopoverReturn {
 							detail.targetEl,
 							detail.originResNumber,
 							level,
-							detail.event
+							detail.event,
 						);
 					},
 				},
-			})
+			}),
 		);
 
 		const newPopovers = activePopovers.slice(0, level);
@@ -223,7 +219,7 @@ export function usePopover(): UsePopoverReturn {
 	function showSimplePopup(message: string, event: MouseEvent) {
 		if (!popoverContainer) {
 			log.error(
-				"[PopoverService] Popover container is not set. Call init() first."
+				"[PopoverService] Popover container is not set. Call init() first.",
 			);
 			return;
 		}
@@ -252,7 +248,7 @@ export function usePopover(): UsePopoverReturn {
 		targetEl: HTMLElement,
 		postIndex: number,
 		level: number,
-		event: MouseEvent
+		event: MouseEvent,
 	) {
 		clearHideTimer();
 		const post = threadData?.posts[postIndex];
@@ -273,7 +269,7 @@ export function usePopover(): UsePopoverReturn {
 		targetEl: HTMLElement,
 		originResNumber: number,
 		level: number,
-		event: MouseEvent
+		event: MouseEvent,
 	) {
 		clearHideTimer();
 		const postIndex = originResNumber - 1;

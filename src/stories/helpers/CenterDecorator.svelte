@@ -1,22 +1,22 @@
 <script lang="ts">
-    import type { Snippet } from "svelte";
-    import ObsidianContainer from "./ObsidianContainer.svelte";
+import type { Snippet } from "svelte";
+import ObsidianContainer from "./ObsidianContainer.svelte";
 
-    interface Props {
-        children: Snippet;
-        padding?: string;
-        minHeight?: string;
-        backgroundColor?: string;
-        borderRadius?: string;
-    }
+interface Props {
+	children: Snippet;
+	padding?: string;
+	minHeight?: string;
+	backgroundColor?: string;
+	borderRadius?: string;
+}
 
-    let {
-        children,
-        padding = "var(--size-4-8)" /* 32px */,
-        minHeight = "var(--size-4-25)" /* 100px */,
-        backgroundColor,
-        borderRadius,
-    }: Props = $props();
+let {
+	children,
+	padding = "var(--size-4-8)" /* 32px */,
+	minHeight = "var(--size-4-25)" /* 100px */,
+	backgroundColor,
+	borderRadius,
+}: Props = $props();
 </script>
 
 <ObsidianContainer>

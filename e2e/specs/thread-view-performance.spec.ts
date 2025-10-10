@@ -12,26 +12,23 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  */
 test.describe("Thread View Performance Tests", () => {
 	test("should handle current thread data smoothly", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Setup mock with factory
 		const mockData = MockDataFactory.createLargeThreadData(500);
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: mockData
+			body: mockData,
 		});
 
 		// Measure load time
 		const loadTime = await perfHelper.measureExecutionTime(async () => {
 			await threadHelper.openAndVerifyThreadView(
 				PLUGIN_ID,
-				"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+				"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 			);
 			await threadHelper.waitForThreadContent();
 		});
@@ -58,24 +55,21 @@ test.describe("Thread View Performance Tests", () => {
 	});
 
 	test("should provide smooth scrolling", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Setup mock with large thread
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createLargeThreadData(1000)
+			body: MockDataFactory.createLargeThreadData(1000),
 		});
 
 		// Load thread
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -83,9 +77,8 @@ test.describe("Thread View Performance Tests", () => {
 		console.log(`Testing scrolling with ${postCount} posts`);
 
 		// Measure scroll performance
-		const scrollResult = await perfHelper.measureScrollPerformance(
-			".posts-container"
-		);
+		const scrollResult =
+			await perfHelper.measureScrollPerformance(".posts-container");
 
 		console.log(`Scroll operations time: ${scrollResult.totalTime}ms`);
 
@@ -95,19 +88,16 @@ test.describe("Thread View Performance Tests", () => {
 	});
 
 	test("should validate memory usage", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Setup large thread mock
 		const mockData = MockDataFactory.createLargeThreadData(1000);
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: mockData
+			body: mockData,
 		});
 
 		// Check memory leak
@@ -116,7 +106,7 @@ test.describe("Thread View Performance Tests", () => {
 				// Before: Load thread
 				await threadHelper.openAndVerifyThreadView(
 					PLUGIN_ID,
-					"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+					"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 				);
 				await threadHelper.waitForThreadContent();
 			},
@@ -127,11 +117,11 @@ test.describe("Thread View Performance Tests", () => {
 			async () => {
 				// After: Close thread
 				await threadHelper.closeThreadView();
-			}
+			},
 		);
 
 		console.log(
-			`Memory - Initial: ${memoryResult.initialMemory}, After load: ${memoryResult.afterLoadMemory}, After cleanup: ${memoryResult.afterCleanupMemory}`
+			`Memory - Initial: ${memoryResult.initialMemory}, After load: ${memoryResult.afterLoadMemory}, After cleanup: ${memoryResult.afterCleanupMemory}`,
 		);
 
 		// Verify memory usage is reasonable
@@ -141,34 +131,29 @@ test.describe("Thread View Performance Tests", () => {
 
 			if (memoryResult.afterCleanupMemory > 0) {
 				console.log(
-					`Memory after cleanup: ${memoryResult.memoryAfterCleanup} bytes`
+					`Memory after cleanup: ${memoryResult.memoryAfterCleanup} bytes`,
 				);
-				expect(memoryResult.memoryAfterCleanup).toBeLessThan(
-					15 * 1024 * 1024
-				);
+				expect(memoryResult.memoryAfterCleanup).toBeLessThan(15 * 1024 * 1024);
 			}
 		}
 	});
 
 	test("should refresh efficiently", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Setup mock with large thread
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createLargeThreadData(1000)
+			body: MockDataFactory.createLargeThreadData(1000),
 		});
 
 		// Initial load
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -196,24 +181,21 @@ test.describe("Thread View Performance Tests", () => {
 	});
 
 	test("should filter efficiently", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 		const perfHelper = new PerformanceTestHelper(vault.window);
 
 		// Setup mock with large thread
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createLargeThreadData(1000)
+			body: MockDataFactory.createLargeThreadData(1000),
 		});
 
 		// Load thread
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -222,7 +204,7 @@ test.describe("Thread View Performance Tests", () => {
 
 		// Test search filter performance
 		const searchInput = vault.window.locator(
-			'.thread-filters input[type="text"]'
+			'.thread-filters input[type="text"]',
 		);
 		if ((await searchInput.count()) > 0) {
 			const filterTime = await perfHelper.measureExecutionTime(async () => {
@@ -236,9 +218,7 @@ test.describe("Thread View Performance Tests", () => {
 		}
 
 		// Test filter button performance
-		const filterButtons = vault.window.locator(
-			".filter-buttons-group button"
-		);
+		const filterButtons = vault.window.locator(".filter-buttons-group button");
 		const buttonCount = await filterButtons.count();
 
 		if (buttonCount > 0) {
@@ -246,7 +226,7 @@ test.describe("Thread View Performance Tests", () => {
 				async () => {
 					await filterButtons.first().click({ force: true });
 					await vault.window.waitForTimeout(200);
-				}
+				},
 			);
 
 			console.log(`Button filter time: ${buttonFilterTime}ms`);

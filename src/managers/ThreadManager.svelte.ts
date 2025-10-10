@@ -59,10 +59,10 @@ export class ThreadManager extends BaseManager {
 			posts = posts.filter(
 				(post) =>
 					post.authorName.toLowerCase().includes(searchLower) ||
-					post.content.toLowerCase().includes(searchLower)
+					post.content.toLowerCase().includes(searchLower),
 			);
 			logger.debug(
-				`Search filter '${this.filters.searchText}': ${initialCount} -> ${posts.length} posts`
+				`Search filter '${this.filters.searchText}': ${initialCount} -> ${posts.length} posts`,
 			);
 		}
 
@@ -71,16 +71,15 @@ export class ThreadManager extends BaseManager {
 			const beforeCount = posts.length;
 			// Consider posts with 5+ replies as popular
 			posts = posts.filter((post) => (post.replies?.length ?? 0) >= 5);
-			logger.debug(
-				`Popular filter: ${beforeCount} -> ${posts.length} posts`
-			);
+			logger.debug(`Popular filter: ${beforeCount} -> ${posts.length} posts`);
 		}
 
 		// Apply image filter
 		if (this.filters.image) {
 			const beforeCount = posts.length;
 			posts = posts.filter(
-				(post) => post.hasImage || (post.imageUrls && post.imageUrls.length > 0)
+				(post) =>
+					post.hasImage || (post.imageUrls && post.imageUrls.length > 0),
 			);
 			logger.debug(`Image filter: ${beforeCount} -> ${posts.length} posts`);
 		}
@@ -91,7 +90,7 @@ export class ThreadManager extends BaseManager {
 			// Video detection would need to be added to the parser
 			// For now, we can check if content contains common video URLs
 			posts = posts.filter((post) =>
-				/youtube\.com|youtu\.be|nicovideo\.jp|nico\.ms/i.test(post.content)
+				/youtube\.com|youtu\.be|nicovideo\.jp|nico\.ms/i.test(post.content),
 			);
 			logger.debug(`Video filter: ${beforeCount} -> ${posts.length} posts`);
 		}
@@ -100,25 +99,21 @@ export class ThreadManager extends BaseManager {
 		if (this.filters.external) {
 			const beforeCount = posts.length;
 			posts = posts.filter((post) => post.hasExternalLink);
-			logger.debug(
-				`External filter: ${beforeCount} -> ${posts.length} posts`
-			);
+			logger.debug(`External filter: ${beforeCount} -> ${posts.length} posts`);
 		}
 
 		// Apply internal link filter (anchors/references)
 		if (this.filters.internal) {
 			const beforeCount = posts.length;
 			posts = posts.filter(
-				(post) => post.references && post.references.length > 0
+				(post) => post.references && post.references.length > 0,
 			);
-			logger.debug(
-				`Internal filter: ${beforeCount} -> ${posts.length} posts`
-			);
+			logger.debug(`Internal filter: ${beforeCount} -> ${posts.length} posts`);
 		}
 
 		if (initialCount !== posts.length) {
 			logger.info(
-				`Filtered posts: ${initialCount} -> ${posts.length} (filters: ${JSON.stringify(this.filters)})`
+				`Filtered posts: ${initialCount} -> ${posts.length} (filters: ${JSON.stringify(this.filters)})`,
 			);
 		}
 
@@ -129,7 +124,7 @@ export class ThreadManager extends BaseManager {
 	constructor(
 		app: App,
 		private provider: BBSProvider,
-		protected options: BaseManagerOptions = {}
+		protected options: BaseManagerOptions = {},
 	) {
 		super(app, options);
 	}
@@ -156,7 +151,7 @@ export class ThreadManager extends BaseManager {
 
 			this.thread = thread;
 			logger.info(
-				`Successfully loaded thread: ${thread.title} (${thread.posts.length} posts)`
+				`Successfully loaded thread: ${thread.title} (${thread.posts.length} posts)`,
 			);
 
 			// Call the callback if set

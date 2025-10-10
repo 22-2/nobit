@@ -20,7 +20,7 @@ const logger = log.getLogger("PluginManager");
 export class PluginManager {
 	async installPlugins(
 		vaultPath: string,
-		pluginPaths: TestPlugin[]
+		pluginPaths: TestPlugin[],
 	): Promise<void> {
 		const obsidianDir = path.join(vaultPath, ".obsidian");
 		const pluginsDir = path.join(obsidianDir, "plugins");
@@ -68,10 +68,7 @@ export class PluginManager {
 		}
 
 		// community-plugins.json を書き込み
-		const pluginsJsonPath = path.join(
-			obsidianDir,
-			"community-plugins.json"
-		);
+		const pluginsJsonPath = path.join(obsidianDir, "community-plugins.json");
 		writeFileSync(pluginsJsonPath, JSON.stringify(installedIds));
 		logger.debug(`Installed plugins: ${installedIds.join(", ")}`);
 	}
@@ -79,7 +76,7 @@ export class PluginManager {
 	public async enablePlugins(
 		app: ElectronApplication,
 		page: Page,
-		pluginIds: string[]
+		pluginIds: string[],
 	): Promise<void> {
 		const pluginManager = new PluginManager();
 
@@ -112,7 +109,7 @@ export class PluginManager {
 
 	async disableRestrictedMode(
 		page: Page,
-		app: ElectronApplication
+		app: ElectronApplication,
 	): Promise<void> {
 		if (await this.checkIsCommunityPluginEnabled(page)) {
 			logger.debug("Community plugins are already enabled.");
@@ -133,7 +130,7 @@ export class PluginManager {
 				const button = (
 					window as any
 				).app.setting.activeTab?.setting?.contentEl?.querySelector(
-					"button.mod-cta" // より具体的なセレクタに変更
+					"button.mod-cta", // より具体的なセレクタに変更
 				) as HTMLElement | null;
 				return button?.textContent?.trim() || null;
 			});
@@ -144,7 +141,7 @@ export class PluginManager {
 				const button = (
 					window as any
 				).app.setting.activeTab?.setting?.contentEl?.querySelector(
-					"button.mod-cta"
+					"button.mod-cta",
 				) as HTMLElement | null;
 				button?.click();
 			});
@@ -177,7 +174,7 @@ export class PluginManager {
 		// 最終確認
 		expect(
 			await this.checkIsCommunityPluginEnabled(page),
-			"Failed to enable community plugins."
+			"Failed to enable community plugins.",
 		).toBe(true);
 	}
 
@@ -186,10 +183,9 @@ export class PluginManager {
 			(window as any).app.setting.open();
 			(window as any).app.setting.openTabById("community-plugins");
 			const app = (window as any).app;
-			const button =
-				app.setting.activeTab?.setting?.contentEl?.querySelector(
-					"button"
-				) as HTMLElement | null;
+			const button = app.setting.activeTab?.setting?.contentEl?.querySelector(
+				"button",
+			) as HTMLElement | null;
 			if (button) {
 				const text = button.textContent as string;
 				button.click();
@@ -219,7 +215,7 @@ export class PluginManager {
 		const isEnabled = await page.evaluate(() => app.plugins.isEnabled());
 		logger.debug(
 			`${isEnabled ? "✅️" : "❌️"} checkIsCommunityPluginEnabled`,
-			page.url()
+			page.url(),
 		);
 		return isEnabled;
 	}

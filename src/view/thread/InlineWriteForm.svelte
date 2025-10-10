@@ -1,34 +1,34 @@
 <!-- apps/obsidian-plugin/src/components/InlineWriteForm.svelte -->
 <script lang="ts">
-    import type { PostData } from "src/lib/types";
+import type { PostData } from "src/lib/types";
 
-    let {
-        handlePost,
-        onCancel,
-        isSubmitting = $bindable(false),
-    } = $props<{
-        handlePost: (postData: PostData) => Promise<void>;
-        onCancel: () => void;
-        isSubmitting?: boolean;
-    }>();
+let {
+	handlePost,
+	onCancel,
+	isSubmitting = $bindable(false),
+} = $props<{
+	handlePost: (postData: PostData) => Promise<void>;
+	onCancel: () => void;
+	isSubmitting?: boolean;
+}>();
 
-    let content = $state("");
+let content = $state("");
 
-    async function submit() {
-        if (!content.trim() || isSubmitting) return;
-        isSubmitting = true;
-        try {
-            await handlePost({ name: "", mail: "", content });
-            // `handlePost`が正常に完了した場合 (例外をスローしなかった場合)
-            content = "";
-            onCancel(); // フォームを閉じる
-        } catch (e) {
-            // エラーは呼び出し元サービスで処理される想定だが、デバッグのためにログに残す
-            console.error("Failed to post:", e);
-        } finally {
-            isSubmitting = false;
-        }
-    }
+async function submit() {
+	if (!content.trim() || isSubmitting) return;
+	isSubmitting = true;
+	try {
+		await handlePost({ name: "", mail: "", content });
+		// `handlePost`が正常に完了した場合 (例外をスローしなかった場合)
+		content = "";
+		onCancel(); // フォームを閉じる
+	} catch (e) {
+		// エラーは呼び出し元サービスで処理される想定だが、デバッグのためにログに残す
+		console.error("Failed to post:", e);
+	} finally {
+		isSubmitting = false;
+	}
+}
 </script>
 
 <div class="inline-write-form">

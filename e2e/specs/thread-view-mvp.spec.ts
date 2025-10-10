@@ -11,29 +11,26 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  */
 test.describe("Thread View MVP Tests", () => {
 	test("should open ThreadView via command", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const plugin = await vault.window.evaluate(
 			(pluginId) => app.plugins.getPlugin(pluginId),
-			PLUGIN_ID
+			PLUGIN_ID,
 		);
 		expect(plugin).toBeTruthy();
 
 		// Setup mock
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createBasicThreadData()
+			body: MockDataFactory.createBasicThreadData(),
 		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// Verify content loaded
@@ -50,23 +47,20 @@ test.describe("Thread View MVP Tests", () => {
 	});
 
 	test("should display UI structure correctly", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createBasicThreadData()
+			body: MockDataFactory.createBasicThreadData(),
 		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// Verify UI structure
@@ -75,7 +69,7 @@ test.describe("Thread View MVP Tests", () => {
 
 		// Verify interactive elements
 		await expect(
-			vault.window.locator(".toolbar-section .clickable-icon")
+			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
 
 		// Verify successful load
@@ -84,32 +78,27 @@ test.describe("Thread View MVP Tests", () => {
 	});
 
 	test("should support Svelte 5 reactivity", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createBasicThreadData()
+			body: MockDataFactory.createBasicThreadData(),
 		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		await threadHelper.waitForThreadContent(10000);
 
 		// Verify reactive components
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
-		await expect(
-			vault.window.locator(".filter-buttons-group")
-		).toBeVisible();
+		await expect(vault.window.locator(".filter-buttons-group")).toBeVisible();
 		await expect(vault.window.locator(".thread-title")).toBeVisible();
 		await expect(vault.window.locator(".post-count")).toContainText("posts");
 
@@ -119,28 +108,25 @@ test.describe("Thread View MVP Tests", () => {
 
 		// Verify interactive elements
 		await expect(
-			vault.window.locator(".toolbar-section .clickable-icon")
+			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
 	});
 
 	test("should maintain architectural separation", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createBasicThreadData()
+			body: MockDataFactory.createBasicThreadData(),
 		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		await threadHelper.waitForThreadContent(10000);
@@ -160,23 +146,20 @@ test.describe("Thread View MVP Tests", () => {
 	});
 
 	test("should validate basic UI structure", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createBasicThreadData()
+			body: MockDataFactory.createBasicThreadData(),
 		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		await threadHelper.waitForThreadContent(10000);
@@ -195,14 +178,12 @@ test.describe("Thread View MVP Tests", () => {
 
 		// Verify interactive elements
 		await expect(
-			vault.window.locator(".toolbar-section .clickable-icon")
+			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
 
 		// Verify filter components
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
-		await expect(
-			vault.window.locator(".filter-buttons-group")
-		).toBeVisible();
+		await expect(vault.window.locator(".filter-buttons-group")).toBeVisible();
 	});
 });
 

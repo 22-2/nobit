@@ -1,96 +1,96 @@
 <script lang="ts">
-    import type { Thread } from "src/lib//types";
-    import { usePopover } from "src/store/usePopover.svelte";
+import type { Thread } from "src/lib//types";
+import { usePopover } from "src/store/usePopover.svelte";
 
-    interface Props {
-        threadData?: Thread | null;
-        showTestPosts?: boolean;
-        containerHeight?: string;
-        containerWidth?: string;
-    }
+interface Props {
+	threadData?: Thread | null;
+	showTestPosts?: boolean;
+	containerHeight?: string;
+	containerWidth?: string;
+}
 
-    let {
-        threadData = null,
-        showTestPosts = true,
-        containerHeight = "400px",
-        containerWidth = "600px",
-    }: Props = $props();
+let {
+	threadData = null,
+	showTestPosts = true,
+	containerHeight = "400px",
+	containerWidth = "600px",
+}: Props = $props();
 
-    // テスト用のサンプルデータ
-    const sampleThread: Thread = {
-        id: "test-thread",
-        title: "テストスレッド",
-        url: "https://example.com/test",
-        posts: [
-            {
-                resNum: 1,
-                authorName: "名無しさん",
-                mail: "",
-                authorId: "ID:test001",
-                content: "これは最初のレスです。",
-                date: new Date("2024-01-01T10:00:00"),
-                references: [],
-                replies: [2],
-                hasImage: false,
-                hasExternalLink: false,
-                postIdCount: 1,
-                siblingPostNumbers: [1],
-            },
-            {
-                resNum: 2,
-                authorName: "名無しさん",
-                mail: "",
-                authorId: "ID:test002",
-                content: ">>1 これは返信レスです。",
-                date: new Date("2024-01-01T10:05:00"),
-                references: [1],
-                replies: [],
-                hasImage: false,
-                hasExternalLink: false,
-                postIdCount: 1,
-                siblingPostNumbers: [2],
-            },
-            {
-                resNum: 3,
-                authorName: "名無しさん",
-                mail: "",
-                authorId: "ID:test003",
-                content: "これは3番目のレスです。画像付きです。",
-                date: new Date("2024-01-01T10:10:00"),
-                references: [],
-                replies: [],
-                hasImage: true,
-                hasExternalLink: false,
-                postIdCount: 1,
-                siblingPostNumbers: [3],
-                imageUrls: ["https://example.com/image.jpg"],
-            },
-        ],
-    };
+// テスト用のサンプルデータ
+const sampleThread: Thread = {
+	id: "test-thread",
+	title: "テストスレッド",
+	url: "https://example.com/test",
+	posts: [
+		{
+			resNum: 1,
+			authorName: "名無しさん",
+			mail: "",
+			authorId: "ID:test001",
+			content: "これは最初のレスです。",
+			date: new Date("2024-01-01T10:00:00"),
+			references: [],
+			replies: [2],
+			hasImage: false,
+			hasExternalLink: false,
+			postIdCount: 1,
+			siblingPostNumbers: [1],
+		},
+		{
+			resNum: 2,
+			authorName: "名無しさん",
+			mail: "",
+			authorId: "ID:test002",
+			content: ">>1 これは返信レスです。",
+			date: new Date("2024-01-01T10:05:00"),
+			references: [1],
+			replies: [],
+			hasImage: false,
+			hasExternalLink: false,
+			postIdCount: 1,
+			siblingPostNumbers: [2],
+		},
+		{
+			resNum: 3,
+			authorName: "名無しさん",
+			mail: "",
+			authorId: "ID:test003",
+			content: "これは3番目のレスです。画像付きです。",
+			date: new Date("2024-01-01T10:10:00"),
+			references: [],
+			replies: [],
+			hasImage: true,
+			hasExternalLink: false,
+			postIdCount: 1,
+			siblingPostNumbers: [3],
+			imageUrls: ["https://example.com/image.jpg"],
+		},
+	],
+};
 
-    let popoverContainer: HTMLElement;
-    const popover = usePopover();
+let popoverContainer: HTMLElement;
+const popover = usePopover();
 
-    $effect(() => {
-        if (popoverContainer) {
-            popover.init(popoverContainer);
-            popover.setThreadData(threadData || sampleThread);
-        }
+$effect(() => {
+	if (popoverContainer) {
+		popover.init(popoverContainer);
+		popover.setThreadData(threadData || sampleThread);
+	}
 
-        return () => {
-            popover.destroy();
-        };
-    });
+	return () => {
+		popover.destroy();
+	};
+});
 
-    function handlePostLinkClick(postIndex: number, event: MouseEvent) {
-        const target = event.target as HTMLElement;
-        popover.handleHover(target, postIndex, 0, event);
-    }
+function handlePostLinkClick(postIndex: number, event: MouseEvent) {
+	const target = event.target as HTMLElement;
+	popover.handleHover(target, postIndex, 0, event);
+}
 
-    function handleReplyTreeClick(originResNumber: number, event: MouseEvent) {
-        const target = event.target as HTMLElement;
-        popover.handleShowReplyTree(target, originResNumber, 0, event);
-    }
+function handleReplyTreeClick(originResNumber: number, event: MouseEvent) {
+	const target = event.target as HTMLElement;
+	popover.handleShowReplyTree(target, originResNumber, 0, event);
+}
 </script>
 
 <div

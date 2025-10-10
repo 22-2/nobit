@@ -14,7 +14,7 @@ export function createInstructions(hotkeysByCommand: {
 
 export function createInstruction(
 	commandName: string,
-	hotkey?: Hotkey
+	hotkey?: Hotkey,
 ): Instruction | null {
 	if (!hotkey) {
 		return null;
@@ -26,12 +26,12 @@ export function createInstruction(
 		hotkey.key === "Enter"
 			? "↵"
 			: hotkey.key === "ArrowUp"
-			? "↑"
-			: hotkey.key === "ArrowDown"
-			? "↓"
-			: hotkey.key === "Escape"
-			? "ESC"
-			: hotkey.key;
+				? "↑"
+				: hotkey.key === "ArrowDown"
+					? "↓"
+					: hotkey.key === "Escape"
+						? "ESC"
+						: hotkey.key;
 	const command = mods ? `[${mods} ${key}]` : `[${key}]`;
 	return { command, purpose: commandName };
 }

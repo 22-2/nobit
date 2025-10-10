@@ -1,62 +1,62 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import ThreadToolbar from "../../view/thread/ThreadToolbar.svelte";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
-    import { fn } from "storybook/test";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import ThreadToolbar from "../../view/thread/ThreadToolbar.svelte";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { fn } from "storybook/test";
 
-    // Mock ThreadManager for integration testing
-    const createMockThreadManager = (overrides = {}) => ({
-        thread: null,
-        isLoading: false,
-        error: null,
-        filters: {
-            popular: false,
-            image: false,
-            video: false,
-            external: false,
-            internal: false,
-            searchText: "",
-        },
-        refreshThread: fn(),
-        updateFilters: fn(),
-        jumpToPost: fn(),
-        loadThread: fn(),
-        ...overrides,
-    });
+// Mock ThreadManager for integration testing
+const createMockThreadManager = (overrides = {}) => ({
+	thread: null,
+	isLoading: false,
+	error: null,
+	filters: {
+		popular: false,
+		image: false,
+		video: false,
+		external: false,
+		internal: false,
+		searchText: "",
+	},
+	refreshThread: fn(),
+	updateFilters: fn(),
+	jumpToPost: fn(),
+	loadThread: fn(),
+	...overrides,
+});
 
-    const { Story } = defineMeta({
-        title: "Thread/ThreadToolbar",
-        component: ThreadToolbar,
-        tags: ["autodocs"],
-        argTypes: {
-            isCoolingDown: {
-                control: "boolean",
-                description: "リフレッシュボタンのクールダウン状態",
-            },
-            isLoading: {
-                control: "boolean",
-                description: "ローディング状態（ThreadManagerから取得）",
-            },
-            onRefresh: {
-                action: "onRefresh",
-                description: "リフレッシュボタンクリック時のコールバック",
-            },
-            onWriteButtonClick: {
-                action: "onWriteButtonClick",
-                description: "書き込みボタンクリック時のコールバック",
-            },
-        },
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    padding: "var(--size-4-4)",
-                    minHeight: "var(--size-4-15)",
-                },
-            }),
-        ],
-    });
+const { Story } = defineMeta({
+	title: "Thread/ThreadToolbar",
+	component: ThreadToolbar,
+	tags: ["autodocs"],
+	argTypes: {
+		isCoolingDown: {
+			control: "boolean",
+			description: "リフレッシュボタンのクールダウン状態",
+		},
+		isLoading: {
+			control: "boolean",
+			description: "ローディング状態（ThreadManagerから取得）",
+		},
+		onRefresh: {
+			action: "onRefresh",
+			description: "リフレッシュボタンクリック時のコールバック",
+		},
+		onWriteButtonClick: {
+			action: "onWriteButtonClick",
+			description: "書き込みボタンクリック時のコールバック",
+		},
+	},
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				padding: "var(--size-4-4)",
+				minHeight: "var(--size-4-15)",
+			},
+		}),
+	],
+});
 </script>
 
 <!-- デフォルトの状態 -->

@@ -25,7 +25,7 @@ export class VaultManager {
 
 	constructor(
 		private app: ElectronApplication,
-		private pageManager: PageManager
+		private pageManager: PageManager,
 	) {
 		this.ipc = new IPCBridge(this.pageManager);
 		this.pluginManager = new PluginManager();
@@ -46,7 +46,7 @@ export class VaultManager {
 			logger.debug(chalk.green("Opening sandbox vault..."));
 			newPage = await this.pageManager.executeActionAndWaitForNewWindow(
 				() => this.ipc.openSandbox(),
-				this.pageManager.waitForVaultReady
+				this.pageManager.waitForVaultReady,
 			);
 			vaultPath = await this.ipc.getSandboxPath();
 			logger.debug(chalk.green("Sandbox vault opened at:", vaultPath));
@@ -58,11 +58,9 @@ export class VaultManager {
 				vaultPath = await this.getVaultPath(options.name);
 			} else {
 				logger.debug(
-					"options.name and options.path not specified, create temp dir"
+					"options.name and options.path not specified, create temp dir",
 				);
-				vaultPath = await fs.mkdtemp(
-					path.join(os.tmpdir(), "obsidian-e2e-")
-				);
+				vaultPath = await fs.mkdtemp(path.join(os.tmpdir(), "obsidian-e2e-"));
 				logger.debug("temp dir created:", vaultPath);
 			}
 
@@ -74,13 +72,13 @@ export class VaultManager {
 				async () => {
 					const result = await this.ipc.openVault(
 						vaultPath,
-						options.forceNewVault
+						options.forceNewVault,
 					);
 					if (result !== true) {
 						throw new Error(`Failed to open vault: ${result}`);
 					}
 				},
-				this.pageManager.waitForVaultReady
+				this.pageManager.waitForVaultReady,
 			);
 			logger.debug("Normal vault opened:", vaultPath);
 		}
@@ -99,7 +97,7 @@ export class VaultManager {
 			await this.pluginManager.enablePlugins(
 				this.app,
 				newPage,
-				options.plugins.map((p) => p.pluginId)
+				options.plugins.map((p) => p.pluginId),
 			);
 			shouldReload = true; // Reload is needed after enabling
 			logger.debug("Plugins enabled.");
@@ -107,9 +105,7 @@ export class VaultManager {
 
 		// --- Step 4: Reload Vault if plugins were modified ---
 		if (shouldReload) {
-			logger.debug(
-				chalk.blue("Reloading vault to apply plugin changes...")
-			);
+			logger.debug(chalk.blue("Reloading vault to apply plugin changes..."));
 			await newPage.reload();
 			await this.pageManager.waitForVaultReady(newPage);
 			logger.debug(chalk.blue("Vault reloaded."));
@@ -120,10 +116,10 @@ export class VaultManager {
 
 	static async clearData(
 		electronApp: ElectronApplication,
-		page?: Page
+		page?: Page,
 	): Promise<void> {
 		const userDataDir = await electronApp.evaluate(({ app }) =>
-			app.getPath("userData")
+			app.getPath("userData"),
 		);
 		[
 			path.join(userDataDir, "obsidian.json"),
@@ -166,7 +162,7 @@ export class VaultManager {
 			async () => {
 				await this.ipc.openStarter();
 			},
-			this.pageManager.waitForStarterReady
+			this.pageManager.waitForStarterReady,
 		);
 
 		await this.pageManager.waitForStarterReady(newPage);
@@ -197,7 +193,7 @@ export class VaultManager {
 		return path.join(
 			process.env.USERPROFILE || process.env.HOME || "",
 			"ObsidianVaults",
-			name
+			name,
 		);
 	}
 }

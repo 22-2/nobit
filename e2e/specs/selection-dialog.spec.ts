@@ -6,7 +6,9 @@ import { TestFetcherMockHelper } from "../helpers/TestFetcherMockHelper";
 import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
 
 test.describe("Selection Dialog", () => {
-	test("should open thread when selecting from history with Enter key", async ({ vault }) => {
+	test("should open thread when selecting from history with Enter key", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
@@ -15,18 +17,21 @@ test.describe("Selection Dialog", () => {
 		const threadData = `テスト太郎<>sage<>2025/10/10(金) 12:00:00.00 ID:test1234<>これはテストスレッドです<>【テスト】履歴選択テスト
 テスト次郎<>sage<>2025/10/10(金) 12:01:00.00 ID:test5678<>レス1です<>`;
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: threadData
+			body: threadData,
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 
 		// First, add an entry to history
-		await vault.window.evaluate(async (args) => {
-			const plugin = (window as any).app.plugins.plugins[args.pluginId];
-			await plugin.addToUrlHistory(args.url, args.title);
-		}, { pluginId: PLUGIN_ID, url: testUrl, title: "【テスト】履歴選択テスト" });
+		await vault.window.evaluate(
+			async (args) => {
+				const plugin = (window as any).app.plugins.plugins[args.pluginId];
+				await plugin.addToUrlHistory(args.url, args.title);
+			},
+			{ pluginId: PLUGIN_ID, url: testUrl, title: "【テスト】履歴選択テスト" },
+		);
 
 		// Wait for history to be saved
 		await vault.window.waitForTimeout(300);
@@ -35,10 +40,13 @@ test.describe("Selection Dialog", () => {
 		await obsPage.runCommand(`${PLUGIN_ID}:open-with-url`);
 
 		// Wait for the selection dialog to open
-		await vault.window.waitForFunction(() => {
-			const prompt = document.querySelector('.prompt');
-			return prompt !== null;
-		}, { timeout: 3000 });
+		await vault.window.waitForFunction(
+			() => {
+				const prompt = document.querySelector(".prompt");
+				return prompt !== null;
+			},
+			{ timeout: 3000 },
+		);
 
 		// The first item should be our history entry (already selected with .is-selected)
 		// Press Enter to select
@@ -53,7 +61,9 @@ test.describe("Selection Dialog", () => {
 		expect(threadTitle).toBe("【テスト】履歴選択テスト");
 	});
 
-	test("should open thread when clicking on history item", async ({ vault }) => {
+	test("should open thread when clicking on history item", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
@@ -62,18 +72,25 @@ test.describe("Selection Dialog", () => {
 		const threadData = `テスト太郎<>sage<>2025/10/10(金) 12:00:00.00 ID:test1234<>これはテストスレッドです<>【テスト】クリック選択テスト
 テスト次郎<>sage<>2025/10/10(金) 12:01:00.00 ID:test5678<>レス1です<>`;
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: threadData
+			body: threadData,
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001771/";
 
 		// Add entry to history
-		await vault.window.evaluate(async (args) => {
-			const plugin = (window as any).app.plugins.plugins[args.pluginId];
-			await plugin.addToUrlHistory(args.url, args.title);
-		}, { pluginId: PLUGIN_ID, url: testUrl, title: "【テスト】クリック選択テスト" });
+		await vault.window.evaluate(
+			async (args) => {
+				const plugin = (window as any).app.plugins.plugins[args.pluginId];
+				await plugin.addToUrlHistory(args.url, args.title);
+			},
+			{
+				pluginId: PLUGIN_ID,
+				url: testUrl,
+				title: "【テスト】クリック選択テスト",
+			},
+		);
 
 		await vault.window.waitForTimeout(300);
 
@@ -83,7 +100,7 @@ test.describe("Selection Dialog", () => {
 
 		// Click on the first suggestion
 		const clicked = await vault.window.evaluate(() => {
-			const suggestion = document.querySelector('.suggestion-item');
+			const suggestion = document.querySelector(".suggestion-item");
 			if (suggestion) {
 				(suggestion as HTMLElement).click();
 				return true;

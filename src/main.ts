@@ -41,7 +41,7 @@ export default class NobitPlugin extends Plugin {
 
 		this.registerView(
 			VIEW_TYPE_THREAD,
-			(leaf) => new ThreadView(leaf, this, this.threadManager)
+			(leaf) => new ThreadView(leaf, this, this.threadManager),
 		);
 
 		this.addCommand({
@@ -55,10 +55,10 @@ export default class NobitPlugin extends Plugin {
 
 				// デフォルトのキー操作ガイドを作成
 				const instructions = createInstructions({
-					"上へ": [{ modifiers: [], key: "ArrowUp" }],
-					"下へ": [{ modifiers: [], key: "ArrowDown" }],
-					"確定": [{ modifiers: [], key: "Enter" }],
-					"キャンセル": [{ modifiers: [], key: "Escape" }],
+					上へ: [{ modifiers: [], key: "ArrowUp" }],
+					下へ: [{ modifiers: [], key: "ArrowDown" }],
+					確定: [{ modifiers: [], key: "Enter" }],
+					キャンセル: [{ modifiers: [], key: "Escape" }],
 				});
 
 				const selected = await showSelectionDialog({
@@ -112,18 +112,22 @@ export default class NobitPlugin extends Plugin {
 			return void new Notice("Invalid URL");
 		}
 
-		const view = await (activateView(this.app.workspace.getLeaf.bind(this.app.workspace), {
-			type: VIEW_TYPE_THREAD,
-			state: {
-				...state,
-				url: inputUrl,
-				active: true,
+		const view = await activateView(
+			this.app.workspace.getLeaf.bind(this.app.workspace),
+			{
+				type: VIEW_TYPE_THREAD,
+				state: {
+					...state,
+					url: inputUrl,
+					active: true,
+				},
 			},
-		}));
+		);
 		this.app.workspace.revealLeaf(view.leaf);
 
 		// Save to history
-		const title = (state.state as any).title || state.state.threadId || inputUrl;
+		const title =
+			(state.state as any).title || state.state.threadId || inputUrl;
 		await this.addToUrlHistory(inputUrl, title);
 	}
 
@@ -132,7 +136,7 @@ export default class NobitPlugin extends Plugin {
 
 		// Remove duplicate if exists
 		this.settings.urlHistory = this.settings.urlHistory.filter(
-			(item) => item.url !== url
+			(item) => item.url !== url,
 		);
 
 		// Add new item at the end
@@ -155,11 +159,7 @@ export default class NobitPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
 	async saveSettings() {

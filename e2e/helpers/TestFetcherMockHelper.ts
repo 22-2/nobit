@@ -15,21 +15,24 @@ export class TestFetcherMockHelper {
 			// Access TestFetcher from the global scope
 			const TestFetcher = (window as any).TestFetcher;
 			if (!TestFetcher) {
-				console.error('❌ TestFetcher not found in global scope');
+				console.error("❌ TestFetcher not found in global scope");
 				return;
 			}
 
 			// Create the handler function from string
-			const handlerFn = new Function('url', handlerStr) as MockHandler;
+			const handlerFn = new Function("url", handlerStr) as MockHandler;
 			TestFetcher.setMockHandler(handlerFn);
-			console.log('✅ TestFetcher mock handler set');
+			console.log("✅ TestFetcher mock handler set");
 		}, handler.toString());
 	}
 
 	/**
 	 * Set up a simple URL pattern matcher
 	 */
-	async setupPatternMock(pattern: string | RegExp, response: { status: number; body: string; delay?: number }): Promise<void> {
+	async setupPatternMock(
+		pattern: string | RegExp,
+		response: { status: number; body: string; delay?: number },
+	): Promise<void> {
 		const patternStr = pattern instanceof RegExp ? pattern.source : pattern;
 		const isRegex = pattern instanceof RegExp;
 
@@ -37,20 +40,24 @@ export class TestFetcherMockHelper {
 			({ patternStr, isRegex, response }) => {
 				const TestFetcher = (window as any).TestFetcher;
 				if (!TestFetcher) {
-					console.error('❌ TestFetcher not found in global scope');
+					console.error("❌ TestFetcher not found in global scope");
 					return;
 				}
 
 				const matcher = isRegex ? new RegExp(patternStr) : patternStr;
 
 				TestFetcher.setMockHandler((url: string) => {
-					const matches = typeof matcher === 'string'
-						? url.includes(matcher)
-						: matcher.test(url);
+					const matches =
+						typeof matcher === "string"
+							? url.includes(matcher)
+							: matcher.test(url);
 
 					if (matches) {
 						console.log(`🎯 TestFetcher mock matched: ${url}`);
-						console.log(`📦 Returning mock response:`, { status: response.status, bodyLength: response.body?.length });
+						console.log(`📦 Returning mock response:`, {
+							status: response.status,
+							bodyLength: response.body?.length,
+						});
 
 						// Note: delay is not supported in synchronous mock handler
 						// The mock handler must be synchronous to work with TestFetcher
@@ -60,9 +67,9 @@ export class TestFetcherMockHelper {
 					return null;
 				});
 
-				console.log('✅ TestFetcher pattern mock set:', patternStr);
+				console.log("✅ TestFetcher pattern mock set:", patternStr);
 			},
-			{ patternStr, isRegex, response }
+			{ patternStr, isRegex, response },
 		);
 	}
 
@@ -74,7 +81,7 @@ export class TestFetcherMockHelper {
 			const TestFetcher = (window as any).TestFetcher;
 			if (TestFetcher) {
 				TestFetcher.clearMockHandler();
-				console.log('✅ TestFetcher mocks cleared');
+				console.log("✅ TestFetcher mocks cleared");
 			}
 		});
 	}

@@ -46,7 +46,7 @@ export class MockDataFactory {
 			const threadTitle = i === 1 ? "パフォーマンステスト用大規模スレッド" : "";
 
 			posts.push(
-				`${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`
+				`${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`,
 			);
 		}
 
@@ -71,7 +71,7 @@ export class MockDataFactory {
 			const threadTitle = i === 1 ? options.title : "";
 
 			posts.push(
-				`${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`
+				`${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`,
 			);
 		}
 

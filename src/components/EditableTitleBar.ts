@@ -74,9 +74,7 @@ export class EditableTitleBar {
 	private async handleKeyDown(evt: KeyboardEvent) {
 		if (evt.key === "Enter") {
 			evt.preventDefault();
-			await this.view.navigateToThreadFromUrl(
-				this.titleEl.innerText.trim(),
-			);
+			await this.view.navigateToThreadFromUrl(this.titleEl.innerText.trim());
 			this.titleEl.blur();
 		}
 	}

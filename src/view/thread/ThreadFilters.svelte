@@ -1,67 +1,67 @@
 <!-- src/components/ThreadFilters.svelte -->
 <script lang="ts">
-    import type { ThreadFilters } from "src/lib/types";
+import type { ThreadFilters } from "src/lib/types";
 
-    import { Heart, Image, Search, Video } from "lucide-svelte";
+import { Heart, Image, Search, Video } from "lucide-svelte";
 
-    let {
-        filters = $bindable({
-            popular: false,
-            image: false,
-            video: false,
-            external: false,
-            internal: false,
-            searchText: "",
-        }),
-        isVisible = true,
-    } = $props<{
-        filters: ThreadFilters;
-        isVisible: boolean;
-    }>();
+let {
+	filters = $bindable({
+		popular: false,
+		image: false,
+		video: false,
+		external: false,
+		internal: false,
+		searchText: "",
+	}),
+	isVisible = true,
+} = $props<{
+	filters: ThreadFilters;
+	isVisible: boolean;
+}>();
 
-    const filterButtons = [
-        {
-            key: "popular",
-            label: "人気",
-            icon: Heart,
-            ariaLabel: "人気レスで絞り込む",
-        },
-        {
-            key: "image",
-            label: "画像",
-            icon: Image,
-            ariaLabel: "画像を含むレスで絞り込む",
-        },
-        {
-            key: "video",
-            label: "動画",
-            icon: Video,
-            ariaLabel: "動画を含むレスで絞り込む",
-        },
-        {
-            key: "external",
-            label: "外部",
-            icon: undefined,
-            ariaLabel: "外部リンクを含むレスで絞り込む",
-        },
-        {
-            key: "internal",
-            label: "内部",
-            icon: undefined,
-            ariaLabel: "スレ内アンカーを含むレスで絞り込む",
-        },
-    ] as const;
+const filterButtons = [
+	{
+		key: "popular",
+		label: "人気",
+		icon: Heart,
+		ariaLabel: "人気レスで絞り込む",
+	},
+	{
+		key: "image",
+		label: "画像",
+		icon: Image,
+		ariaLabel: "画像を含むレスで絞り込む",
+	},
+	{
+		key: "video",
+		label: "動画",
+		icon: Video,
+		ariaLabel: "動画を含むレスで絞り込む",
+	},
+	{
+		key: "external",
+		label: "外部",
+		icon: undefined,
+		ariaLabel: "外部リンクを含むレスで絞り込む",
+	},
+	{
+		key: "internal",
+		label: "内部",
+		icon: undefined,
+		ariaLabel: "スレ内アンカーを含むレスで絞り込む",
+	},
+] as const;
 
-    function toggleFilter(key: keyof Omit<ThreadFilters, "searchText">) {
-        // Svelte 5: To ensure reactivity with parent components,
-        // we must create a new object rather than mutating the existing one.
-        filters = { ...filters, [key]: !filters[key] };
-    }
+function toggleFilter(key: keyof Omit<ThreadFilters, "searchText">) {
+	// Svelte 5: To ensure reactivity with parent components,
+	// we must create a new object rather than mutating the existing one.
+	filters = { ...filters, [key]: !filters[key] };
+}
 
-    function onSearchInput(event: Event) {
-        const target = event.target as HTMLInputElement;
-        filters = { ...filters, searchText: target.value };
-    }
+function onSearchInput(event: Event) {
+	const target = event.target as HTMLInputElement;
+	filters = { ...filters, searchText: target.value };
+}
 </script>
 
 {#if isVisible}

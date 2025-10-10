@@ -7,7 +7,9 @@ export const logger = log.getLogger("TestFetcher");
 /**
  * Mock response handler type
  */
-export type MockHandler = (url: string) => { status: number; body: string } | null;
+export type MockHandler = (
+	url: string,
+) => { status: number; body: string } | null;
 
 /**
  * Test-specific fetcher that uses standard fetch API instead of Obsidian's requestUrl
@@ -27,7 +29,7 @@ export class TestFetcher implements HttpFetcher {
 	 */
 	static setMockHandler(handler: MockHandler | null): void {
 		TestFetcher.mockHandler = handler;
-		logger.debug('Mock handler set:', !!handler);
+		logger.debug("Mock handler set:", !!handler);
 	}
 
 	/**
@@ -35,12 +37,12 @@ export class TestFetcher implements HttpFetcher {
 	 */
 	static clearMockHandler(): void {
 		TestFetcher.mockHandler = null;
-		logger.debug('Mock handler cleared');
+		logger.debug("Mock handler cleared");
 	}
 
 	private async executeRequest(
 		url: string,
-		options?: RequestInit
+		options?: RequestInit,
 	): Promise<ArrayBuffer> {
 		logger.debug(`Fetching URL: ${url}`, options);
 
@@ -57,14 +59,16 @@ export class TestFetcher implements HttpFetcher {
 					throw new HttpError(
 						`Mock fetch failed with status ${mockResponse.status} for URL: ${url}`,
 						mockResponse.status,
-						null as any
+						null as any,
 					);
 				}
 
 				// Convert string to ArrayBuffer
 				const encoder = new TextEncoder();
 				const arrayBuffer = encoder.encode(mockResponse.body).buffer;
-				logger.debug(`✅ Mock response returned, size: ${arrayBuffer.byteLength}`);
+				logger.debug(
+					`✅ Mock response returned, size: ${arrayBuffer.byteLength}`,
+				);
 				return arrayBuffer;
 			}
 		}
@@ -83,7 +87,7 @@ export class TestFetcher implements HttpFetcher {
 				throw new HttpError(
 					`Test fetch failed with status ${response.status} for URL: ${url}`,
 					response.status,
-					response
+					response,
 				);
 			}
 
@@ -104,10 +108,10 @@ export class TestFetcher implements HttpFetcher {
 
 	async fetch(
 		url: string,
-		headers?: Record<string, string>
+		headers?: Record<string, string>,
 	): Promise<ArrayBuffer> {
 		const options: RequestInit = {
-			method: 'GET',
+			method: "GET",
 			headers,
 		};
 		return this.queue.enqueue(() => this.executeRequest(url, options));
@@ -117,12 +121,12 @@ export class TestFetcher implements HttpFetcher {
 		url: string,
 		body: URLSearchParams,
 		headers?: Record<string, string>,
-		confirmationData?: Record<string, string>
+		confirmationData?: Record<string, string>,
 	): Promise<ArrayBuffer> {
 		const options: RequestInit = {
-			method: 'POST',
+			method: "POST",
 			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
 				...headers,
 			},
 			body: body.toString(),

@@ -40,7 +40,7 @@ export class PageManager {
 
 	async executeActionAndWaitForNewWindow(
 		action: () => Promise<void>,
-		wait: (page: Page) => Promise<void> = this.waitForPage
+		wait: (page: Page) => Promise<void> = this.waitForPage,
 	): Promise<Page> {
 		const currentWindows = this.app.windows();
 
@@ -62,7 +62,7 @@ export class PageManager {
 		for (const window of currentWindows) {
 			if (window !== newPage && !window.isClosed()) {
 				logger.debug(
-					chalk.yellow(`Closing old window: ${await window.title()}`)
+					chalk.yellow(`Closing old window: ${await window.title()}`),
 				);
 				await window.close();
 			}
@@ -91,13 +91,11 @@ export class PageManager {
 			async () => {
 				if ((window as any).app?.workspace?.onLayoutReady) {
 					return await new Promise<void>((resolve) => {
-						return app.workspace.onLayoutReady(() =>
-							resolve(undefined)
-						);
+						return app.workspace.onLayoutReady(() => resolve(undefined));
 					});
 				}
 			},
-			{ timeout: 10000 }
+			{ timeout: 10000 },
 		);
 
 		// 追加の安定化待機

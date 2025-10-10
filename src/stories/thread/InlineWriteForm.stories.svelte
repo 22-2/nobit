@@ -1,38 +1,38 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import InlineWriteForm from "../../view/thread/InlineWriteForm.svelte";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
-    import { fn } from "storybook/test";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import InlineWriteForm from "../../view/thread/InlineWriteForm.svelte";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { fn } from "storybook/test";
 
-    const { Story } = defineMeta({
-        title: "Thread/InlineWriteForm",
-        component: InlineWriteForm,
-        tags: ["autodocs"],
-        argTypes: {
-            handlePost: {
-                action: "handlePost",
-                description: "投稿処理を行う非同期関数",
-            },
-            onCancel: {
-                action: "onCancel",
-                description: "キャンセル時のコールバック",
-            },
-            isSubmitting: {
-                control: "boolean",
-                description: "投稿中かどうかの状態",
-            },
-        },
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    padding: "var(--size-4-4)",
-                    minHeight: "var(--size-4-50)",
-                },
-            }),
-        ],
-    });
+const { Story } = defineMeta({
+	title: "Thread/InlineWriteForm",
+	component: InlineWriteForm,
+	tags: ["autodocs"],
+	argTypes: {
+		handlePost: {
+			action: "handlePost",
+			description: "投稿処理を行う非同期関数",
+		},
+		onCancel: {
+			action: "onCancel",
+			description: "キャンセル時のコールバック",
+		},
+		isSubmitting: {
+			control: "boolean",
+			description: "投稿中かどうかの状態",
+		},
+	},
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				padding: "var(--size-4-4)",
+				minHeight: "var(--size-4-50)",
+			},
+		}),
+	],
+});
 </script>
 
 <!-- デフォルトの状態 -->

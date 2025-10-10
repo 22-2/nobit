@@ -1,72 +1,72 @@
 <!-- src/stories/helpers/WheelRefreshTester.svelte -->
 <script lang="ts">
-    import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
-    import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
+import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
+import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 
-    let {
-        isEnabled = true,
-        onUpRefresh,
-        onDownRefresh,
-        upThreshold = 7,
-        downThreshold = 7,
-        initialScrollTop = 0,
-        // デフォルトは 'top'
-        statePosition = "top",
-    } = $props<{
-        isEnabled?: boolean;
-        onUpRefresh?: () => Promise<void>;
-        onDownRefresh?: () => Promise<void>;
-        upThreshold?: number;
-        downThreshold?: number;
-        initialScrollTop?: number;
-        // 状態表示の位置を指定するプロパティを追加
-        statePosition?: "top" | "bottom";
-    }>();
+let {
+	isEnabled = true,
+	onUpRefresh,
+	onDownRefresh,
+	upThreshold = 7,
+	downThreshold = 7,
+	initialScrollTop = 0,
+	// デフォルトは 'top'
+	statePosition = "top",
+} = $props<{
+	isEnabled?: boolean;
+	onUpRefresh?: () => Promise<void>;
+	onDownRefresh?: () => Promise<void>;
+	upThreshold?: number;
+	downThreshold?: number;
+	initialScrollTop?: number;
+	// 状態表示の位置を指定するプロパティを追加
+	statePosition?: "top" | "bottom";
+}>();
 
-    let scrollContainerEl: HTMLElement | undefined = $state();
-    let isPerformingRefreshAction = $state(false); // コールバック実行中のみtrue
+let scrollContainerEl: HTMLElement | undefined = $state();
+let isPerformingRefreshAction = $state(false); // コールバック実行中のみtrue
 
-    const createRefreshHandler = (
-        callback?: () => Promise<void>,
-        isUp: boolean = true
-    ) => {
-        if (!callback) return undefined;
+const createRefreshHandler = (
+	callback?: () => Promise<void>,
+	isUp: boolean = true,
+) => {
+	if (!callback) return undefined;
 
-        return {
-            onRefresh: async () => {
-                isPerformingRefreshAction = true;
-                try {
-                    await callback();
-                } finally {
-                    // コールバックが完了したら false に戻す
-                    // useWheelRefresh 内部で success -> coolingDown の遷移が制御されるため、
-                    // ここで isRefreshing を直接制御する必要はなくなる。
-                    // ただし、Storybookのテストで onUpRefresh/onDownRefresh が呼ばれたことを確認するための一時的な状態。
-                    setTimeout(() => {
-                        isPerformingRefreshAction = false;
-                    }, 500); // わずかな遅延
-                }
-            },
-            threshold: isUp ? upThreshold : downThreshold,
-        };
-    };
+	return {
+		onRefresh: async () => {
+			isPerformingRefreshAction = true;
+			try {
+				await callback();
+			} finally {
+				// コールバックが完了したら false に戻す
+				// useWheelRefresh 内部で success -> coolingDown の遷移が制御されるため、
+				// ここで isRefreshing を直接制御する必要はなくなる。
+				// ただし、Storybookのテストで onUpRefresh/onDownRefresh が呼ばれたことを確認するための一時的な状態。
+				setTimeout(() => {
+					isPerformingRefreshAction = false;
+				}, 500); // わずかな遅延
+			}
+		},
+		threshold: isUp ? upThreshold : downThreshold,
+	};
+};
 
-    // useWheelRefresh から wheelState と bindRefreshTriggerLine を取得
-    const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
-        getScrollElement: () => scrollContainerEl,
-        isEnabled: () => isEnabled && !isPerformingRefreshAction, // コールバック実行中はホイールリフレッシュを無効化
-        up: createRefreshHandler(onUpRefresh, true),
-        down: createRefreshHandler(onDownRefresh, false),
-    });
+// useWheelRefresh から wheelState と bindRefreshTriggerLine を取得
+const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
+	getScrollElement: () => scrollContainerEl,
+	isEnabled: () => isEnabled && !isPerformingRefreshAction, // コールバック実行中はホイールリフレッシュを無効化
+	up: createRefreshHandler(onUpRefresh, true),
+	down: createRefreshHandler(onDownRefresh, false),
+});
 
-    $effect(() => {
-        if (scrollContainerEl) {
-            scrollContainerEl.scrollTop =
-                initialScrollTop === -1
-                    ? scrollContainerEl.scrollHeight
-                    : initialScrollTop;
-        }
-    });
+$effect(() => {
+	if (scrollContainerEl) {
+		scrollContainerEl.scrollTop =
+			initialScrollTop === -1
+				? scrollContainerEl.scrollHeight
+				: initialScrollTop;
+	}
+});
 </script>
 
 <div

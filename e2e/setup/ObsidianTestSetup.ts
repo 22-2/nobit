@@ -26,21 +26,18 @@ export class ObsidianTestSetup {
 
 	async launch(): Promise<void> {
 		this.tempUserDataDir = await fs.mkdtemp(
-			path.join(os.tmpdir(), "obsidian-e2e-")
+			path.join(os.tmpdir(), "obsidian-e2e-"),
 		);
 		logger.debug(`Using temporary user data dir: ${this.tempUserDataDir}`);
 		const launchOptions = {
 			...LAUNCH_OPTIONS,
 			// Electronアプリの起動引数に --user-data-dir を追加
-			args: [
-				...LAUNCH_OPTIONS.args,
-				`--user-data-dir=${this.tempUserDataDir}`,
-			],
+			args: [...LAUNCH_OPTIONS.args, `--user-data-dir=${this.tempUserDataDir}`],
 			// Set environment variable for Playwright detection
 			env: {
 				...process.env,
-				PLAYWRIGHT: 'true',
-				CI: process.env.CI || 'false',
+				PLAYWRIGHT: "true",
+				CI: process.env.CI || "false",
 			},
 		};
 		this.electronApp = await electron.launch(launchOptions);
@@ -63,10 +60,7 @@ export class ObsidianTestSetup {
 		await this.pageManager.waitForStarterReady(currentPage);
 		logger.debug("init start page");
 
-		this.vaultManager = new VaultManager(
-			this.electronApp,
-			this.pageManager
-		);
+		this.vaultManager = new VaultManager(this.electronApp, this.pageManager);
 	}
 
 	async openVault(options: VaultOptions = {}): Promise<VaultPageTextContext> {
@@ -80,7 +74,7 @@ export class ObsidianTestSetup {
 
 		const pluginHandleMap = await getPluginHandleMap(
 			page,
-			options.plugins || []
+			options.plugins || [],
 		);
 
 		// const pluginHandleMap = await page.evaluateHandle((plugins) => {
@@ -106,9 +100,7 @@ export class ObsidianTestSetup {
 		};
 	}
 
-	async openSandbox(
-		options: VaultOptions = {}
-	): Promise<VaultPageTextContext> {
+	async openSandbox(options: VaultOptions = {}): Promise<VaultPageTextContext> {
 		return this.openVault({
 			...options,
 			useSandbox: true,
@@ -130,15 +122,11 @@ export class ObsidianTestSetup {
 
 	async cleanup(): Promise<void> {
 		if (this.electronApp) {
-			await Promise.all(
-				this.electronApp.windows().map((win) => win.close())
-			);
+			await Promise.all(this.electronApp.windows().map((win) => win.close()));
 			await this.electronApp.close();
 		}
 		if (this.tempUserDataDir) {
-			logger.debug(
-				`Removing temp user data dir: ${this.tempUserDataDir}`
-			);
+			logger.debug(`Removing temp user data dir: ${this.tempUserDataDir}`);
 			// recursive: true (再帰的削除), force: true (ロックされていても強制削除)
 			await fs.rm(this.tempUserDataDir, { recursive: true, force: true });
 		}

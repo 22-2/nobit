@@ -9,10 +9,7 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("アンカーリンクからポップアップにカーソルを移動できる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -24,7 +21,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		// スレッドビューを開く
 		await obsPage.openPluginWithURL(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// スレッドが読み込まれるまで待機
@@ -50,10 +47,7 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("親ポップアップをクリックしたら子ポップアップが閉じる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -65,7 +59,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		// スレッドビューを開く
 		await obsPage.openPluginWithURL(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// スレッドが読み込まれるまで待機
@@ -88,9 +82,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		await expect(parentPopover).toBeVisible();
 
 		// 親ポップアップ内のアンカーリンクを探す
-		const childAnchorLink = parentPopover
-			.locator(".internal-res-link")
-			.first();
+		const childAnchorLink = parentPopover.locator(".internal-res-link").first();
 
 		// 子アンカーリンクが存在する場合のみテストを続行
 		if ((await childAnchorLink.count()) > 0) {
@@ -115,10 +107,7 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("親ポップアップの外側をクリックしたら全てのポップアップが閉じる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -130,16 +119,14 @@ test.describe("ポップアップの挙動テスト", () => {
 		// スレッドビューを開く
 		await obsPage.openPluginWithURL(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// スレッドが読み込まれるまで待機
 		await vault.window.waitForSelector(".post", { timeout: 10000 });
 
 		// アンカーリンクにホバーしてポップアップを表示
-		const anchorLink = await vault.window
-			.locator(".internal-res-link")
-			.first();
+		const anchorLink = await vault.window.locator(".internal-res-link").first();
 		await anchorLink.hover();
 		await vault.window.waitForTimeout(100);
 
@@ -157,10 +144,7 @@ test.describe("ポップアップの挙動テスト", () => {
 	});
 
 	test("返信ツリーリンクが存在することを確認", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -172,7 +156,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		// スレッドビューを開く
 		await obsPage.openPluginWithURL(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// スレッドが読み込まれるまで待機
@@ -189,9 +173,7 @@ test.describe("ポップアップの挙動テスト", () => {
 			const postNumber = await post.getAttribute("data-res-number");
 			const replyLinks = post.locator(".reply-tree-link");
 			const replyLinkCount = await replyLinks.count();
-			console.log(
-				`投稿 ${postNumber}: 返信リンク数 = ${replyLinkCount}`
-			);
+			console.log(`投稿 ${postNumber}: 返信リンク数 = ${replyLinkCount}`);
 
 			if (replyLinkCount > 0) {
 				const linkText = await replyLinks.first().textContent();
@@ -209,10 +191,7 @@ test.describe("ポップアップの挙動テスト", () => {
 	});
 
 	test("返信ツリーポップアップが正しく表示される", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -224,7 +203,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		// スレッドビューを開く
 		await obsPage.openPluginWithURL(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// スレッドが読み込まれるまで待機
@@ -241,14 +220,14 @@ test.describe("ポップアップの挙動テスト", () => {
 			await vault.window.waitForTimeout(300);
 
 			// ポップアップが表示されることを確認
-			const popover = vault.window
-				.locator(".popover.hover-popover")
-				.first();
+			const popover = vault.window.locator(".popover.hover-popover").first();
 			await expect(popover).toBeVisible({ timeout: 5000 });
 
 			// ポップアップ内のコンテンツを確認
 			const popoverContent = await popover.textContent();
-			console.log(`ポップアップの内容: ${popoverContent?.substring(0, 100)}...`);
+			console.log(
+				`ポップアップの内容: ${popoverContent?.substring(0, 100)}...`,
+			);
 
 			// ポップアップ内のアンカーリンクを確認
 			const anchorLinks = popover.locator(".internal-res-link");
@@ -262,10 +241,7 @@ test.describe("ポップアップの挙動テスト", () => {
 	test("返信ツリーポップアップ内のアンカーリンクから子ポップアップを開いて親をクリックすると子が閉じる", async ({
 		vault,
 	}) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// モックデータをセットアップ
@@ -277,7 +253,7 @@ test.describe("ポップアップの挙動テスト", () => {
 		// スレッドビューを開く
 		await obsPage.openPluginWithURL(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
 		// スレッドが読み込まれるまで待機
@@ -303,14 +279,14 @@ test.describe("ポップアップの挙動テスト", () => {
 		await expect(parentPopover).toBeVisible({ timeout: 5000 });
 
 		// 親ポップアップ内のアンカーリンクを探す
-		const childAnchorLink = parentPopover
-			.locator(".internal-res-link")
-			.first();
+		const childAnchorLink = parentPopover.locator(".internal-res-link").first();
 		const childLinkCount = await childAnchorLink.count();
 		console.log(`親ポップアップ内のアンカーリンク数: ${childLinkCount}`);
 
 		if (childLinkCount === 0) {
-			console.log("親ポップアップ内にアンカーリンクが見つからないためテストをスキップ");
+			console.log(
+				"親ポップアップ内にアンカーリンクが見つからないためテストをスキップ",
+			);
 			return;
 		}
 

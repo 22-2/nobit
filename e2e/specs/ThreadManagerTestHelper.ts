@@ -220,23 +220,20 @@ export class ThreadManagerTestHelper {
 
 		if (isPerformanceTest) {
 			console.log(
-				`🔥 ThreadManagerTestHelper: Loading actual 1000 posts fixture file`
+				`🔥 ThreadManagerTestHelper: Loading actual 1000 posts fixture file`,
 			);
 
 			// Check if test fixture data is available in global scope
-			if (
-				typeof window !== "undefined" &&
-				(window as any).testFixtureData
-			) {
+			if (typeof window !== "undefined" && (window as any).testFixtureData) {
 				console.log(
-					`🔥 ThreadManagerTestHelper: Using test fixture data from global scope`
+					`🔥 ThreadManagerTestHelper: Using test fixture data from global scope`,
 				);
 				return (window as any).testFixtureData;
 			}
 
 			// Fallback to programmatic generation
 			console.log(
-				`🔥 ThreadManagerTestHelper: Falling back to programmatic 1000 posts generation`
+				`🔥 ThreadManagerTestHelper: Falling back to programmatic 1000 posts generation`,
 			);
 			return this.load1000PostsFixture();
 		}
@@ -278,8 +275,7 @@ export class ThreadManagerTestHelper {
 		const baseTime = new Date("2025/10/03 14:53:25");
 
 		// Use configured templates
-		const { authorIds, contentVariations, threadTitle } =
-			this.config.templates;
+		const { authorIds, contentVariations, threadTitle } = this.config.templates;
 
 		// First post with thread title
 		const firstPost = `エッヂの名無し<><>2025/10/03(木) 14:53:25.854 ID:${authorIds[0]}<> 話動きそうなのに <>${threadTitle}`;
@@ -293,8 +289,7 @@ export class ThreadManagerTestHelper {
 				baseTime.getTime() +
 					i *
 						1000 *
-						(Math.random() * (maxInterval - minInterval) +
-							minInterval)
+						(Math.random() * (maxInterval - minInterval) + minInterval),
 			);
 			const timeStr = time
 				.toLocaleString("ja-JP", {
@@ -309,15 +304,12 @@ export class ThreadManagerTestHelper {
 				})
 				.replace(
 					/(\d{4})\/(\d{2})\/(\d{2})\((.)\) (\d{2}):(\d{2}):(\d{2})\.(\d{3})/,
-					"$1/$2/$3($4) $5:$6:$7.$8"
+					"$1/$2/$3($4) $5:$6:$7.$8",
 				);
 
-			const authorId =
-				authorIds[Math.floor(Math.random() * authorIds.length)];
+			const authorId = authorIds[Math.floor(Math.random() * authorIds.length)];
 			const content =
-				contentVariations[
-					Math.floor(Math.random() * contentVariations.length)
-				];
+				contentVariations[Math.floor(Math.random() * contentVariations.length)];
 
 			// Occasionally add anchor references
 			let finalContent = content;
@@ -341,8 +333,7 @@ export class ThreadManagerTestHelper {
 		const baseTime = new Date("2025/10/01 21:15:00");
 
 		// Use configured templates
-		const { authorIds, contentVariations, threadTitle } =
-			this.config.templates;
+		const { authorIds, contentVariations, threadTitle } = this.config.templates;
 
 		// First post with thread title
 		const firstPost = `エッヂの名無し<><>2025/10/01(水) 21:15:00.544 ID:${authorIds[0]}<> 話動きそうなのに <>${threadTitle}`;
@@ -355,8 +346,7 @@ export class ThreadManagerTestHelper {
 				baseTime.getTime() +
 					i *
 						1000 *
-						(Math.random() * (maxInterval - minInterval) +
-							minInterval)
+						(Math.random() * (maxInterval - minInterval) + minInterval),
 			);
 			const timeStr = time
 				.toLocaleString("ja-JP", {
@@ -371,15 +361,12 @@ export class ThreadManagerTestHelper {
 				})
 				.replace(
 					/(\d{4})\/(\d{2})\/(\d{2})\((.)\) (\d{2}):(\d{2}):(\d{2})\.(\d{3})/,
-					"$1/$2/$3($4) $5:$6:$7.$8"
+					"$1/$2/$3($4) $5:$6:$7.$8",
 				);
 
-			const authorId =
-				authorIds[Math.floor(Math.random() * authorIds.length)];
+			const authorId = authorIds[Math.floor(Math.random() * authorIds.length)];
 			const content =
-				contentVariations[
-					Math.floor(Math.random() * contentVariations.length)
-				];
+				contentVariations[Math.floor(Math.random() * contentVariations.length)];
 
 			// Occasionally add anchor references
 			let finalContent = content;

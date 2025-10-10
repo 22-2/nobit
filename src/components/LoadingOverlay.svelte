@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { fade } from "svelte/transition";
+import { fade } from "svelte/transition";
 
-    let { transparent = false } = $props<{ transparent?: boolean }>();
+let { transparent = false } = $props<{ transparent?: boolean }>();
 </script>
 
 <div

@@ -11,25 +11,19 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  */
 test.describe("Thread View Integration Tests", () => {
 	test("should complete full user journey", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		const plugin = await vault.window.evaluate(
 			(pluginId) => app.plugins.getPlugin(pluginId),
-			PLUGIN_ID
+			PLUGIN_ID,
 		);
 		expect(plugin).toBeTruthy();
 
@@ -37,7 +31,7 @@ test.describe("Thread View Integration Tests", () => {
 		console.log("Step 1: Executing command");
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/",
 		);
 
 		console.log("Step 2: Verifying 5ch fetch and UI display");
@@ -64,26 +58,20 @@ test.describe("Thread View Integration Tests", () => {
 	});
 
 	test("should handle state changes correctly", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -98,7 +86,7 @@ test.describe("Thread View Integration Tests", () => {
 			console.log("✓ Loading state UI update detected");
 		} catch {
 			console.log(
-				"Loading state was too brief to catch (acceptable for fast operations)"
+				"Loading state was too brief to catch (acceptable for fast operations)",
 			);
 		}
 
@@ -110,17 +98,14 @@ test.describe("Thread View Integration Tests", () => {
 
 		// Test search filter
 		const searchInput = vault.window.locator(
-			'.thread-filters input[type="text"]'
+			'.thread-filters input[type="text"]',
 		);
 		if ((await searchInput.count()) > 0) {
 			await threadHelper.applySearchFilter("test");
 
 			const filterState = await vault.window.evaluate(() => {
 				const activeLeaf = app.workspace.activeLeaf;
-				if (
-					activeLeaf &&
-					activeLeaf.view.getViewType() === "thread-view"
-				) {
+				if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
 					const threadView = activeLeaf.view as any;
 					return threadView.threadManager.filters.searchText;
 				}
@@ -133,32 +118,24 @@ test.describe("Thread View Integration Tests", () => {
 			await threadHelper.clearSearchFilter();
 		}
 
-		console.log(
-			"✓ ThreadManager state changes trigger UI updates correctly"
-		);
+		console.log("✓ ThreadManager state changes trigger UI updates correctly");
 	});
 
 	test("should cleanup properly when closed", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Open and verify ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -191,7 +168,7 @@ test.describe("Thread View Integration Tests", () => {
 			return {
 				threadViewCount: leaves.length,
 				hasActiveThreadView: leaves.some(
-					(leaf) => leaf === app.workspace.activeLeaf
+					(leaf) => leaf === app.workspace.activeLeaf,
 				),
 			};
 		});
@@ -204,7 +181,7 @@ test.describe("Thread View Integration Tests", () => {
 		// Verify we can open a new ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -212,26 +189,20 @@ test.describe("Thread View Integration Tests", () => {
 	});
 
 	test("should validate architectural separation", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Open ThreadView
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
@@ -271,9 +242,7 @@ test.describe("Thread View Integration Tests", () => {
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
-		await expect(
-			vault.window.locator(".thread-footer-toolbar")
-		).toBeVisible();
+		await expect(vault.window.locator(".thread-footer-toolbar")).toBeVisible();
 
 		// Verify data flow
 		const posts = await vault.window.locator(".posts-container .post");
@@ -282,51 +251,42 @@ test.describe("Thread View Integration Tests", () => {
 
 		// Verify interactive elements
 		const refreshButton = vault.window.locator(
-			".toolbar-section .clickable-icon"
+			".toolbar-section .clickable-icon",
 		);
 		await expect(refreshButton).toBeVisible();
 		await refreshButton.click({ force: true });
 		await threadHelper.waitForThreadContent(10000);
 
 		console.log(
-			"✓ Architectural separation validated - Manager layer successfully bridges Obsidian and Svelte"
+			"✓ Architectural separation validated - Manager layer successfully bridges Obsidian and Svelte",
 		);
 	});
 
 	test("should handle errors and recover", async ({ vault }) => {
-		const obsPage = new ObsidianPageObject(
-			vault.window,
-			vault.pluginHandleMap
-		);
+		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// Setup mock for initial load
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Test normal operation first
 		await threadHelper.openAndVerifyThreadView(
 			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 		await threadHelper.waitForThreadContent();
 
 		console.log("Normal operation verified");
 
 		// Simulate network failure by returning error status
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 500,
-				body: 'Internal Server Error'
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 500,
+			body: "Internal Server Error",
+		});
 
 		// Trigger refresh to test error handling
 		await threadHelper.clickRefreshButton();
@@ -346,13 +306,10 @@ test.describe("Thread View Integration Tests", () => {
 		}
 
 		// Restore normal operation
-		await mockHelper.setupPatternMock(
-			'.dat',
-			{
-				status: 200,
-				body: MockDataFactory.createBasicThreadData()
-			}
-		);
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
 
 		// Verify recovery
 		await threadHelper.clickRefreshButton();

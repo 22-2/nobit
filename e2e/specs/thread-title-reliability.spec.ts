@@ -10,17 +10,19 @@ import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
  * タイトルが確実に取得・表示されることを様々なシナリオで検証
  */
 test.describe("Thread Title Reliability Tests", () => {
-	test("should display thread title immediately after load", async ({ vault }) => {
+	test("should display thread title immediately after load", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "基本テストスレッド",
-				postCount: 10
-			})
+				postCount: 10,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -46,18 +48,20 @@ test.describe("Thread Title Reliability Tests", () => {
 		console.log("✓ ThreadManager state has correct title:", state?.threadTitle);
 	});
 
-	test("should update title when navigating to different thread", async ({ vault }) => {
+	test("should update title when navigating to different thread", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// 最初のスレッド用のモック
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "最初のスレッドタイトル",
-				postCount: 10
-			})
+				postCount: 10,
+			}),
 		});
 
 		const firstUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
@@ -69,16 +73,18 @@ test.describe("Thread Title Reliability Tests", () => {
 		console.log("✓ First thread title:", firstTitle);
 
 		// 2番目のスレッド用のモック
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "2番目のスレッドタイトル",
-				postCount: 20
-			})
+				postCount: 20,
+			}),
 		});
 
 		// タイトルバーから新しいURLに移動
-		const titleEl = vault.window.locator(".workspace-leaf.mod-active .view-header-title");
+		const titleEl = vault.window.locator(
+			".workspace-leaf.mod-active .view-header-title",
+		);
 		await titleEl.click();
 		await vault.window.waitForTimeout(100);
 
@@ -107,12 +113,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "リフレッシュテストスレッド",
-				postCount: 15
-			})
+				postCount: 15,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -139,12 +145,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const specialTitle = "【速報】テスト特殊文字スレッド🔥💯";
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: specialTitle,
-				postCount: 5
-			})
+				postCount: 5,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -159,18 +165,23 @@ test.describe("Thread Title Reliability Tests", () => {
 		// ThreadManagerの状態も確認
 		const state = await threadHelper.getThreadManagerState();
 		expect(state?.threadTitle).toBeTruthy();
-		console.log("✓ ThreadManager has title with special chars:", state?.threadTitle);
+		console.log(
+			"✓ ThreadManager has title with special chars:",
+			state?.threadTitle,
+		);
 	});
 
-	test.skip("should display title even with slow network", async ({ vault }) => {
+	test.skip("should display title even with slow network", async ({
+		vault,
+	}) => {
 		// TODO: Implement delay support - mock handler must be synchronous
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: MockDataFactory.createBasicThreadData()
+			body: MockDataFactory.createBasicThreadData(),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760077207/";
@@ -189,12 +200,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// 1つ目のスレッド
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "1つ目のスレッド",
-				postCount: 10
-			})
+				postCount: 10,
+			}),
 		});
 
 		const firstUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
@@ -206,12 +217,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		console.log("✓ First view title:", firstTitle);
 
 		// 2つ目のスレッドを新しいタブで開く
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "2つ目のスレッド",
-				postCount: 20
-			})
+				postCount: 20,
+			}),
 		});
 
 		const secondUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
@@ -236,12 +247,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "getDisplayTextテスト",
-				postCount: 5
-			})
+				postCount: 5,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -262,7 +273,9 @@ test.describe("Thread Title Reliability Tests", () => {
 		console.log("✓ getDisplayText() returns correct title:", displayText);
 	});
 
-	test.skip("should handle empty or missing title gracefully", async ({ vault }) => {
+	test.skip("should handle empty or missing title gracefully", async ({
+		vault,
+	}) => {
 		// TODO: Parser currently throws error for empty titles
 		// Consider allowing empty titles with fallback to "無題"
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
@@ -270,12 +283,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		// タイトルなしのスレッドデータ
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "",
-				postCount: 5
-			})
+				postCount: 5,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -288,17 +301,19 @@ test.describe("Thread Title Reliability Tests", () => {
 		console.log("✓ Fallback title displayed for empty title:", displayedTitle);
 	});
 
-	test("should sync title between ThreadManager and ThreadView", async ({ vault }) => {
+	test("should sync title between ThreadManager and ThreadView", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "同期テストスレッド",
-				postCount: 10
-			})
+				postCount: 10,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
@@ -310,7 +325,10 @@ test.describe("Thread Title Reliability Tests", () => {
 
 		expect(consistency.titleBar).toBeTruthy();
 		expect(consistency.allMatch).toBe(true);
-		console.log("✓ All three title sources are synchronized:", consistency.titleBar);
+		console.log(
+			"✓ All three title sources are synchronized:",
+			consistency.titleBar,
+		);
 	});
 
 	test("should maintain title after applying filters", async ({ vault }) => {
@@ -318,12 +336,12 @@ test.describe("Thread Title Reliability Tests", () => {
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "フィルターテストスレッド",
-				postCount: 20
-			})
+				postCount: 20,
+			}),
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";

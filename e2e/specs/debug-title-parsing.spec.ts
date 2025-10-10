@@ -15,11 +15,11 @@ test.describe("Debug Title Parsing", () => {
 		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const testData = MockDataFactory.createBasicThreadData();
-		console.log("📦 Mock data first line:", testData.split('\n')[0]);
+		console.log("📦 Mock data first line:", testData.split("\n")[0]);
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: testData
+			body: testData,
 		});
 
 		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";

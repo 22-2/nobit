@@ -32,7 +32,7 @@ export class PerformanceTestHelper {
 	 * スクロールパフォーマンスを測定
 	 */
 	async measureScrollPerformance(
-		selector: string
+		selector: string,
 	): Promise<ScrollPerformanceResult> {
 		const startTime = Date.now();
 
@@ -71,7 +71,7 @@ export class PerformanceTestHelper {
 	async checkMemoryLeak(
 		beforeAction: () => Promise<void>,
 		action: () => Promise<void>,
-		afterAction: () => Promise<void>
+		afterAction: () => Promise<void>,
 	): Promise<MemoryLeakResult> {
 		const initialMemory = await this.getMemoryUsage();
 

@@ -1,167 +1,189 @@
 <script lang="ts">
-	import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
-	import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
-	import { getContext, onMount } from "svelte";
-	import { ThreadManager } from "../managers/ThreadManager.svelte";
-	import type { UsePopoverReturn } from "../store/usePopover.svelte";
-	import PostItem from "./thread/PostItem.svelte";
-	import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
-	import ThreadToolbar from "./thread/ThreadToolbar.svelte";
+import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
+import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
+import { getContext, onMount } from "svelte";
+import { ThreadManager } from "../managers/ThreadManager.svelte";
+import type { UsePopoverReturn } from "../store/usePopover.svelte";
+import PostItem from "./thread/PostItem.svelte";
+import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
+import ThreadToolbar from "./thread/ThreadToolbar.svelte";
 
-	// Props
-	interface Props {
-		initialUrl?: string;
-		onTitleChange?: (title: string) => void;
+// Props
+interface Props {
+	initialUrl?: string;
+	onTitleChange?: (title: string) => void;
+}
+let { initialUrl, onTitleChange }: Props = $props();
+
+// Get ThreadManager and popoverService from context (injected by ThreadView ItemView)
+const threadManager = getContext<ThreadManager>("threadManager");
+const popoverService = getContext<UsePopoverReturn>("popoverService");
+
+console.log(
+	"🔥 ThreadViewComponent: Script loaded, threadManager:",
+	threadManager,
+);
+console.log("🔥 ThreadViewComponent: popoverService:", popoverService);
+console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
+
+// Debug: Watch filters changes
+$effect(() => {
+	console.log("🔍 Filters changed:", JSON.stringify(threadManager.filters));
+	console.log("🔍 Filtered posts count:", threadManager.filteredPosts.length);
+});
+
+// Watch thread title changes and notify parent
+$effect(() => {
+	const title = threadManager.thread?.title;
+	if (title && onTitleChange) {
+		onTitleChange(title);
 	}
-	let { initialUrl, onTitleChange }: Props = $props();
+});
 
-	// Get ThreadManager and popoverService from context (injected by ThreadView ItemView)
-	const threadManager = getContext<ThreadManager>("threadManager");
-	const popoverService = getContext<UsePopoverReturn>("popoverService");
+let postsContainer = $state<HTMLElement>();
+let popoverContainer = $state<HTMLElement>();
+let viewContentEl = $state<HTMLElement>();
 
-	console.log("🔥 ThreadViewComponent: Script loaded, threadManager:", threadManager);
-	console.log("🔥 ThreadViewComponent: popoverService:", popoverService);
-	console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
-
-	// Debug: Watch filters changes
-	$effect(() => {
-		console.log("🔍 Filters changed:", JSON.stringify(threadManager.filters));
-		console.log("🔍 Filtered posts count:", threadManager.filteredPosts.length);
-	});
-
-	// Watch thread title changes and notify parent
-	$effect(() => {
-		const title = threadManager.thread?.title;
-		if (title && onTitleChange) {
-			onTitleChange(title);
-		}
-	});
-
-	let postsContainer = $state<HTMLElement>();
-	let popoverContainer = $state<HTMLElement>();
-	let viewContentEl = $state<HTMLElement>();
-
-	// Setup wheel refresh for down direction
-	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
-		getScrollElement: () => viewContentEl,
-		isEnabled: () => !threadManager.isLoading,
-		down: {
-			onRefresh: async () => {
-				await threadManager.refreshThread();
-			},
-			threshold: 7,
+// Setup wheel refresh for down direction
+const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
+	getScrollElement: () => viewContentEl,
+	isEnabled: () => !threadManager.isLoading,
+	down: {
+		onRefresh: async () => {
+			await threadManager.refreshThread();
 		},
-	});
+		threshold: 7,
+	},
+});
 
-	// Update popoverService with thread data when thread changes
-	$effect(() => {
-		if (threadManager.thread) {
-			popoverService.setThreadData(threadManager.thread);
+// Update popoverService with thread data when thread changes
+$effect(() => {
+	if (threadManager.thread) {
+		popoverService.setThreadData(threadManager.thread);
+	}
+});
+
+onMount(() => {
+	// Get view-content element
+	viewContentEl = postsContainer?.closest(".view-content") as
+		| HTMLElement
+		| undefined;
+
+	// Initialize popover container
+	if (popoverContainer) {
+		popoverService.init(popoverContainer);
+	}
+
+	// Load thread
+	(async () => {
+		console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
+		try {
+			if (!initialUrl) {
+				return;
+			}
+			await threadManager.loadThread(initialUrl);
+			console.log("🔥 ThreadViewComponent: Thread loaded successfully");
+		} catch (error) {
+			console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
 		}
-	});
+	})();
 
-	onMount(() => {
-		// Get view-content element
-		viewContentEl = postsContainer?.closest('.view-content') as HTMLElement | undefined;
+	let scrollVelocity = 0;
+	let animationFrameId: number | null = null;
 
-		// Initialize popover container
-		if (popoverContainer) {
-			popoverService.init(popoverContainer);
+	// Custom smooth scroll animation
+	const smoothScroll = () => {
+		const viewContent = postsContainer?.closest(
+			".view-content",
+		) as HTMLElement | null;
+		if (!viewContent) return;
+
+		if (Math.abs(scrollVelocity) > 0.1) {
+			viewContent.scrollTop += scrollVelocity;
+			scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
+			animationFrameId = requestAnimationFrame(smoothScroll);
+		} else {
+			scrollVelocity = 0;
+			animationFrameId = null;
 		}
+	};
 
-		// Load thread
-		(async () => {
-			console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
-			try {
-				if (!initialUrl) {
-					return;
-				}
-				await threadManager.loadThread(initialUrl);
-				console.log("🔥 ThreadViewComponent: Thread loaded successfully");
-			} catch (error) {
-				console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
-			}
-		})();
+	// Increase scroll amount for mouse wheel
+	const handleWheel = (e: Event) => {
+		if (!(e instanceof WheelEvent)) return;
 
-		let scrollVelocity = 0;
-		let animationFrameId: number | null = null;
+		// Find the view-content element dynamically
+		const viewContent = postsContainer?.closest(
+			".view-content",
+		) as HTMLElement | null;
+		if (!viewContent) return;
 
-		// Custom smooth scroll animation
-		const smoothScroll = () => {
-			const viewContent = postsContainer?.closest('.view-content') as HTMLElement | null;
-			if (!viewContent) return;
+		// Check if the wheel event is happening over our component
+		const target = e.target as HTMLElement;
+		if (!postsContainer?.contains(target) && postsContainer !== target) return;
 
-			if (Math.abs(scrollVelocity) > 0.1) {
-				viewContent.scrollTop += scrollVelocity;
-				scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
-				animationFrameId = requestAnimationFrame(smoothScroll);
-			} else {
-				scrollVelocity = 0;
-				animationFrameId = null;
-			}
-		};
+		e.preventDefault();
+		e.stopPropagation();
 
-		// Increase scroll amount for mouse wheel
-		const handleWheel = (e: Event) => {
-			if (!(e instanceof WheelEvent)) return;
+		const delta = e.deltaY;
+		const multiplier = 4;
 
-			// Find the view-content element dynamically
-			const viewContent = postsContainer?.closest('.view-content') as HTMLElement | null;
-			if (!viewContent) return;
+		// Add to velocity instead of direct scroll
+		scrollVelocity += delta * multiplier * 0.1;
 
-			// Check if the wheel event is happening over our component
-			const target = e.target as HTMLElement;
-			if (!postsContainer?.contains(target) && postsContainer !== target) return;
+		// Start animation if not already running
+		if (!animationFrameId) {
+			animationFrameId = requestAnimationFrame(smoothScroll);
+		}
+	};
 
-			e.preventDefault();
-			e.stopPropagation();
+	const timer = setTimeout(() => {
+		console.log("🎯 Adding wheel listener to window");
+		window.addEventListener("wheel", handleWheel, { passive: false });
+	}, 100);
 
-			const delta = e.deltaY;
-			const multiplier = 4;
+	return () => {
+		clearTimeout(timer);
+		window.removeEventListener("wheel", handleWheel);
+		if (animationFrameId) {
+			cancelAnimationFrame(animationFrameId);
+		}
+	};
+});
 
-			// Add to velocity instead of direct scroll
-			scrollVelocity += delta * multiplier * 0.1;
+// Event handlers that delegate to ThreadManager
+function handleRefresh() {
+	threadManager.refreshThread();
+}
 
-			// Start animation if not already running
-			if (!animationFrameId) {
-				animationFrameId = requestAnimationFrame(smoothScroll);
-			}
-		};
+function handleJumpToPost(resNumber: number) {
+	threadManager.jumpToPost(resNumber);
+}
 
-		const timer = setTimeout(() => {
-			console.log('🎯 Adding wheel listener to window');
-			window.addEventListener('wheel', handleWheel, { passive: false });
-		}, 100);
+function handleHoverPostLink(detail: {
+	targetEl: HTMLElement;
+	index: number;
+	event: MouseEvent;
+}) {
+	popoverService.handleHover(detail.targetEl, detail.index, 0, detail.event);
+}
 
-		return () => {
-			clearTimeout(timer);
-			window.removeEventListener('wheel', handleWheel);
-			if (animationFrameId) {
-				cancelAnimationFrame(animationFrameId);
-			}
-		};
-	});
+function handleLeavePostLink() {
+	popoverService.startHideTimer();
+}
 
-	// Event handlers that delegate to ThreadManager
-	function handleRefresh() {
-		threadManager.refreshThread();
-	}
-
-	function handleJumpToPost(resNumber: number) {
-		threadManager.jumpToPost(resNumber);
-	}
-
-	function handleHoverPostLink(detail: { targetEl: HTMLElement; index: number; event: MouseEvent }) {
-		popoverService.handleHover(detail.targetEl, detail.index, 0, detail.event);
-	}
-
-	function handleLeavePostLink() {
-		popoverService.startHideTimer();
-	}
-
-	function handleShowReplyTree(detail: { targetEl: HTMLElement; originResNumber: number; event: MouseEvent }) {
-		popoverService.handleShowReplyTree(detail.targetEl, detail.originResNumber, 0, detail.event);
-	}
+function handleShowReplyTree(detail: {
+	targetEl: HTMLElement;
+	originResNumber: number;
+	event: MouseEvent;
+}) {
+	popoverService.handleShowReplyTree(
+		detail.targetEl,
+		detail.originResNumber,
+		0,
+		detail.event,
+	);
+}
 </script>
 
 <div class="thread-view">

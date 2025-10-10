@@ -3,9 +3,8 @@ import manifest from "../../manifest.json" with { type: "json" };
 import { type NobitPluginSettings } from "../settings";
 
 export const DEBUG_MODE = Boolean(
-	(typeof process !== "undefined" &&
-		process.env.NODE_ENV === "development") ||
-		process.env.CI
+	(typeof process !== "undefined" && process.env.NODE_ENV === "development") ||
+		process.env.CI,
 );
 
 log.debug("ENABLE_LOGGER", DEBUG_MODE);

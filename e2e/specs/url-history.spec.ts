@@ -5,7 +5,9 @@ import { TestFetcherMockHelper } from "../helpers/TestFetcherMockHelper";
 import { ThreadViewTestHelper } from "../helpers/ThreadViewTestHelper";
 
 test.describe("URL History", () => {
-	test("should save thread title to history after loading", async ({ vault }) => {
+	test("should save thread title to history after loading", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
@@ -15,9 +17,9 @@ test.describe("URL History", () => {
 テスト次郎<>sage<>2025/10/10(金) 12:01:00.00 ID:test5678<>レス1です<>
 テスト三郎<>sage<>2025/10/10(金) 12:02:00.00 ID:test9012<>レス2です<>`;
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: threadData
+			body: threadData,
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
@@ -49,7 +51,9 @@ test.describe("URL History", () => {
 		expect(lastEntry.title).not.toBe("1760001770");
 	});
 
-	test("should handle dat format with 5 fields correctly", async ({ vault }) => {
+	test("should handle dat format with 5 fields correctly", async ({
+		vault,
+	}) => {
 		const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
 		const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 		const mockHelper = new TestFetcherMockHelper(vault.window);
@@ -59,9 +63,9 @@ test.describe("URL History", () => {
 エッヂの名無し<><>2025/10/09(木) 18:23:00.00 ID:test5678<>レス1です<>
 エッヂの名無し<><>2025/10/09(木) 18:24:00.00 ID:test9012<>レス2です<>`;
 
-		await mockHelper.setupPatternMock('.dat', {
+		await mockHelper.setupPatternMock(".dat", {
 			status: 200,
-			body: threadData
+			body: threadData,
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
@@ -77,16 +81,15 @@ test.describe("URL History", () => {
 	});
 });
 
-
 test.use({
-  vaultOptions: {
-    useSandbox: true,
-    showLoggerOnNode: true,
-    plugins: [
-      {
-        path: DIST_DIR,
-        pluginId: PLUGIN_ID,
-      },
-    ],
-  },
+	vaultOptions: {
+		useSandbox: true,
+		showLoggerOnNode: true,
+		plugins: [
+			{
+				path: DIST_DIR,
+				pluginId: PLUGIN_ID,
+			},
+		],
+	},
 });

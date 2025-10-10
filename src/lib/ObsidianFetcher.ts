@@ -12,9 +12,7 @@ export class ObsidianFetcher implements HttpFetcher {
 		this.queue = new RequestQueue(delay);
 	}
 
-	private async executeRequest(
-		params: RequestUrlParam
-	): Promise<ArrayBuffer> {
+	private async executeRequest(params: RequestUrlParam): Promise<ArrayBuffer> {
 		logger.debug(`Fetching URL: ${params.url}`, params);
 
 		try {
@@ -26,7 +24,7 @@ export class ObsidianFetcher implements HttpFetcher {
 				throw new HttpError(
 					`Obsidian requestUrl failed with status ${error.status} for URL: ${params.url}`,
 					error.status,
-					new Response(null, { status: error.status })
+					new Response(null, { status: error.status }),
 				);
 			}
 			throw error;
@@ -35,7 +33,7 @@ export class ObsidianFetcher implements HttpFetcher {
 
 	async fetch(
 		url: string,
-		headers?: Record<string, string>
+		headers?: Record<string, string>,
 	): Promise<ArrayBuffer> {
 		const options: RequestUrlParam = {
 			url,
@@ -48,7 +46,7 @@ export class ObsidianFetcher implements HttpFetcher {
 		url: string,
 		body: URLSearchParams,
 		headers?: Record<string, string>,
-		confirmationData?: Record<string, string>
+		confirmationData?: Record<string, string>,
 	): Promise<ArrayBuffer> {
 		const options: RequestUrlParam = {
 			url,

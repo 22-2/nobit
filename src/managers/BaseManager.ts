@@ -17,7 +17,10 @@ export interface BaseManagerOptions {}
  * - Handles HTTP errors with appropriate messages
  */
 export abstract class BaseManager {
-	constructor(protected app: App, options: BaseManagerOptions = {}) {}
+	constructor(
+		protected app: App,
+		options: BaseManagerOptions = {},
+	) {}
 
 	/**
 	 * Format error messages in a user-friendly way with Japanese text.
@@ -28,7 +31,7 @@ export abstract class BaseManager {
 	 */
 	protected formatUserFriendlyError(
 		error: unknown,
-		context: string = "データ"
+		context: string = "データ",
 	): string {
 		const message = getErrorMessage(error);
 
@@ -48,9 +51,7 @@ export abstract class BaseManager {
 			return `${context}の解析中にエラーが発生しました。データが破損している可能性があります。`;
 		}
 
-		return `${context}の読み込みに失敗しました: ${
-			message || "不明なエラー"
-		}`;
+		return `${context}の読み込みに失敗しました: ${message || "不明なエラー"}`;
 	}
 
 	/**
@@ -60,9 +61,7 @@ export abstract class BaseManager {
 	 * @returns True if network error
 	 */
 	private isNetworkError(message: string): boolean {
-		return (
-			message.includes("Failed to fetch") || message.includes("Network")
-		);
+		return message.includes("Failed to fetch") || message.includes("Network");
 	}
 
 	/**

@@ -9,7 +9,7 @@ import type { ObsidianPageObject } from "./ObsidianPageObject";
 export class ThreadViewTestHelper {
 	constructor(
 		private readonly page: Page,
-		private readonly obsPage: ObsidianPageObject
+		private readonly obsPage: ObsidianPageObject,
 	) {}
 
 	/**
@@ -26,7 +26,9 @@ export class ThreadViewTestHelper {
 	 * スレッドコンテンツの読み込みを待機（アクティブなリーフのみ）
 	 */
 	async waitForThreadContent(timeout = 15000): Promise<void> {
-		await expect(this.page.locator(".workspace-leaf.mod-active .thread-content")).toBeVisible({
+		await expect(
+			this.page.locator(".workspace-leaf.mod-active .thread-content"),
+		).toBeVisible({
 			timeout,
 		});
 	}
@@ -76,9 +78,7 @@ export class ThreadViewTestHelper {
 	 * リフレッシュボタンをクリック
 	 */
 	async clickRefreshButton(): Promise<void> {
-		const refreshButton = this.page.locator(
-			".toolbar-section .clickable-icon"
-		);
+		const refreshButton = this.page.locator(".toolbar-section .clickable-icon");
 		await expect(refreshButton).toBeVisible();
 		await refreshButton.click({ force: true });
 	}
@@ -124,17 +124,13 @@ export class ThreadViewTestHelper {
 	 * フィルター操作のヘルパー
 	 */
 	async applySearchFilter(searchText: string): Promise<void> {
-		const searchInput = this.page.locator(
-			'.thread-filters input[type="text"]'
-		);
+		const searchInput = this.page.locator('.thread-filters input[type="text"]');
 		await searchInput.fill(searchText);
 		await this.page.waitForTimeout(300);
 	}
 
 	async clearSearchFilter(): Promise<void> {
-		const searchInput = this.page.locator(
-			'.thread-filters input[type="text"]'
-		);
+		const searchInput = this.page.locator('.thread-filters input[type="text"]');
 		await searchInput.clear();
 		await this.page.waitForTimeout(200);
 	}
@@ -152,14 +148,18 @@ export class ThreadViewTestHelper {
 	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
 	 */
 	async getTitleBarText(): Promise<string | null> {
-		return await this.page.locator(".workspace-leaf.mod-active .view-header-title").textContent();
+		return await this.page
+			.locator(".workspace-leaf.mod-active .view-header-title")
+			.textContent();
 	}
 
 	/**
 	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
 	 */
 	async getTabHeaderText(): Promise<string | null> {
-		return await this.page.locator(".workspace-tab-header.mod-active .workspace-tab-header-inner").textContent();
+		return await this.page
+			.locator(".workspace-tab-header.mod-active .workspace-tab-header-inner")
+			.textContent();
 	}
 
 	/**

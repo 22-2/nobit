@@ -10,80 +10,80 @@ import { App, Modal } from "obsidian";
  * ```
  */
 export async function showInputDialog(
-    app: App,
-    args: {
-        message: string;
-        placeholder?: string;
-        defaultValue?: string;
-    }
+	app: App,
+	args: {
+		message: string;
+		placeholder?: string;
+		defaultValue?: string;
+	},
 ): Promise<string | null> {
-    return new InputDialog(
-        app,
-        args.message,
-        args.placeholder,
-        args.defaultValue
-    ).open();
+	return new InputDialog(
+		app,
+		args.message,
+		args.placeholder,
+		args.defaultValue,
+	).open();
 }
 
 export class InputDialog extends Modal {
-    inputEl!: HTMLInputElement;
-    promise!: Promise<string | null>;
-    submitted = false;
+	inputEl!: HTMLInputElement;
+	promise!: Promise<string | null>;
+	submitted = false;
 
-    constructor(
-        app: App,
-        public title: string,
-        public placeholder?: string,
-        public defaultValue?: string
-    ) {
-        super(app);
-    }
+	constructor(
+		app: App,
+		public title: string,
+		public placeholder?: string,
+		public defaultValue?: string,
+	) {
+		super(app);
+	}
 
-    onOpen(): void {
-        this.titleEl.setText(this.title);
+	onOpen(): void {
+		this.titleEl.setText(this.title);
 
-        this.inputEl = this.contentEl.createEl("input", {
-            type: "text",
-            placeholder: this.placeholder ?? "",
-            cls: "carnelian-input-dialog-input",
-            value: this.defaultValue,
-        });
-    }
+		this.inputEl = this.contentEl.createEl("input", {
+			type: "text",
+			placeholder: this.placeholder ?? "",
+			cls: "carnelian-input-dialog-input",
+			value: this.defaultValue,
+		});
+	}
 
-    /**
-     * ダイアログを開き、Promiseを返却します。
-     *   - Enterが押されたらPromiseをresolve(入力文字列)します
-     *     - 入力がない場合は空文字
-     *   - それ以外の方法でダイアログを閉じたらPromiseをresolve(null)します
-     */
-    open(): Promise<string | null> {
-        super.open();
+	/**
+	 * ダイアログを開き、Promiseを返却します。
+	 *   - Enterが押されたらPromiseをresolve(入力文字列)します
+	 *     - 入力がない場合は空文字
+	 *   - それ以外の方法でダイアログを閉じたらPromiseをresolve(null)します
+	 */
+	open(): Promise<string | null> {
+		super.open();
 
-        this.promise = new Promise<string | null>((resolve) => {
-            const listener = (ev: KeyboardEvent) => {
-                if (ev.isComposing) {
-                    return;
-                }
-                if (ev.key === "Enter") {
-                    ev.preventDefault();
-                    resolve(this.inputEl.value);
-                    this.submitted = true;
-                    this.close();
-                }
-            };
+		this.promise = new Promise<string | null>((resolve) => {
+			const listener = (ev: KeyboardEvent) => {
+				if (ev.isComposing) {
+					return;
+				}
+				if (ev.key === "Enter") {
+					ev.preventDefault();
+					resolve(this.inputEl.value);
+					this.submitted = true;
+					this.close();
+				}
+			};
 
-            this.inputEl.addEventListener("keydown", listener);
+			this.inputEl.addEventListener("keydown", listener);
 
-            // クローズ時にsubmitされていないときはPromiseをnullで解決させ、Listnerも解除
-            this.onClose = () => {
-                super.onClose();
-                this.inputEl.removeEventListener("keydown", listener);
-                if (!this.submitted) {
-                    resolve(null);
-                }
-            };
-        });
+			// クローズ時にsubmitされていないときはPromiseをnullで解決させ、Listnerも解除
+			this.onClose = () => {
+				super.onClose();
+				this.inputEl.removeEventListener("keydown", listener);
+				if (!this.submitted) {
+					resolve(null);
+				}
+			};
+		});
 
-        return this.promise;
-    }
+		return this.promise;
+	}
 }

@@ -1,18 +1,18 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import type Nobitlugin from "../main";
+import { onMount } from "svelte";
+import type Nobitlugin from "../main";
 
-	export let plugin: Nobitlugin;
+export let plugin: Nobitlugin;
 
-	let counter = 0;
+let counter = 0;
 
-	onMount(() => {
-		console.log("Svelte component mounted");
-	});
+onMount(() => {
+	console.log("Svelte component mounted");
+});
 
-	const increment = () => {
-		counter += 1;
-	};
+const increment = () => {
+	counter += 1;
+};
 </script>
 
 <main>

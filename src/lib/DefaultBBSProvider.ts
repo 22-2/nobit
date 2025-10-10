@@ -1,4 +1,7 @@
-import { BaseBBSProvider, type BaseBBSProviderOptions } from "./BaseBBSProvider";
+import {
+	BaseBBSProvider,
+	type BaseBBSProviderOptions,
+} from "./BaseBBSProvider";
 import { ObsidianFetcher } from "./ObsidianFetcher";
 import { TestFetcher } from "./TestFetcher";
 import { DefaultDecoder } from "./libch/decoder";
@@ -7,11 +10,11 @@ import { DefaultParser } from "./libch/parser";
 import type { BBSProvider } from "./libch/provider";
 import { parseBbsUrl } from "./libch/url";
 import type {
-    BBSMenu,
-    PostData,
-    PostResult,
-    SubjectItem,
-    Thread,
+	BBSMenu,
+	PostData,
+	PostResult,
+	SubjectItem,
+	Thread,
 } from "./types";
 
 export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
@@ -22,12 +25,14 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		fetcher?: HttpFetcher,
 		decoder?: DefaultDecoder,
 		parser?: DefaultParser,
-		options?: BaseBBSProviderOptions
+		options?: BaseBBSProviderOptions,
 	) {
 		// If no fetcher is provided, detect environment and use appropriate fetcher
-		const actualFetcher = fetcher ?? (DefaultBBSProvider.isPlaywrightEnvironment()
-			? new TestFetcher()
-			: new ObsidianFetcher());
+		const actualFetcher =
+			fetcher ??
+			(DefaultBBSProvider.isPlaywrightEnvironment()
+				? new TestFetcher()
+				: new ObsidianFetcher());
 
 		// Expose TestFetcher class to global scope for testing
 		if (DefaultBBSProvider.isPlaywrightEnvironment()) {
@@ -38,9 +43,12 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 
 		console.log(
 			`🔧 DefaultBBSProvider: Using ${
-				actualFetcher instanceof TestFetcher ? "TestFetcher" :
-				actualFetcher instanceof ObsidianFetcher ? "ObsidianFetcher" : "DefaultFetcher"
-			} (Playwright environment: ${DefaultBBSProvider.isPlaywrightEnvironment()})`
+				actualFetcher instanceof TestFetcher
+					? "TestFetcher"
+					: actualFetcher instanceof ObsidianFetcher
+						? "ObsidianFetcher"
+						: "DefaultFetcher"
+			} (Playwright environment: ${DefaultBBSProvider.isPlaywrightEnvironment()})`,
 		);
 	}
 
@@ -88,10 +96,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 			const text = this.decodeBuffer(buffer);
 			return this.parser.parseSubject(text);
 		} catch (error) {
-			console.error(
-				`Failed to get subject.txt from ${subjectTxtUrl}:`,
-				error
-			);
+			console.error(`Failed to get subject.txt from ${subjectTxtUrl}:`, error);
 			throw error;
 		}
 	}
@@ -120,7 +125,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 				// For other errors (network, parsing), a warning is useful for debugging.
 				console.warn(
 					`Could not fetch board title from ${url}. This is often not a critical error. Falling back.`,
-					error
+					error,
 				);
 			}
 		}
@@ -137,19 +142,24 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		const datUrl = `https://${host}/${board}/dat/${threadId}.dat`;
 
 		try {
-			console.log('📥 Fetching thread data from:', datUrl);
+			console.log("📥 Fetching thread data from:", datUrl);
 			const buffer = await this.fetchWithRetry(datUrl);
-			console.log('✅ Received buffer, size:', buffer.byteLength);
+			console.log("✅ Received buffer, size:", buffer.byteLength);
 
 			const text = this.decodeBuffer(buffer);
-			console.log('✅ Decoded text, length:', text.length, 'preview:', text.substring(0, 200));
+			console.log(
+				"✅ Decoded text, length:",
+				text.length,
+				"preview:",
+				text.substring(0, 200),
+			);
 
 			const thread = this.parser.parseThread(text, threadId, threadUrl);
 			if (!thread) {
-				console.error('❌ Parser returned undefined');
+				console.error("❌ Parser returned undefined");
 				throw new Error(`Failed to parse thread from ${datUrl}`);
 			}
-			console.log('✅ Thread parsed successfully, posts:', thread.posts.length);
+			console.log("✅ Thread parsed successfully, posts:", thread.posts.length);
 			return thread;
 		} catch (error) {
 			console.error(`Failed to get thread from ${datUrl}:`, error);
@@ -161,7 +171,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		threadUrl: string,
 		postData: PostData,
 		headers?: Record<string, string>,
-		confirmationData?: Record<string, string>
+		confirmationData?: Record<string, string>,
 	): Promise<PostResult> {
 		const parsed = parseBbsUrl(threadUrl);
 		if (!parsed?.threadId) {
@@ -208,7 +218,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 				postCgiUrl,
 				body,
 				finalHeaders,
-				confirmationData
+				confirmationData,
 			);
 			const responseText = this.decodeBuffer(responseBuffer);
 
@@ -218,19 +228,15 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 			if (/bbs\.cgi\?guid=ON/i.test(responseText)) {
 				const formData: Record<string, string> = {};
 				const hiddenInputs = responseText.matchAll(
-					/<input type=hidden name=['"]?([^'"]+)['"]? value=['"]?([^'"]*)['"]?.*?>/g
+					/<input type=hidden name=['"]?([^'"]+)['"]? value=['"]?([^'"]*)['"]?.*?>/g,
 				);
 				for (const input of hiddenInputs) {
 					input[1] && input[2] && (formData[input[1]] = input[2]);
 				}
 				formData["submit"] = "上記全てを承諾して書き込む"; // Agree and post
 
-				const bodyContentMatch = responseText.match(
-					/<body.*?>(.*?)<\/body>/is
-				);
-				const html = String(
-					bodyContentMatch ? bodyContentMatch[1] : ""
-				);
+				const bodyContentMatch = responseText.match(/<body.*?>(.*?)<\/body>/is);
+				const html = String(bodyContentMatch ? bodyContentMatch[1] : "");
 
 				return {
 					kind: "confirmation",
@@ -254,23 +260,21 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 				// Confirmation pages often return non-200 status codes.
 				// We decode the body and proceed, the logic below will check for confirmation.
 				const responseText = this.decodeBuffer(
-					await error.response.arrayBuffer()
+					await error.response.arrayBuffer(),
 				);
 				if (/bbs\.cgi\?guid=ON/i.test(responseText)) {
 					const formData: Record<string, string> = {};
 					const hiddenInputs = responseText.matchAll(
-						/<input type=hidden name="([^"]+)" value="([^"]*)">/g
+						/<input type=hidden name="([^"]+)" value="([^"]*)">/g,
 					);
 					for (const input of hiddenInputs) {
 						input[1] && input[2] && (formData[input[1]] = input[2]);
 					}
 					formData["submit"] = "上記全てを承諾して書き込む"; // Agree and post
 					const bodyContentMatch = responseText.match(
-						/<body.*?>(.*?)<\/body>/is
+						/<body.*?>(.*?)<\/body>/is,
 					);
-					const html = String(
-						bodyContentMatch ? bodyContentMatch[1] : ""
-					);
+					const html = String(bodyContentMatch ? bodyContentMatch[1] : "");
 					return {
 						kind: "confirmation",
 						html,

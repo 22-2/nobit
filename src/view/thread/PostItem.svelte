@@ -1,167 +1,166 @@
 <!-- src/components/PostItem.svelte -->
 <script lang="ts">
-    import { type Post } from "src/lib/types";
-    import { formatDate } from "src/utils/utils";
+import { type Post } from "src/lib/types";
+import { formatDate } from "src/utils/utils";
 
-    export type HoverDetail = {
-        targetEl: HTMLElement;
-        post: Post;
-        index: number;
-        event: MouseEvent;
-    };
+export type HoverDetail = {
+	targetEl: HTMLElement;
+	post: Post;
+	index: number;
+	event: MouseEvent;
+};
 
-    export type ShowReplyTreeDetail = {
-        targetEl: HTMLElement;
-        originResNumber: number;
-        event: MouseEvent;
-    };
+export type ShowReplyTreeDetail = {
+	targetEl: HTMLElement;
+	originResNumber: number;
+	event: MouseEvent;
+};
 
-    export type ShowIdPostsDetail = {
-        targetEl: HTMLElement;
-        post: Post; // <<< [修正] postプロパティを追加
-        siblingPostNumbers: number[];
-        event: MouseEvent;
-    };
+export type ShowIdPostsDetail = {
+	targetEl: HTMLElement;
+	post: Post; // <<< [修正] postプロパティを追加
+	siblingPostNumbers: number[];
+	event: MouseEvent;
+};
 
-    export type ShowPostContextMenuDetail = {
-        post: Post;
-        index: number;
-        event: MouseEvent;
-    };
+export type ShowPostContextMenuDetail = {
+	post: Post;
+	index: number;
+	event: MouseEvent;
+};
 
-    export type ThreadLinkClickDetail = {
-        url: string;
-        event: MouseEvent;
-    };
+export type ThreadLinkClickDetail = {
+	url: string;
+	event: MouseEvent;
+};
 
-    let {
-        post,
-        index,
-        onHoverPostLink,
-        onLeavePostLink,
-        onJumpToPost,
-        onShowReplyTree,
-        onShowIdPosts,
-        onShowPostContextMenu,
-        onThreadLinkClick,
-    } = $props<{
-        post: Post;
-        index: number;
-        onHoverPostLink?: (detail: HoverDetail) => void;
-        onLeavePostLink?: () => void;
-        onJumpToPost?: (resNumber: number) => void;
-        onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
-        onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
-        onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
-        onThreadLinkClick?: (detail: ThreadLinkClickDetail) => void;
-    }>();
+let {
+	post,
+	index,
+	onHoverPostLink,
+	onLeavePostLink,
+	onJumpToPost,
+	onShowReplyTree,
+	onShowIdPosts,
+	onShowPostContextMenu,
+	onThreadLinkClick,
+} = $props<{
+	post: Post;
+	index: number;
+	onHoverPostLink?: (detail: HoverDetail) => void;
+	onLeavePostLink?: () => void;
+	onJumpToPost?: (resNumber: number) => void;
+	onShowReplyTree?: (detail: ShowReplyTreeDetail) => void;
+	onShowIdPosts?: (detail: ShowIdPostsDetail) => void;
+	onShowPostContextMenu?: (detail: ShowPostContextMenuDetail) => void;
+	onThreadLinkClick?: (detail: ThreadLinkClickDetail) => void;
+}>();
 
-    function handleMouseOver(event: MouseEvent) {
-        if (!onHoverPostLink) return;
+function handleMouseOver(event: MouseEvent) {
+	if (!onHoverPostLink) return;
 
-        const target = event.target as HTMLElement;
-        const linkEl = target.closest<HTMLElement>(".internal-res-link");
+	const target = event.target as HTMLElement;
+	const linkEl = target.closest<HTMLElement>(".internal-res-link");
 
-        if (!linkEl || !linkEl.dataset.resNumber) return;
+	if (!linkEl || !linkEl.dataset.resNumber) return;
 
-        event.stopPropagation();
+	event.stopPropagation();
 
-        const resNumber = parseInt(linkEl.dataset.resNumber, 10);
-        const postIndex = resNumber - 1;
+	const resNumber = parseInt(linkEl.dataset.resNumber, 10);
+	const postIndex = resNumber - 1;
 
-        onHoverPostLink({
-            targetEl: linkEl,
-            post: {} as Post,
-            index: postIndex,
-            event,
-        });
-    }
+	onHoverPostLink({
+		targetEl: linkEl,
+		post: {} as Post,
+		index: postIndex,
+		event,
+	});
+}
 
-    function handleMouseOut(event: MouseEvent) {
-        if (!onLeavePostLink) return;
+function handleMouseOut(event: MouseEvent) {
+	if (!onLeavePostLink) return;
 
-        const target = event.target as HTMLElement;
-        const linkEl = target.closest<HTMLElement>(".internal-res-link");
+	const target = event.target as HTMLElement;
+	const linkEl = target.closest<HTMLElement>(".internal-res-link");
 
-        if (linkEl) {
-            onLeavePostLink();
-        }
-    }
+	if (linkEl) {
+		onLeavePostLink();
+	}
+}
 
-    function handleClick(event: MouseEvent) {
-        const target = event.target as HTMLElement;
+function handleClick(event: MouseEvent) {
+	const target = event.target as HTMLElement;
 
-        const externalLink = target.closest<HTMLAnchorElement>(
-            "a[href*='/test/read.cgi/']"
-        );
-        if (externalLink && onThreadLinkClick) {
-            const url = externalLink.href;
-            const urlRegex =
-                /https?:\/\/([^/]+)\/test\/read\.cgi\/([^/]+)\/(\d+)/;
-            if (urlRegex.test(url)) {
-                event.preventDefault();
-                event.stopPropagation();
-                onThreadLinkClick({ url, event });
-                return;
-            }
-        }
+	const externalLink = target.closest<HTMLAnchorElement>(
+		"a[href*='/test/read.cgi/']",
+	);
+	if (externalLink && onThreadLinkClick) {
+		const url = externalLink.href;
+		const urlRegex = /https?:\/\/([^/]+)\/test\/read\.cgi\/([^/]+)\/(\d+)/;
+		if (urlRegex.test(url)) {
+			event.preventDefault();
+			event.stopPropagation();
+			onThreadLinkClick({ url, event });
+			return;
+		}
+	}
 
-        const triggerEl = target.closest<HTMLElement>(
-            ".internal-res-link, .reply-tree-link, .post-author-id a"
-        );
+	const triggerEl = target.closest<HTMLElement>(
+		".internal-res-link, .reply-tree-link, .post-author-id a",
+	);
 
-        if (!triggerEl) {
-            // リンクやボタン以外をクリックした場合
-            // ポップアップ内にいる場合は、カスタムイベントを発火して親ポップアップに通知
-            const popover = target.closest('.popover.hover-popover');
-            console.log('[PostItem] Click on non-trigger element, popover:', popover);
-            if (popover) {
-                console.log('[PostItem] Dispatching popover-content-click event');
-                const customEvent = new CustomEvent('popover-content-click', {
-                    bubbles: true,
-                    detail: { originalEvent: event }
-                });
-                popover.dispatchEvent(customEvent);
-            }
-            return;
-        }
+	if (!triggerEl) {
+		// リンクやボタン以外をクリックした場合
+		// ポップアップ内にいる場合は、カスタムイベントを発火して親ポップアップに通知
+		const popover = target.closest(".popover.hover-popover");
+		console.log("[PostItem] Click on non-trigger element, popover:", popover);
+		if (popover) {
+			console.log("[PostItem] Dispatching popover-content-click event");
+			const customEvent = new CustomEvent("popover-content-click", {
+				bubbles: true,
+				detail: { originalEvent: event },
+			});
+			popover.dispatchEvent(customEvent);
+		}
+		return;
+	}
 
-        event.preventDefault();
-        event.stopPropagation();
+	event.preventDefault();
+	event.stopPropagation();
 
-        const resNumberStr = triggerEl.dataset.resNumber;
-        if (resNumberStr) {
-            const resNumber = parseInt(resNumberStr, 10);
-            if (isNaN(resNumber)) return;
+	const resNumberStr = triggerEl.dataset.resNumber;
+	if (resNumberStr) {
+		const resNumber = parseInt(resNumberStr, 10);
+		if (isNaN(resNumber)) return;
 
-            // アンカーリンク（>>1）の場合
-            if (triggerEl.matches(".internal-res-link") && onJumpToPost) {
-                onJumpToPost(resNumber);
-            }
-            // 返信ツリーを開くリンクの場合
-            else if (triggerEl.matches(".reply-tree-link") && onShowReplyTree) {
-                onShowReplyTree({
-                    targetEl: triggerEl,
-                    originResNumber: resNumber,
-                    event,
-                });
-            }
-        } else if (triggerEl.matches(".post-author-id a") && onShowIdPosts) {
-            onShowIdPosts({
-                targetEl: triggerEl,
-                post, // <<< [修正] postオブジェクトを渡す
-                siblingPostNumbers: post.siblingPostNumbers,
-                event,
-            });
-        }
-    }
+		// アンカーリンク（>>1）の場合
+		if (triggerEl.matches(".internal-res-link") && onJumpToPost) {
+			onJumpToPost(resNumber);
+		}
+		// 返信ツリーを開くリンクの場合
+		else if (triggerEl.matches(".reply-tree-link") && onShowReplyTree) {
+			onShowReplyTree({
+				targetEl: triggerEl,
+				originResNumber: resNumber,
+				event,
+			});
+		}
+	} else if (triggerEl.matches(".post-author-id a") && onShowIdPosts) {
+		onShowIdPosts({
+			targetEl: triggerEl,
+			post, // <<< [修正] postオブジェクトを渡す
+			siblingPostNumbers: post.siblingPostNumbers,
+			event,
+		});
+	}
+}
 
-    function handleContextMenu(event: MouseEvent) {
-        if (!onShowPostContextMenu) return;
-        event.preventDefault();
-        event.stopPropagation();
-        onShowPostContextMenu({ post, index, event });
-    }
+function handleContextMenu(event: MouseEvent) {
+	if (!onShowPostContextMenu) return;
+	event.preventDefault();
+	event.stopPropagation();
+	onShowPostContextMenu({ post, index, event });
+}
 </script>
 
 <div

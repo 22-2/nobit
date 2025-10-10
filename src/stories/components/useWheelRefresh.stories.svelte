@@ -1,42 +1,42 @@
 <!-- E:\Desktop\coding\my-projects-02\nobit-test\packages\ui\src\stories\common\useWheelRefresh.stories.svelte -->
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
-    import CenterDecorator from "../helpers/CenterDecorator.svelte";
+import { defineMeta } from "@storybook/addon-svelte-csf";
+import CenterDecorator from "../helpers/CenterDecorator.svelte";
 
-    // テスト用ユーティリティ
-    import { fn, expect, fireEvent, within, waitFor } from "storybook/test";
+// テスト用ユーティリティ
+import { fn, expect, fireEvent, within, waitFor } from "storybook/test";
 
-    import WheelRefreshTester from "../helpers/WheelRefreshTester.svelte";
+import WheelRefreshTester from "../helpers/WheelRefreshTester.svelte";
 
-    const { Story } = defineMeta({
-        title: "Common/useWheelRefresh",
-        component: WheelRefreshTester,
-        tags: ["autodocs", "test"],
-        argTypes: {
-            isEnabled: { control: "boolean" },
-            onUpRefresh: { action: "onUpRefresh" },
-            onDownRefresh: { action: "onDownRefresh" },
-            upThreshold: { control: "number" },
-            downThreshold: { control: "number" },
-            // statePosition を Controls パネルで操作できるように追加
-            statePosition: {
-                control: "select",
-                options: ["top", "bottom"],
-                description: "テスト用の状態表示エリアの位置",
-            },
-        },
-        // CenterDecoratorを使用してテストコンポーネントを配置
-        decorators: [
-            (StoryComponent) => ({
-                Component: CenterDecorator,
-                props: {
-                    children: StoryComponent,
-                    minHeight: "var(--size-4-100)" /* 400px相当 */,
-                    padding: "var(--size-4-4)" /* 16px */,
-                },
-            }),
-        ],
-    });
+const { Story } = defineMeta({
+	title: "Common/useWheelRefresh",
+	component: WheelRefreshTester,
+	tags: ["autodocs", "test"],
+	argTypes: {
+		isEnabled: { control: "boolean" },
+		onUpRefresh: { action: "onUpRefresh" },
+		onDownRefresh: { action: "onDownRefresh" },
+		upThreshold: { control: "number" },
+		downThreshold: { control: "number" },
+		// statePosition を Controls パネルで操作できるように追加
+		statePosition: {
+			control: "select",
+			options: ["top", "bottom"],
+			description: "テスト用の状態表示エリアの位置",
+		},
+	},
+	// CenterDecoratorを使用してテストコンポーネントを配置
+	decorators: [
+		(StoryComponent) => ({
+			Component: CenterDecorator,
+			props: {
+				children: StoryComponent,
+				minHeight: "var(--size-4-100)" /* 400px相当 */,
+				padding: "var(--size-4-4)" /* 16px */,
+			},
+		}),
+	],
+});
 </script>
 
 <script>
