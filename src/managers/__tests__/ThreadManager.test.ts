@@ -669,7 +669,9 @@ describe("ThreadManager", () => {
 
 			// Verify final state is consistent
 			expect(threadManager.isLoading).toBe(false);
-			expect(threadManager.error).toContain("Network error");
+			expect(threadManager.error).toContain(
+				"ネットワーク接続エラーが発生しました。インターネット接続を確認してください。",
+			);
 			expect(threadManager.thread).toBeNull();
 		});
 
