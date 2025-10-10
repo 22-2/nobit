@@ -46,17 +46,27 @@ export function usePopover(): UsePopoverReturn {
 	}
 
 	function hidePopoversFrom(fromLevel: number) {
-		if (activePopovers.length <= fromLevel) return;
+		console.log(`[PopoverService] hidePopoversFrom called with level ${fromLevel}, activePopovers.length: ${activePopovers.length}`);
+		if (activePopovers.length <= fromLevel) {
+			console.log(`[PopoverService] No popovers to hide (length ${activePopovers.length} <= ${fromLevel})`);
+			return;
+		}
 
 		log.debug(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
+		console.log(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
 
 		const toClose = activePopovers.slice(fromLevel);
 		const remainingPopovers = activePopovers.slice(0, fromLevel);
 
+		console.log(`[PopoverService] toClose count: ${toClose.length}, remaining count: ${remainingPopovers.length}`);
+
 		activePopovers.length = 0;
 		activePopovers.push(...remainingPopovers);
 
-		toClose.forEach((popover) => popover.hide());
+		toClose.forEach((popover) => {
+			console.log(`[PopoverService] Hiding popover at level ${popover.level}`);
+			popover.hide();
+		});
 	}
 
 	function startHideTimer() {

@@ -49,7 +49,7 @@ export class CustomHoverPopover extends Component {
     private popoverService: PopoverService;
     private parentContainer: HTMLElement;
     public targetEl: HTMLElement;
-    private level: number;
+    public level: number;
     private initialEvent: MouseEvent;
 
     public hoverEl: HTMLElement;
@@ -116,25 +116,53 @@ export class CustomHoverPopover extends Component {
 
         this.registerDomEvent(this.hoverEl, "mouseenter", () => {
             this.popoverService.clearHideTimer();
-            this.popoverService.hidePopoversFrom(this.level + 1);
+            // このポップアップより後のポップアップを閉じる
+            // activePopovers配列内のインデックスはlevelと同じ
+            this.popoverService.hidePopoversFrom(this.level);
         });
 
         this.registerDomEvent(this.hoverEl, "mouseleave", () => {
             this.popoverService.startHideTimer();
         });
 
-        this.registerDomEvent(this.hoverEl, "click", (event: MouseEvent) => {
-            const target = event.target as HTMLElement;
-            if (!target.closest("a, button")) {
-                this.popoverService.hidePopoversFrom(this.level + 1);
-            }
+        // カスタムイベントをリッスン（PostItemから発火される）
+        const contentClickListener = (event: Event) => {
+            log.debug(`[CustomHoverPopover] Popover content click on level ${this.level}`, event);
+            console.log(`[CustomHoverPopover] Popover content click on level ${this.level}`);
+            // 子ポップアップを閉じる（levelではなく、配列のインデックスを渡す）
+            // activePopovers配列内でこのポップアップの次のインデックスから閉じる
+            this.popoverService.hidePopoversFrom(this.level);
+        };
+        this.hoverEl.addEventListener("popover-content-click", contentClickListener);
+        console.log(`[CustomHoverPopover] Registered popover-content-click listener on level ${this.level}`);
+        this.domEventListeners.push({
+            el: this.hoverEl,
+            type: "popover-content-click" as keyof HTMLElementEventMap,
+            listener: contentClickListener as (ev: unknown) => unknown
         });
+
+        // キャプチャフェーズでクリックイベントを捕捉
+        this.hoverEl.addEventListener("click", (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            log.debug(`[CustomHoverPopover] Click event on level ${this.level}, target:`, target);
+
+            // リンクやボタンをクリックした場合は、その要素の処理を優先
+            if (target.closest("a, button")) {
+                log.debug(`[CustomHoverPopover] Click on link/button, ignoring`);
+                return;
+            }
+            // それ以外の場所をクリックした場合は、子ポップアップを閉じる
+            log.debug(`[CustomHoverPopover] Hiding popovers from level ${this.level}`);
+            this.popoverService.hidePopoversFrom(this.level);
+        }, true); // キャプチャフェーズで実行
     }
 
     override onunload() {
         super.onunload();
         this.domEventListeners.forEach(({ el, type, listener }) => {
             el.removeEventListener(type, listener);
+            // キャプチャフェーズのリスナーも削除
+            el.removeEventListener(type, listener, true);
         });
         this.domEventListeners = [];
 

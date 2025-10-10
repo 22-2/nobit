@@ -12,7 +12,6 @@ export default defineConfig({
 	reporter: [
 		["html", { outputFolder: path.join(e2eDir, "./playwright-report") }],
 	],
-	maxFailures: 1,
 	fullyParallel: false,
 	workers: 1,
 	use: {

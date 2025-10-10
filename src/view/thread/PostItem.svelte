@@ -110,7 +110,21 @@
             ".internal-res-link, .reply-tree-link, .post-author-id a"
         );
 
-        if (!triggerEl) return;
+        if (!triggerEl) {
+            // リンクやボタン以外をクリックした場合
+            // ポップアップ内にいる場合は、カスタムイベントを発火して親ポップアップに通知
+            const popover = target.closest('.popover.hover-popover');
+            console.log('[PostItem] Click on non-trigger element, popover:', popover);
+            if (popover) {
+                console.log('[PostItem] Dispatching popover-content-click event');
+                const customEvent = new CustomEvent('popover-content-click', {
+                    bubbles: true,
+                    detail: { originalEvent: event }
+                });
+                popover.dispatchEvent(customEvent);
+            }
+            return;
+        }
 
         event.preventDefault();
         event.stopPropagation();

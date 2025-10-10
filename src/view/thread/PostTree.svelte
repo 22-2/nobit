@@ -55,7 +55,13 @@
     }
 </script>
 
-<div class="post-tree-node" style="--level: {level}">
+<div class="post-tree-node" style="--level: {level}" onclick={(e) => {
+    // リンクやボタン以外をクリックした場合、イベントを伝播させる
+    const target = e.target as HTMLElement;
+    if (!target.closest('a, button, .internal-res-link, .reply-tree-link')) {
+        // 何もしない（イベントを伝播させる）
+    }
+}}>
     <!-- --- [修正] 全てのプロパティをPostItemに渡す --- -->
     <PostItem
         {post}
