@@ -1,26 +1,15 @@
-import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
+import { MockDataFactory } from "e2e/helpers/MockDataFactory";
 import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID } from "../constants";
-import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
+import { PLUGIN_ID } from "../constants";
+import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
 
 /**
- * 統合テスト
- * SOLID原則に基づいてリファクタリング済み
+ * Thread View Integration Tests
+ * Refactored following SOLID principles
  */
 test.describe("Thread View Integration Tests", () => {
 	test("should complete full user journey", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
-
-		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
+		const setup = new BaseTestSetup(vault);
 
 		const plugin = await vault.window.evaluate(
 			(pluginId) => app.plugins.getPlugin(pluginId),
@@ -28,24 +17,17 @@ test.describe("Thread View Integration Tests", () => {
 		);
 		expect(plugin).toBeTruthy();
 
-		// Execute complete flow
 		console.log("Step 1: Executing command");
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
-			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/",
-		);
+		await setup.setupBasicThread();
 
 		console.log("Step 2: Verifying 5ch fetch and UI display");
-		await threadPage.waitForThreadContent();
-		await threadPage.verifyBasicUIStructure();
+		await setup.getThreadPage().verifyBasicUIStructure();
 
-		// Verify posts are loaded
-		const postCount = await threadPage.getPostCount();
+		const postCount = await setup.getThreadPage().getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 		console.log(`Verified ${postCount} posts loaded and displayed`);
 
-		// Verify ThreadManager state
-		const state = await threadPage.getThreadManagerState();
+		const state = await setup.getThreadPage().getThreadManagerState();
 		expect(state).toBeTruthy();
 		expect(state?.hasThread).toBe(true);
 		expect(state?.threadPostsLength).toBeGreaterThan(0);
@@ -59,33 +41,18 @@ test.describe("Thread View Integration Tests", () => {
 	});
 
 	test("should handle state changes correctly", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadPage.waitForThreadContent();
 
 		console.log("Testing loading state UI updates");
 
-		// Trigger refresh
-		await threadPage.clickRefreshButton();
+		await setup.getThreadPage().clickRefreshButton();
 
-		// Check for loading state
 		try {
-			await threadPage.expectLoadingState(true);
+			await setup.getThreadPage().expectLoadingState(true);
 			console.log("✓ Loading state UI update detected");
 		} catch {
 			console.log(
@@ -93,18 +60,16 @@ test.describe("Thread View Integration Tests", () => {
 			);
 		}
 
-		// Verify loading completes
-		await threadPage.waitForThreadContent(10000);
-		await threadPage.expectLoadingState(false);
+		await setup.getThreadPage().waitForThreadContent(10000);
+		await setup.getThreadPage().expectLoadingState(false);
 
 		console.log("Testing filter state UI updates");
 
-		// Test search filter
 		const searchInput = vault.window.locator(
 			'.thread-filters input[type="text"]',
 		);
 		if ((await searchInput.count()) > 0) {
-			await threadPage.applyThreadSearchFilter("test");
+			await setup.getThreadPage().applyThreadSearchFilter("test");
 
 			const filterState = await vault.window.evaluate(() => {
 				const activeLeaf = app.workspace.activeLeaf;
@@ -118,33 +83,19 @@ test.describe("Thread View Integration Tests", () => {
 			expect(filterState).toBe("test");
 			console.log("✓ Search filter state update verified");
 
-			await threadPage.clearThreadSearchFilter();
+			await setup.getThreadPage().clearThreadSearchFilter();
 		}
 
 		console.log("✓ ThreadManager state changes trigger UI updates correctly");
 	});
 
 	test("should cleanup properly when closed", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open and verify ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadPage.waitForThreadContent();
 
-		// Verify initialization
 		const initialState = await vault.window.evaluate(() => {
 			const activeLeaf = app.workspace.activeLeaf;
 			if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
@@ -164,10 +115,8 @@ test.describe("Thread View Integration Tests", () => {
 
 		console.log("ThreadView initialized properly");
 
-		// Close the ThreadView
-		await threadPage.closeThreadView();
+		await setup.getThreadPage().closeThreadView();
 
-		// Verify cleanup
 		const afterCloseState = await vault.window.evaluate(() => {
 			const leaves = app.workspace.getLeavesOfType("thread-view");
 			return {
@@ -183,37 +132,20 @@ test.describe("Thread View Integration Tests", () => {
 
 		console.log("✓ ThreadView properly cleaned up after closure");
 
-		// Verify we can open a new ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadPage.waitForThreadContent();
 
 		console.log("✓ New ThreadView can be opened after cleanup");
 	});
 
 	test("should validate architectural separation", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock using TestFetcher directly
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadPage.waitForThreadContent();
 
-		// Verify architectural layers
 		const componentValidation = await vault.window.evaluate(() => {
 			const activeLeaf = app.workspace.activeLeaf;
 			if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
@@ -235,7 +167,6 @@ test.describe("Thread View Integration Tests", () => {
 			return null;
 		});
 
-		// Verify all layers work correctly
 		expect(componentValidation?.hasThreadView).toBe(true);
 		expect(componentValidation?.threadViewType).toBe("thread-view");
 		expect(componentValidation?.hasThreadManager).toBe(true);
@@ -245,24 +176,21 @@ test.describe("Thread View Integration Tests", () => {
 		expect(componentValidation?.threadManagerThread).toBe(true);
 		expect(componentValidation?.threadManagerFilters).toBe(true);
 
-		// Verify UI components
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
 		await expect(vault.window.locator(".thread-footer-toolbar")).toBeVisible();
 
-		// Verify data flow
 		const posts = await vault.window.locator(".posts-container .post");
 		const postCount = await posts.count();
 		expect(postCount).toBeGreaterThan(0);
 
-		// Verify interactive elements
 		const refreshButton = vault.window.locator(
 			".toolbar-section .clickable-icon",
 		);
 		await expect(refreshButton).toBeVisible();
 		await refreshButton.click({ force: true });
-		await threadPage.waitForThreadContent(10000);
+		await setup.getThreadPage().waitForThreadContent(10000);
 
 		console.log(
 			"✓ Architectural separation validated - Manager layer successfully bridges Obsidian and Svelte",
@@ -270,39 +198,23 @@ test.describe("Thread View Integration Tests", () => {
 	});
 
 	test("should handle errors and recover", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock for initial load
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Test normal operation first
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
-		await threadPage.waitForThreadContent();
 
 		console.log("Normal operation verified");
 
-		// Simulate network failure by returning error status
-		await mockHelper.setupPatternMock(".dat", {
+		await setup.getMockHelper().setupPatternMock(".dat", {
 			status: 500,
 			body: "Internal Server Error",
 		});
 
-		// Trigger refresh to test error handling
-		await threadPage.clickRefreshButton();
+		await setup.getThreadPage().clickRefreshButton();
 
-		// Wait for error state
 		try {
-			await threadPage.expectErrorState(true);
+			await setup.getThreadPage().expectErrorState(true);
 			console.log("✓ Error state displayed correctly");
 
 			const errorMessage = await vault.window
@@ -314,28 +226,16 @@ test.describe("Thread View Integration Tests", () => {
 			console.log("Error state was handled too quickly or differently");
 		}
 
-		// Restore normal operation
-		await mockHelper.setupPatternMock(".dat", {
+		await setup.getMockHelper().setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createBasicThreadData(),
 		});
 
-		// Verify recovery
-		await threadPage.clickRefreshButton();
-		await threadPage.waitForThreadContent(10000);
+		await setup.getThreadPage().clickRefreshButton();
+		await setup.getThreadPage().waitForThreadContent(10000);
 
 		console.log("✓ Error handling and recovery validated");
 	});
 });
 
-test.use({
-	vaultOptions: {
-		useSandbox: true,
-		plugins: [
-			{
-				path: DIST_DIR,
-				pluginId: PLUGIN_ID,
-			},
-		],
-	},
-});
+test.use(DEFAULT_TEST_CONFIG);

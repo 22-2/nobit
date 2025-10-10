@@ -1,20 +1,14 @@
-import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
 import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID } from "../constants";
-import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
+import { PLUGIN_ID } from "../constants";
+import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
 
 /**
- * MVP基本機能テスト
- * SOLID原則に基づいてリファクタリング済み
+ * Thread View MVP Tests
+ * Refactored following SOLID principles
  */
 test.describe("Thread View MVP Tests", () => {
 	test("should open ThreadView via command", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
 		const plugin = await vault.window.evaluate(
 			(pluginId) => app.plugins.getPlugin(pluginId),
@@ -22,158 +16,78 @@ test.describe("Thread View MVP Tests", () => {
 		);
 		expect(plugin).toBeTruthy();
 
-		// Setup mock
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		// Verify content loaded
-		await threadPage.waitForThreadContent(10000);
-		await threadPage.verifyBasicUIStructure();
+		await setup.getThreadPage().verifyBasicUIStructure();
 
-		// Verify posts
-		const postCount = await threadPage.getPostCount();
+		const postCount = await setup.getThreadPage().getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 
-		// Verify no errors
-		await threadPage.expectErrorState(false);
-		await threadPage.expectLoadingState(false);
+		await setup.getThreadPage().expectErrorState(false);
+		await setup.getThreadPage().expectLoadingState(false);
 	});
 
 	test("should display UI structure correctly", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
+		await setup.getThreadPage().verifyBasicUIStructure();
 
-		// Verify UI structure
-		await threadPage.waitForThreadContent(10000);
-		await threadPage.verifyBasicUIStructure();
-
-		// Verify interactive elements
 		await expect(
 			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
 
-		// Verify successful load
-		await threadPage.expectErrorState(false);
-		await threadPage.expectLoadingState(false);
+		await setup.getThreadPage().expectErrorState(false);
+		await setup.getThreadPage().expectLoadingState(false);
 	});
 
 	test("should support Svelte 5 reactivity", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		await threadPage.waitForThreadContent(10000);
-
-		// Verify reactive components
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".filter-buttons-group")).toBeVisible();
 		await expect(vault.window.locator(".thread-title")).toBeVisible();
 		await expect(vault.window.locator(".post-count")).toContainText("posts");
 
-		// Verify posts (reactive state)
-		const postCount = await threadPage.getPostCount();
+		const postCount = await setup.getThreadPage().getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 
-		// Verify interactive elements
 		await expect(
 			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
 	});
 
 	test("should maintain architectural separation", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		await threadPage.waitForThreadContent(10000);
-
-		// Verify Svelte components work (no 'obsidian' imports)
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
-
-		// Verify Manager → Svelte communication
 		await expect(vault.window.locator(".thread-title")).toBeVisible();
 		await expect(vault.window.locator(".post-count")).toContainText("posts");
-
-		// Verify existing components integrate
 		await expect(vault.window.locator(".toolbar-section")).toBeVisible();
 		await expect(vault.window.locator(".filters-section")).toBeVisible();
 	});
 
 	test("should validate basic UI structure", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		// Setup mock
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createBasicThreadData(),
-		});
-
-		// Open ThreadView
-		await threadPage.openAndVerifyThreadView(
-			PLUGIN_ID,
+		await setup.setupBasicThread(
 			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/",
 		);
 
-		await threadPage.waitForThreadContent(10000);
-
-		// Verify all sections
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
 		await expect(vault.window.locator(".filters-section")).toBeVisible();
 		await expect(vault.window.locator(".toolbar-section")).toBeVisible();
@@ -181,29 +95,15 @@ test.describe("Thread View MVP Tests", () => {
 		await expect(vault.window.locator(".thread-title")).toBeVisible();
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
 
-		// Verify posts
-		const postCount = await threadPage.getPostCount();
+		const postCount = await setup.getThreadPage().getPostCount();
 		expect(postCount).toBeGreaterThan(0);
 
-		// Verify interactive elements
 		await expect(
 			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
-
-		// Verify filter components
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".filter-buttons-group")).toBeVisible();
 	});
 });
 
-test.use({
-	vaultOptions: {
-		useSandbox: true,
-		plugins: [
-			{
-				path: DIST_DIR,
-				pluginId: PLUGIN_ID,
-			},
-		],
-	},
-});
+test.use(DEFAULT_TEST_CONFIG);

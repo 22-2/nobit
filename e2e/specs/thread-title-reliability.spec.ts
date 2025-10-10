@@ -1,82 +1,53 @@
+import { PLUGIN_ID } from "e2e/constants";
 import { TestFetcherMockHelper } from "e2e/helpers/TestFetcherMockHelper";
+import { ThreadViewPageObject } from "e2e/helpers/ThreadViewPageObject";
 import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID } from "../constants";
+import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
 import { MockDataFactory } from "../helpers/MockDataFactory";
-import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
+import { TitleTestHelper } from "../helpers/TitleTestHelper";
 
 /**
- * スレッドタイトル取得の信頼性テスト
- * タイトルが確実に取得・表示されることを様々なシナリオで検証
+ * Thread Title Reliability Tests
+ * Refactored following SOLID principles
  */
 test.describe("Thread Title Reliability Tests", () => {
 	test("should display thread title immediately after load", async ({
 		vault,
 	}) => {
-		const threadPage = new ThreadViewPageObject(
+		const setup = new BaseTestSetup(vault);
+		const titleHelper = new TitleTestHelper(
 			vault.window,
-			vault.pluginHandleMap,
+			setup.getThreadPage(),
 		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createThreadData({
-				title: "基本テストスレッド",
-				postCount: 10,
-			}),
+		await setup.setupCustomThread({
+			title: "基本テストスレッド",
+			postCount: 10,
 		});
 
-		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadPage.waitForThreadContent();
-
-		// タイトルバーのタイトルを確認
-		const tabHeaderText = await threadPage.getTabHeaderText();
-		expect(tabHeaderText).toBeTruthy();
-		expect(tabHeaderText).toBe("基本テストスレッド");
-		console.log("✓ Tab header displays thread title:", tabHeaderText);
-
-		// スレッドヘッダーのタイトルを確認
-		const headerTitle = await threadPage.getThreadHeaderTitle();
-		expect(headerTitle).toBeTruthy();
-		expect(headerTitle).toBe(tabHeaderText);
-		console.log("✓ Thread header displays same title:", headerTitle);
-
-		// ThreadManagerの状態を確認
-		const state = await threadPage.getThreadManagerState();
-		expect(state?.threadTitle).toBeTruthy();
-		expect(state?.threadTitle).toBe(tabHeaderText);
-		console.log("✓ ThreadManager state has correct title:", state?.threadTitle);
+		await titleHelper.verifyAllTitles("基本テストスレッド");
 	});
 
 	test("should update title when navigating to different thread", async ({
 		vault,
 	}) => {
-		const threadPage = new ThreadViewPageObject(
+		const setup = new BaseTestSetup(vault);
+		const titleHelper = new TitleTestHelper(
 			vault.window,
-			vault.pluginHandleMap,
+			setup.getThreadPage(),
 		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		// 最初のスレッド用のモック
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createThreadData({
-				title: "最初のスレッドタイトル",
-				postCount: 10,
-			}),
+		await setup.setupCustomThread({
+			title: "最初のスレッドタイトル",
+			postCount: 10,
+			url: "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/",
 		});
 
-		const firstUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
-		await threadPage.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
-		await threadPage.waitForThreadContent();
-
-		const firstTitle = await threadPage.getTabHeaderText();
+		const firstTitle = await setup.getThreadPage().getTabHeaderText();
 		expect(firstTitle).toContain("最初のスレッドタイトル");
 		console.log("✓ First thread title:", firstTitle);
 
-		// 2番目のスレッド用のモック
-		await mockHelper.setupPatternMock(".dat", {
+		await setup.getMockHelper().setupPatternMock(".dat", {
 			status: 200,
 			body: MockDataFactory.createThreadData({
 				title: "2番目のスレッドタイトル",
@@ -84,93 +55,59 @@ test.describe("Thread Title Reliability Tests", () => {
 			}),
 		});
 
-		// タイトルバーから新しいURLに移動
-		const titleEl = vault.window.locator(
-			".workspace-leaf.mod-active .view-header-title",
-		);
-		await titleEl.click();
-		await vault.window.waitForTimeout(100);
-
 		const secondUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
-		await titleEl.fill(secondUrl);
-		await titleEl.press("Enter");
-		await vault.window.waitForTimeout(500);
+		await titleHelper.navigateViaTitle(secondUrl);
 
-		await threadPage.waitForThreadContent(10000);
-
-		// タイトルが更新されたことを確認
-		const secondTitle = await threadPage.getTabHeaderText();
+		const secondTitle = await setup.getThreadPage().getTabHeaderText();
 		expect(secondTitle).toContain("2番目のスレッドタイトル");
 		expect(secondTitle).not.toBe(firstTitle);
 		console.log("✓ Second thread title:", secondTitle);
 
-		// ThreadManagerの状態も更新されていることを確認
-		const state = await threadPage.getThreadManagerState();
+		const state = await setup.getThreadPage().getThreadManagerState();
 		expect(state?.threadTitle).toContain("2番目のスレッドタイトル");
 		expect(state?.threadUrl).toBe(secondUrl);
 		console.log("✓ ThreadManager state updated correctly");
 	});
 
 	test("should preserve title after refresh", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createThreadData({
-				title: "リフレッシュテストスレッド",
-				postCount: 15,
-			}),
+		await setup.setupCustomThread({
+			title: "リフレッシュテストスレッド",
+			postCount: 15,
 		});
 
-		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadPage.waitForThreadContent();
-
-		const originalTitle = await threadPage.getTabHeaderText();
+		const originalTitle = await setup.getThreadPage().getTabHeaderText();
 		expect(originalTitle).toContain("リフレッシュテストスレッド");
 		console.log("✓ Original title:", originalTitle);
 
-		// リフレッシュ
-		await threadPage.clickRefreshButton();
-		await threadPage.waitForThreadContent(10000);
+		await setup.getThreadPage().clickRefreshButton();
+		await setup.getThreadPage().waitForThreadContent(10000);
 
-		// タイトルが保持されていることを確認
-		const titleAfterRefresh = await threadPage.getTabHeaderText();
+		const titleAfterRefresh = await setup.getThreadPage().getTabHeaderText();
 		expect(titleAfterRefresh).toBe(originalTitle);
 		console.log("✓ Title preserved after refresh:", titleAfterRefresh);
 	});
 
 	test("should handle title with special characters", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
+		const setup = new BaseTestSetup(vault);
+		const titleHelper = new TitleTestHelper(
 			vault.window,
-			vault.pluginHandleMap,
+			setup.getThreadPage(),
 		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
 
 		const specialTitle = "【速報】テスト特殊文字スレッド🔥💯";
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createThreadData({
-				title: specialTitle,
-				postCount: 5,
-			}),
+		await setup.setupCustomThread({
+			title: specialTitle,
+			postCount: 5,
 		});
 
-		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadPage.waitForThreadContent();
-
-		const displayedTitle = await threadPage.getTabHeaderText();
+		const displayedTitle = await setup.getThreadPage().getTabHeaderText();
 		expect(displayedTitle).toBeTruthy();
 		expect(displayedTitle).toContain("速報");
 		console.log("✓ Special characters title displayed:", displayedTitle);
 
-		// ThreadManagerの状態も確認
-		const state = await threadPage.getThreadManagerState();
+		const state = await setup.getThreadPage().getThreadManagerState();
 		expect(state?.threadTitle).toBeTruthy();
 		console.log(
 			"✓ ThreadManager has title with special chars:",
@@ -319,86 +256,45 @@ test.describe("Thread Title Reliability Tests", () => {
 	test("should sync title between ThreadManager and ThreadView", async ({
 		vault,
 	}) => {
-		const threadPage = new ThreadViewPageObject(
+		const setup = new BaseTestSetup(vault);
+		const titleHelper = new TitleTestHelper(
 			vault.window,
-			vault.pluginHandleMap,
+			setup.getThreadPage(),
 		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createThreadData({
-				title: "同期テストスレッド",
-				postCount: 10,
-			}),
+		await setup.setupCustomThread({
+			title: "同期テストスレッド",
+			postCount: 10,
 		});
 
-		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadPage.waitForThreadContent();
-
-		// 3箇所のタイトルが一致することを確認
-		const consistency = await threadPage.verifyTitleConsistency();
-
-		expect(consistency.titleBar).toBeTruthy();
-		expect(consistency.allMatch).toBe(true);
-		console.log(
-			"✓ All three title sources are synchronized:",
-			consistency.titleBar,
-		);
+		await titleHelper.verifyTitleConsistency("同期テストスレッド");
 	});
 
 	test("should maintain title after applying filters", async ({ vault }) => {
-		const threadPage = new ThreadViewPageObject(
-			vault.window,
-			vault.pluginHandleMap,
-		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
+		const setup = new BaseTestSetup(vault);
 
-		await mockHelper.setupPatternMock(".dat", {
-			status: 200,
-			body: MockDataFactory.createThreadData({
-				title: "フィルターテストスレッド",
-				postCount: 20,
-			}),
+		await setup.setupCustomThread({
+			title: "フィルターテストスレッド",
+			postCount: 20,
 		});
 
-		const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
-		await threadPage.openAndVerifyThreadView(PLUGIN_ID, url);
-		await threadPage.waitForThreadContent();
-
-		const originalTitle = await threadPage.getTabHeaderText();
+		const originalTitle = await setup.getThreadPage().getTabHeaderText();
 		expect(originalTitle).toContain("フィルターテストスレッド");
 
-		// フィルターを適用
-		await threadPage.applyThreadSearchFilter("test");
+		await setup.getThreadPage().applyThreadSearchFilter("test");
 		await vault.window.waitForTimeout(500);
 
-		// タイトルが変わっていないことを確認
-		const titleAfterFilter = await threadPage.getTabHeaderText();
+		const titleAfterFilter = await setup.getThreadPage().getTabHeaderText();
 		expect(titleAfterFilter).toBe(originalTitle);
 		console.log("✓ Title maintained after applying filter");
 
-		// フィルターをクリア
-		await threadPage.clearThreadSearchFilter();
+		await setup.getThreadPage().clearThreadSearchFilter();
 		await vault.window.waitForTimeout(300);
 
-		// タイトルがまだ同じことを確認
-		const titleAfterClear = await threadPage.getTabHeaderText();
+		const titleAfterClear = await setup.getThreadPage().getTabHeaderText();
 		expect(titleAfterClear).toBe(originalTitle);
 		console.log("✓ Title maintained after clearing filter");
 	});
 });
 
-test.use({
-	vaultOptions: {
-		useSandbox: true,
-		showLoggerOnNode: true,
-		plugins: [
-			{
-				path: DIST_DIR,
-				pluginId: PLUGIN_ID,
-			},
-		],
-	},
-});
+test.use(DEFAULT_TEST_CONFIG);

@@ -1,135 +1,63 @@
-import { VIEW_TYPE_THREAD } from "src/utils/constants";
-import { expect, test } from "../base";
-import { DIST_DIR, PLUGIN_ID } from "../constants";
-import { TestFetcherMockHelper } from "../helpers/TestFetcherMockHelper";
-import { ThreadViewPageObject } from "../helpers/ThreadViewPageObject";
+import { test } from "../base";
+import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
+import { SelectionDialogHelper } from "../helpers/SelectionDialogHelper";
 
+/**
+ * Selection Dialog Tests
+ * Refactored following SOLID principles
+ */
 test.describe("Selection Dialog", () => {
 	test("should open thread when selecting from history with Enter key", async ({
 		vault,
 	}) => {
-		const threadPage = new ThreadViewPageObject(
+		const setup = new BaseTestSetup(vault);
+		const dialogHelper = new SelectionDialogHelper(
 			vault.window,
-			vault.pluginHandleMap,
+			setup.getThreadPage(),
 		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		// Setup mock
 		const threadData = `テスト太郎<>sage<>2025/10/10(金) 12:00:00.00 ID:test1234<>これはテストスレッドです<>【テスト】履歴選択テスト
 テスト次郎<>sage<>2025/10/10(金) 12:01:00.00 ID:test5678<>レス1です<>`;
 
-		await mockHelper.setupPatternMock(".dat", {
+		await setup.getMockHelper().setupPatternMock(".dat", {
 			status: 200,
 			body: threadData,
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 
-		// First, add an entry to history
-		await vault.window.evaluate(
-			async (args) => {
-				const plugin = (window as any).app.plugins.plugins[args.pluginId];
-				await plugin.addToUrlHistory(args.url, args.title);
-			},
-			{ pluginId: PLUGIN_ID, url: testUrl, title: "【テスト】履歴選択テスト" },
+		await dialogHelper.testSelectionWithEnter(
+			testUrl,
+			"【テスト】履歴選択テスト",
+			"【テスト】履歴選択テスト",
 		);
-
-		// Wait for history to be saved
-		await vault.window.waitForTimeout(300);
-
-		// Execute the open-with-url command
-		await threadPage.runCommand(`${PLUGIN_ID}:open-with-url`);
-
-		// Wait for the selection dialog to open
-		await vault.window.waitForFunction(
-			() => {
-				const prompt = document.querySelector(".prompt");
-				return prompt !== null;
-			},
-			{ timeout: 3000 },
-		);
-
-		// The first item should be our history entry (already selected with .is-selected)
-		// Press Enter to select
-		await vault.window.keyboard.press("Enter");
-
-		// Wait for thread view to open
-		await threadPage.waitForView(VIEW_TYPE_THREAD);
-		await threadPage.waitForThreadContent();
-
-		// Verify the thread title
-		const threadTitle = await threadPage.getThreadHeaderTitle();
-		expect(threadTitle).toBe("【テスト】履歴選択テスト");
 	});
 
 	test("should open thread when clicking on history item", async ({
 		vault,
 	}) => {
-		const threadPage = new ThreadViewPageObject(
+		const setup = new BaseTestSetup(vault);
+		const dialogHelper = new SelectionDialogHelper(
 			vault.window,
-			vault.pluginHandleMap,
+			setup.getThreadPage(),
 		);
-		const mockHelper = new TestFetcherMockHelper(vault.window);
 
-		// Setup mock
 		const threadData = `テスト太郎<>sage<>2025/10/10(金) 12:00:00.00 ID:test1234<>これはテストスレッドです<>【テスト】クリック選択テスト
 テスト次郎<>sage<>2025/10/10(金) 12:01:00.00 ID:test5678<>レス1です<>`;
 
-		await mockHelper.setupPatternMock(".dat", {
+		await setup.getMockHelper().setupPatternMock(".dat", {
 			status: 200,
 			body: threadData,
 		});
 
 		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001771/";
 
-		// Add entry to history
-		await vault.window.evaluate(
-			async (args) => {
-				const plugin = (window as any).app.plugins.plugins[args.pluginId];
-				await plugin.addToUrlHistory(args.url, args.title);
-			},
-			{
-				pluginId: PLUGIN_ID,
-				url: testUrl,
-				title: "【テスト】クリック選択テスト",
-			},
+		await dialogHelper.testSelectionWithClick(
+			testUrl,
+			"【テスト】クリック選択テスト",
+			"【テスト】クリック選択テスト",
 		);
-
-		await vault.window.waitForTimeout(300);
-
-		// Execute the open-with-url command
-		await threadPage.runCommand(`${PLUGIN_ID}:open-with-url`);
-		await vault.window.waitForTimeout(500);
-
-		// Click on the first suggestion
-		const clicked = await vault.window.evaluate(() => {
-			const suggestion = document.querySelector(".suggestion-item");
-			if (suggestion) {
-				(suggestion as HTMLElement).click();
-				return true;
-			}
-			return false;
-		});
-		expect(clicked).toBe(true);
-
-		// Wait for thread view to open
-		await threadPage.waitForView(VIEW_TYPE_THREAD);
-		await threadPage.waitForThreadContent();
-
-		const threadTitle = await threadPage.getThreadHeaderTitle();
-		expect(threadTitle).toBe("【テスト】クリック選択テスト");
 	});
 });
 
-test.use({
-	vaultOptions: {
-		useSandbox: true,
-		showLoggerOnNode: true,
-		plugins: [
-			{
-				path: DIST_DIR,
-				pluginId: PLUGIN_ID,
-			},
-		],
-	},
-});
+test.use(DEFAULT_TEST_CONFIG);
