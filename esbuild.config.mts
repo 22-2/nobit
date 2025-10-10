@@ -23,10 +23,10 @@ export type CopyPluginOptions = {
 	}[];
 };
 
-const mode = process.argv[2];
+const mode = process.argv[2] || process.env.NODE_ENV;
 const prod = mode === "production";
 
-console.log(mode);
+console.log("Build mode:", mode, "| Production:", prod);
 
 const copyOpts = {
 	opts: [
