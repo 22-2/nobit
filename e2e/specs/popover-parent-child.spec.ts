@@ -6,6 +6,47 @@ import { TestFetcherMockHelper } from "../helpers/TestFetcherMockHelper";
 import "../setup/logger-setup";
 
 test.describe("ポップアップの挙動テスト", () => {
+	test("アンカーリンクからポップアップにカーソルを移動できる", async ({
+		vault,
+	}) => {
+		const obsPage = new ObsidianPageObject(
+			vault.window,
+			vault.pluginHandleMap
+		);
+		const mockHelper = new TestFetcherMockHelper(vault.window);
+
+		// モックデータをセットアップ
+		await mockHelper.setupPatternMock(".dat", {
+			status: 200,
+			body: MockDataFactory.createBasicThreadData(),
+		});
+
+		// スレッドビューを開く
+		await obsPage.openPluginWithURL(
+			PLUGIN_ID,
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/"
+		);
+
+		// スレッドが読み込まれるまで待機
+		await vault.window.waitForSelector(".post", { timeout: 10000 });
+
+		// アンカーリンクにホバー
+		const anchorLink = vault.window.locator(".internal-res-link").first();
+		await anchorLink.hover();
+		await vault.window.waitForTimeout(150);
+
+		// ポップアップが表示されることを確認
+		const popover = vault.window.locator(".popover.hover-popover").first();
+		await expect(popover).toBeVisible();
+
+		// ポップアップにカーソルを移動
+		await popover.hover();
+		await vault.window.waitForTimeout(400); // タイマーより長く待つ
+
+		// ポップアップがまだ表示されていることを確認
+		await expect(popover).toBeVisible();
+	});
+
 	test("親ポップアップをクリックしたら子ポップアップが閉じる", async ({
 		vault,
 	}) => {

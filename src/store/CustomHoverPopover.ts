@@ -117,8 +117,8 @@ export class CustomHoverPopover extends Component {
         this.registerDomEvent(this.hoverEl, "mouseenter", () => {
             this.popoverService.clearHideTimer();
             // このポップアップより後のポップアップを閉じる
-            // activePopovers配列内のインデックスはlevelと同じ
-            this.popoverService.hidePopoversFrom(this.level);
+            // activePopovers配列内のインデックスはlevelと同じなので、level+1から閉じる
+            this.popoverService.hidePopoversFrom(this.level + 1);
         });
 
         this.registerDomEvent(this.hoverEl, "mouseleave", () => {
