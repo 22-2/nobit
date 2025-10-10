@@ -24,6 +24,12 @@ export class ThreadViewPageObject extends ObsidianPageObject {
 	 */
 	async openAndVerifyThreadView(pluginId: string, url: string): Promise<void> {
 		await this.openPluginWithURL(pluginId, url);
+		// Wait for the view to be created before checking count
+		await this.page.waitForFunction(
+			(viewType) => app.workspace.getLeavesOfType(viewType).length > 0,
+			VIEW_TYPE_THREAD,
+			{ timeout: 5000 },
+		);
 		await this.expectViewCount(VIEW_TYPE_THREAD, 1);
 		await this.expectActiveTabType(VIEW_TYPE_THREAD);
 		await expect(this.page.locator(".thread-view")).toBeVisible();

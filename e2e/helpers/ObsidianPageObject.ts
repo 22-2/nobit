@@ -122,7 +122,7 @@ export class ObsidianPageObject {
 			[pluginId, url],
 		);
 		// Wait a bit for the view to initialize before network requests start
-		await this.page.waitForTimeout(100);
+		// await this.page.waitForTimeout(300);
 	}
 
 	async clearActiveEditor(): Promise<void> {
