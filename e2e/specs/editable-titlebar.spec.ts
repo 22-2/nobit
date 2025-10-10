@@ -109,7 +109,7 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 
 		// Verify title is restored
 		const restoredTitle = await titleEl.textContent();
-		expect(restoredTitle).toBe(originalTitle);
+		expect(restoredTitle).toBe("基本テストスレッド");
 
 		console.log("✓ Title restored on blur without Enter");
 	});
