@@ -356,6 +356,7 @@ test.describe("Thread Title Reliability Tests", () => {
 test.use({
 	vaultOptions: {
 		useSandbox: true,
+		showLoggerOnNode: true,
 		plugins: [
 			{
 				path: DIST_DIR,
