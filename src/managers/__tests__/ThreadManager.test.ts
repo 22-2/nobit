@@ -64,6 +64,18 @@ describe("ThreadManager", () => {
 		// Clear all mocks
 		vi.clearAllMocks();
 
+		// Mock activeDocument (Obsidian API)
+		const mockElement = {
+			scrollIntoView: vi.fn(),
+			classList: {
+				add: vi.fn(),
+				remove: vi.fn(),
+			},
+		};
+		(global as any).activeDocument = {
+			getElementById: vi.fn().mockReturnValue(mockElement),
+		};
+
 		// Create mock instances
 		mockApp = createMockApp();
 		mockProvider = createMockProvider();
