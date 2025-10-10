@@ -111,6 +111,15 @@ export class PluginManager {
 		page: Page,
 		app: ElectronApplication,
 	): Promise<void> {
+		// Wait for app.plugins to be available
+		await page.waitForFunction(
+			() => {
+				const app = (window as any).app;
+				return app?.plugins?.isEnabled !== undefined;
+			},
+			{ timeout: 10000 },
+		);
+
 		if (await this.checkIsCommunityPluginEnabled(page)) {
 			logger.debug("Community plugins are already enabled.");
 			return;
@@ -212,7 +221,10 @@ export class PluginManager {
 	// }
 
 	async checkIsCommunityPluginEnabled(page: Page): Promise<boolean> {
-		const isEnabled = await page.evaluate(() => app.plugins.isEnabled());
+		const isEnabled = await page.evaluate(() => {
+			const app = (window as any).app;
+			return app?.plugins?.isEnabled?.() ?? false;
+		});
 		logger.debug(
 			`${isEnabled ? "✅️" : "❌️"} checkIsCommunityPluginEnabled`,
 			page.url(),
