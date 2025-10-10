@@ -56,7 +56,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 
 	getDisplayText(): string {
 		// Return thread title if available, otherwise default text
-		return this.threadManager.thread?.title || "5ch Thread";
+		return this.state?.title || "5ch Thread";
 	}
 
 	getIcon(): string {
@@ -69,14 +69,14 @@ export class ThreadView extends ItemView implements EditableItemView {
 		this.render();
 	}
 
-	async setState(newState: ThreadViewState, result: ViewStateResult): Promise<void> {
-		await super.setState(newState, result);
+	async setState(newState: ThreadViewState, result: ViewStateResult = {history: false}): Promise<void> {
 		const urlChanged = this.state?.url !== newState.url;
 		this.state = newState;
 		// Re-render only when URL changes
 		if (urlChanged) {
 			this.render();
 		}
+		await super.setState(newState, result);
 	}
 
 	private render(): void {
@@ -108,15 +108,14 @@ export class ThreadView extends ItemView implements EditableItemView {
 	}
 
 	private updateTitle(title: string): void {
-		if (this.titleEl) {
-			this.titleEl.innerText = title;
-			if (this.state) {
-				this.state.title = title;
+		if (this.state) {
+				this.setState({...this.state, title});
+				// @ts-expect-error
+				this.leaf.updateHeader();
 				// Update history with the actual title
 				if (this.state.url) {
 					this.plugin.addToUrlHistory(this.state.url, title);
 				}
-			}
 		}
 	}
 
@@ -128,7 +127,7 @@ export class ThreadView extends ItemView implements EditableItemView {
 	async navigateToThreadFromUrl(url: string): Promise<void> {
 		logger.debug("Navigating to thread from URL:", url);
 		const state = this.state || {};
-		await this.setState({ url, ...state } as ThreadViewState, { history: false });
+		await this.setState({ url, ...state } as ThreadViewState);
 		// Directly load the thread with the new URL
 		await this.threadManager.loadThread(url);
 	}

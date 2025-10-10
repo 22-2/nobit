@@ -28,21 +28,21 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.waitForThreadContent();
 
 		// タイトルバーのタイトルを確認
-		const titleBarText = await threadHelper.getTitleBarText();
-		expect(titleBarText).toBeTruthy();
-		expect(titleBarText).toBe("基本テストスレッド");
-		console.log("✓ Title bar displays thread title:", titleBarText);
+		const tabHeaderText = await threadHelper.getTabHeaderText();
+		expect(tabHeaderText).toBeTruthy();
+		expect(tabHeaderText).toBe("基本テストスレッド");
+		console.log("✓ Tab header displays thread title:", tabHeaderText);
 
 		// スレッドヘッダーのタイトルを確認
 		const headerTitle = await threadHelper.getThreadHeaderTitle();
 		expect(headerTitle).toBeTruthy();
-		expect(headerTitle).toBe(titleBarText);
+		expect(headerTitle).toBe(tabHeaderText);
 		console.log("✓ Thread header displays same title:", headerTitle);
 
 		// ThreadManagerの状態を確認
 		const state = await threadHelper.getThreadManagerState();
 		expect(state?.threadTitle).toBeTruthy();
-		expect(state?.threadTitle).toBe(titleBarText);
+		expect(state?.threadTitle).toBe(tabHeaderText);
 		console.log("✓ ThreadManager state has correct title:", state?.threadTitle);
 	});
 
@@ -64,7 +64,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
 		await threadHelper.waitForThreadContent();
 
-		const firstTitle = await threadHelper.getTitleBarText();
+		const firstTitle = await threadHelper.getTabHeaderText();
 		expect(firstTitle).toContain("最初のスレッドタイトル");
 		console.log("✓ First thread title:", firstTitle);
 
@@ -90,7 +90,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.waitForThreadContent(10000);
 
 		// タイトルが更新されたことを確認
-		const secondTitle = await threadHelper.getTitleBarText();
+		const secondTitle = await threadHelper.getTabHeaderText();
 		expect(secondTitle).toContain("2番目のスレッドタイトル");
 		expect(secondTitle).not.toBe(firstTitle);
 		console.log("✓ Second thread title:", secondTitle);
@@ -119,7 +119,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
 		await threadHelper.waitForThreadContent();
 
-		const originalTitle = await threadHelper.getTitleBarText();
+		const originalTitle = await threadHelper.getTabHeaderText();
 		expect(originalTitle).toContain("リフレッシュテストスレッド");
 		console.log("✓ Original title:", originalTitle);
 
@@ -128,7 +128,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.waitForThreadContent(10000);
 
 		// タイトルが保持されていることを確認
-		const titleAfterRefresh = await threadHelper.getTitleBarText();
+		const titleAfterRefresh = await threadHelper.getTabHeaderText();
 		expect(titleAfterRefresh).toBe(originalTitle);
 		console.log("✓ Title preserved after refresh:", titleAfterRefresh);
 	});
@@ -151,7 +151,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
 		await threadHelper.waitForThreadContent();
 
-		const displayedTitle = await threadHelper.getTitleBarText();
+		const displayedTitle = await threadHelper.getTabHeaderText();
 		expect(displayedTitle).toBeTruthy();
 		expect(displayedTitle).toContain("速報");
 		console.log("✓ Special characters title displayed:", displayedTitle);
@@ -177,7 +177,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
 		await threadHelper.waitForThreadContent(15000);
 
-		const finalTitle = await threadHelper.getTitleBarText();
+		const finalTitle = await threadHelper.getTabHeaderText();
 		expect(finalTitle).toBeTruthy();
 		expect(finalTitle).not.toBe("5ch Thread");
 		console.log("✓ Title updated after load:", finalTitle);
@@ -201,7 +201,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
 		await threadHelper.waitForThreadContent();
 
-		const firstTitle = await threadHelper.getTitleBarText();
+		const firstTitle = await threadHelper.getTabHeaderText();
 		expect(firstTitle).toContain("1つ目のスレッド");
 		console.log("✓ First view title:", firstTitle);
 
@@ -219,7 +219,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.waitForThreadContent();
 
 		// 2つ目のタイトルを確認（アクティブなタブ）
-		const secondTitle = await threadHelper.getTitleBarText();
+		const secondTitle = await threadHelper.getTabHeaderText();
 		expect(secondTitle).toContain("2つ目のスレッド");
 		console.log("✓ Second view title:", secondTitle);
 
@@ -283,7 +283,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.waitForThreadContent();
 
 		// デフォルトタイトルが表示されることを確認
-		const displayedTitle = await threadHelper.getTitleBarText();
+		const displayedTitle = await threadHelper.getTabHeaderText();
 		expect(displayedTitle).toBeTruthy();
 		console.log("✓ Fallback title displayed for empty title:", displayedTitle);
 	});
@@ -330,7 +330,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
 		await threadHelper.waitForThreadContent();
 
-		const originalTitle = await threadHelper.getTitleBarText();
+		const originalTitle = await threadHelper.getTabHeaderText();
 		expect(originalTitle).toContain("フィルターテストスレッド");
 
 		// フィルターを適用
@@ -338,7 +338,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await vault.window.waitForTimeout(500);
 
 		// タイトルが変わっていないことを確認
-		const titleAfterFilter = await threadHelper.getTitleBarText();
+		const titleAfterFilter = await threadHelper.getTabHeaderText();
 		expect(titleAfterFilter).toBe(originalTitle);
 		console.log("✓ Title maintained after applying filter");
 
@@ -347,7 +347,7 @@ test.describe("Thread Title Reliability Tests", () => {
 		await vault.window.waitForTimeout(300);
 
 		// タイトルがまだ同じことを確認
-		const titleAfterClear = await threadHelper.getTitleBarText();
+		const titleAfterClear = await threadHelper.getTabHeaderText();
 		expect(titleAfterClear).toBe(originalTitle);
 		console.log("✓ Title maintained after clearing filter");
 	});

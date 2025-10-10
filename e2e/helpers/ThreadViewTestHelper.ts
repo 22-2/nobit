@@ -156,6 +156,13 @@ export class ThreadViewTestHelper {
 	}
 
 	/**
+	 * タイトルバーのタイトルを取得（アクティブなリーフのみ）
+	 */
+	async getTabHeaderText(): Promise<string | null> {
+		return await this.page.locator(".workspace-tab-header.mod-active .workspace-tab-header-inner").textContent();
+	}
+
+	/**
 	 * スレッドヘッダーのタイトルを取得
 	 */
 	async getThreadHeaderTitle(): Promise<string | null> {
