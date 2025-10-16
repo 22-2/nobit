@@ -1,5 +1,5 @@
-import type { Plugin } from "obsidian";
 import type { JSHandle, Page } from "playwright";
+import type { Plugin } from "./types";
 
 export async function getPluginHandleMap(
 	page: Page,

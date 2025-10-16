@@ -18,6 +18,8 @@
 		"test:e2e": "playwright test",
 		"test:e2e:example": "pnpm playwright test e2e/specs/example.spec.ts --project=chromium",
 		"test:e2e:debug": "cross-env DEBUG=pw:api playwright test",
+		"manual": "pnpm dlx tsx e2e/manual.ts",
+		"manual:sandbox": "pnpm dlx tsx e2e/manual.ts --sandbox",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
 	},

@@ -1,6 +1,5 @@
-import { VIEW_TYPE_THREAD } from "src/utils/constants";
 import { expect, test } from "../base";
-import { PLUGIN_ID, SANDBOX_VAULT_NAME } from "../constants";
+import { PLUGIN_ID, SANDBOX_VAULT_NAME, VIEW_TYPE_THREAD } from "../constants";
 import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
 import "../setup/logger-setup";
 

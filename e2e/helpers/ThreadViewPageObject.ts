@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import { VIEW_TYPE_THREAD } from "../../src/utils/constants";
+import { VIEW_TYPE_THREAD } from "../constants";
 import {
 	ObsidianPageObject,
 	type PageObjectConfig,

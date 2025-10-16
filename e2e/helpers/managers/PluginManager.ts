@@ -8,6 +8,7 @@ import {
 	existsSync,
 	mkdirSync,
 	readdirSync,
+	statSync,
 	writeFileSync,
 } from "fs";
 import log from "loglevel";
@@ -55,12 +56,28 @@ export class PluginManager {
 				mkdirSync(destDir, { recursive: true });
 			}
 
-			// プラグインファイルをコピー
+			// プラグインファイルをコピー（必要なファイルのみ）
+			// Skip directories and unnecessary files like .git, node_modules, etc.
+			const filesToCopy = ["manifest.json", "main.js", "styles.css"];
+
 			for (const file of readdirSync(pluginPath)) {
+				// Skip directories like .git, node_modules, etc.
 				const srcFile = path.join(pluginPath, file);
-				const destFile = path.join(destDir, file);
-				copyFileSync(srcFile, destFile);
-				logger.debug(`Copied: ${file} to ${destDir}`);
+				const stat = statSync(srcFile);
+
+				if (stat.isDirectory()) {
+					logger.debug(`Skipping directory: ${file}`);
+					continue;
+				}
+
+				// Only copy essential plugin files
+				if (filesToCopy.includes(file)) {
+					const destFile = path.join(destDir, file);
+					copyFileSync(srcFile, destFile);
+					logger.debug(`Copied: ${file} to ${destDir}`);
+				} else {
+					logger.debug(`Skipping file: ${file}`);
+				}
 			}
 
 			installedIds.push(pluginId);

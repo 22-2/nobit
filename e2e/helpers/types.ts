@@ -2,8 +2,12 @@
 // 1. Core Types (types.mts)
 // ===================================================================
 
-import type { Plugin } from "obsidian";
 import type { ElectronApplication, JSHandle, Page } from "playwright";
+
+// Minimal Plugin interface to avoid importing from obsidian package
+export interface Plugin {
+	[key: string]: any;
+}
 
 export interface VaultConfig {
 	name: string;
