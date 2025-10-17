@@ -29,7 +29,7 @@ async function main() {
 	const setup = new ObsidianTestSetup();
 
 	try {
-		await setup.launch({ useDefaultFetcher: true });
+		await setup.launch({ useDefaultFetcher: true, useUTF8Encoding: false });
 		logger.info("✅ Obsidian launched successfully");
 
 		// Open vault with the plugin

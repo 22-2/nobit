@@ -19,6 +19,7 @@ const logger = log.getLogger("ObsidianTestSetup");
 
 interface LaunchOptions {
 	useDefaultFetcher?: boolean;
+	useUTF8Encoding?: boolean;
 }
 
 export class ObsidianTestSetup {
@@ -28,7 +29,7 @@ export class ObsidianTestSetup {
 	private pageManager?: PageManager;
 	private tempUserDataDir?: string;
 
-	async launch(options: LaunchOptions = {}): Promise<void> {
+	async launch(options: LaunchOptions = { useUTF8Encoding: true }): Promise<void> {
 		this.tempUserDataDir = await fs.mkdtemp(
 			path.join(os.tmpdir(), "obsidian-e2e-"),
 		);
@@ -42,6 +43,7 @@ export class ObsidianTestSetup {
 				...process.env,
 				PLAYWRIGHT: "true",
 				USE_DEFAULT_FETCHER: options.useDefaultFetcher ? "true" : "false",
+				USE_UTF8_ENCODING: options.useUTF8Encoding ? "true" : "false",
 				CI: process.env.CI || "false",
 			},
 		};

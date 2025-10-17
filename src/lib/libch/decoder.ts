@@ -1,3 +1,7 @@
+import log from "loglevel";
+
+const logger = log.getLogger("Decoder");
+
 // --- 2. デコード処理のインターフェース ---
 /**
  * ArrayBufferを文字列にデコードするための抽象インターフェース。
@@ -22,15 +26,16 @@ export class DefaultDecoder implements BufferDecoder {
 	 * テスト環境ではUTF-8、本番環境ではShift-JISを使用。
 	 */
 	private get defaultEncoding(): string {
-		// const isPlaywright =
-		// 	typeof process !== "undefined" && process.env.PLAYWRIGHT === "true";
-		// return isPlaywright ? "utf-8" : "shift-jis";
-		return "shift-jis"
+		const useDefaultEncoding =
+			typeof process !== "undefined" && process.env.USE_UTF8_ENCODING === "true";
+		logger.debug(`USE_UTF8_ENCODING: ${useDefaultEncoding}`);
+		return useDefaultEncoding ? "utf-8" : "shift-jis";
 	}
 
 	public decode(buffer: ArrayBuffer, encoding?: string): string {
 		const actualEncoding = encoding ?? this.defaultEncoding;
 		const decoder = new TextDecoder(actualEncoding);
+		logger.debug(`Decoding with encoding: ${actualEncoding}`);
 		return decoder.decode(buffer);
 	}
 }

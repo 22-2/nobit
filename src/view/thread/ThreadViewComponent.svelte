@@ -234,10 +234,10 @@ function handleShowIdPosts(detail: {
 			</div>
 
 			<div class="posts-container" bind:this={postsContainer}>
-				{#each threadManager.filteredPosts as post, index}
+				{#each threadManager.filteredPosts as post}
 					<PostItem
 						{post}
-						{index}
+						index={post.resNum - 1}
 						onJumpToPost={handleJumpToPost}
 						onHoverPostLink={handleHoverPostLink}
 						onLeavePostLink={handleLeavePostLink}
