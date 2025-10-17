@@ -1,11 +1,11 @@
 import log from "loglevel";
 import type { WorkspaceLeaf } from "obsidian";
 import { usePopover } from "src/store/usePopover.svelte";
-import type NobitPlugin from "../main";
-import { ThreadManager } from "../managers/ThreadManager.svelte";
-import { VIEW_TYPE_THREAD } from "../utils/constants";
-import { BaseView, type BaseViewState } from "./BaseView";
-import ThreadViewComponent from "./thread/ThreadViewComponent.svelte";
+import type NobitPlugin from "../../main";
+import { ThreadManager } from "../../managers/ThreadManager.svelte";
+import { VIEW_TYPE_THREAD } from "../../utils/constants";
+import { BaseView, type BaseViewState } from "../BaseView";
+import ThreadViewComponent from "./ThreadViewComponent.svelte";
 
 const logger = log.getLogger("ThreadView");
 

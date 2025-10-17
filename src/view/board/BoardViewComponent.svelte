@@ -1,4 +1,5 @@
 <script lang="ts">
+import BaseViewComponent from "../BaseViewComponent.svelte";
 import { getContext, onMount } from "svelte";
 import { BoardManager } from "../../managers/BoardManager.svelte";
 import ThreadListTable from "./ThreadListTable.svelte";
@@ -85,83 +86,28 @@ function handleHeaderContextMenu(e: MouseEvent) {
 }
 </script>
 
-<div class="board-view">
-	{#if boardManager.error}
-		<!-- Error State -->
-		<div class="error-container">
-			<div class="error-icon">⚠️</div>
-			<div class="error-message">{boardManager.error}</div>
-			<button class="retry-button" onclick={handleRefresh}>
-				再試行
-			</button>
+<BaseViewComponent error={boardManager.error} onRetry={handleRefresh} class="board-view">
+	<!-- Board Content with ThreadListTable -->
+	<div class="board-content">
+		<div class="board-header">
+			<h2 class="board-title">{boardManager.boardTitle || "板"}</h2>
 		</div>
-	{:else}
-		<!-- Board Content with ThreadListTable -->
-		<div class="board-content">
-			<div class="board-header">
-				<h2 class="board-title">{boardManager.boardTitle || "板"}</h2>
-			</div>
 
-			<ThreadListTable
-				threads={boardManager.threads}
-				{visibleColumns}
-				initialSortState={sortState}
-				isLoading={boardManager.isLoading}
-				onSortChange={handleSortChange}
-				onRefresh={handleRefresh}
-				openThread={handleOpenThread}
-				onContextMenu={handleContextMenu}
-				openHeaderContextMenu={handleHeaderContextMenu}
-			/>
-		</div>
-	{/if}
-</div>
+		<ThreadListTable
+			threads={boardManager.threads}
+			{visibleColumns}
+			initialSortState={sortState}
+			isLoading={boardManager.isLoading}
+			onSortChange={handleSortChange}
+			onRefresh={handleRefresh}
+			openThread={handleOpenThread}
+			onContextMenu={handleContextMenu}
+			openHeaderContextMenu={handleHeaderContextMenu}
+		/>
+	</div>
+</BaseViewComponent>
 
 <style>
-	.board-view {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		padding: 1rem;
-		gap: 1rem;
-	}
-
-	.error-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 2rem;
-		gap: 1rem;
-		background: var(--background-modifier-error);
-		border-radius: 0.5rem;
-		border: 1px solid var(--background-modifier-border);
-	}
-
-	.error-icon {
-		font-size: 2rem;
-	}
-
-	.error-message {
-		color: var(--text-error);
-		text-align: center;
-		font-weight: 500;
-	}
-
-	.retry-button {
-		padding: 0.5rem 1rem;
-		background: var(--interactive-accent);
-		color: var(--text-on-accent);
-		border: none;
-		border-radius: 0.25rem;
-		cursor: pointer;
-		font-size: 0.9rem;
-	}
-
-	.retry-button:hover {
-		background: var(--interactive-accent-hover);
-	}
-
 	.board-content {
 		flex: 1;
 		display: flex;

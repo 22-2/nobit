@@ -1,4 +1,5 @@
 <script lang="ts">
+import BaseViewComponent from "../BaseViewComponent.svelte";
 import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
 import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 import { getContext, onMount } from "svelte";
@@ -200,7 +201,7 @@ function handleShowIdPosts(detail: {
 }
 </script>
 
-<div class="thread-view">
+<BaseViewComponent error={threadManager.error} onRetry={handleRefresh} class="thread-view">
 	<!-- Wheel Progress Indicator -->
 	<WheelProgressIndicator {wheelState} position="bottom" />
 
@@ -219,15 +220,6 @@ function handleShowIdPosts(detail: {
 		<div class="loading-container">
 			<div class="loading-spinner"></div>
 			<div class="loading-text">スレッドを読み込み中...</div>
-		</div>
-	{:else if threadManager.error}
-		<!-- Error State -->
-		<div class="error-container">
-			<div class="error-icon">⚠️</div>
-			<div class="error-message">{threadManager.error}</div>
-			<button class="retry-button" onclick={handleRefresh}>
-				再試行
-			</button>
 		</div>
 	{:else if threadManager.thread}
 		<!-- Thread Content -->
@@ -272,18 +264,9 @@ function handleShowIdPosts(detail: {
 			isLoading={threadManager.isLoading}
 		/>
 	</div>
-</div>
+</BaseViewComponent>
 
 <style>
-	.thread-view {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		padding: 1rem;
-		gap: 1rem;
-		position: relative;
-	}
-
 	.filters-section {
 		flex-shrink: 0;
 	}
@@ -326,42 +309,6 @@ function handleShowIdPosts(detail: {
 	.loading-text {
 		color: var(--text-muted);
 		font-size: 0.9rem;
-	}
-
-	.error-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 2rem;
-		gap: 1rem;
-		background: var(--background-modifier-error);
-		border-radius: 0.5rem;
-		border: 1px solid var(--background-modifier-border);
-	}
-
-	.error-icon {
-		font-size: 2rem;
-	}
-
-	.error-message {
-		color: var(--text-error);
-		text-align: center;
-		font-weight: 500;
-	}
-
-	.retry-button {
-		padding: 0.5rem 1rem;
-		background: var(--interactive-accent);
-		color: var(--text-on-accent);
-		border: none;
-		border-radius: 0.25rem;
-		cursor: pointer;
-		font-size: 0.9rem;
-	}
-
-	.retry-button:hover {
-		background: var(--interactive-accent-hover);
 	}
 
 	.thread-content {

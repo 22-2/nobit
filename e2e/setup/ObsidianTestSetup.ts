@@ -17,6 +17,10 @@ import { getPluginHandleMap } from "../helpers/utils";
 
 const logger = log.getLogger("ObsidianTestSetup");
 
+interface LaunchOptions {
+	useDefaultFetcher?: boolean;
+}
+
 export class ObsidianTestSetup {
 	private electronApp?: ElectronApplication;
 	// private currentPage?: Page;
@@ -24,7 +28,7 @@ export class ObsidianTestSetup {
 	private pageManager?: PageManager;
 	private tempUserDataDir?: string;
 
-	async launch(): Promise<void> {
+	async launch(options: LaunchOptions = {}): Promise<void> {
 		this.tempUserDataDir = await fs.mkdtemp(
 			path.join(os.tmpdir(), "obsidian-e2e-"),
 		);
@@ -37,6 +41,7 @@ export class ObsidianTestSetup {
 			env: {
 				...process.env,
 				PLAYWRIGHT: "true",
+				USE_DEFAULT_FETCHER: options.useDefaultFetcher ? "true" : "false",
 				CI: process.env.CI || "false",
 			},
 		};

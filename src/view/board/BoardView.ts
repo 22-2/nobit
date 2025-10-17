@@ -1,10 +1,10 @@
 import log from "loglevel";
 import type { WorkspaceLeaf } from "obsidian";
-import type NobitPlugin from "../main";
-import { BoardManager } from "../managers/BoardManager.svelte";
-import { VIEW_TYPE_BOARD } from "../utils/constants";
-import { BaseView, type BaseViewState } from "./BaseView";
-import BoardViewComponent from "./board/BoardViewComponent.svelte";
+import type NobitPlugin from "../../main";
+import { BoardManager } from "../../managers/BoardManager.svelte";
+import { VIEW_TYPE_BOARD } from "../../utils/constants";
+import { BaseView, type BaseViewState } from "../BaseView";
+import BoardViewComponent from "./BoardViewComponent.svelte";
 
 const logger = log.getLogger("BoardView");
 

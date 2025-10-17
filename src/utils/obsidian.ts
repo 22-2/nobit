@@ -9,7 +9,7 @@ import { VIEW_TYPE_BOARD, VIEW_TYPE_THREAD } from "./constants";
 /**
  * Obsidianビューの状態を表すオブジェクト
  */
-interface BaseViewState {
+interface CreatedBaseViewState {
 	/** ビューのタイプ */
 	type: string;
 	/** パース済みBBS URL情報 */
@@ -45,7 +45,7 @@ export function isURL(url: string | null | undefined): boolean {
 export function getViewStateByUrl(
 	url: string,
 	log: (message: string) => void,
-): BaseViewState | undefined {
+): CreatedBaseViewState | undefined {
 	const result = parseBbsUrl(url);
 
 	if (!result?.board) {
@@ -73,7 +73,7 @@ export function getViewStateByUrl(
  * @param state - パース済みBBS URL情報
  * @returns ビュー状態オブジェクト
  */
-function createViewState(type: string, parsedUrl: ParsedBbsUrl, title: string): BaseViewState {
+function createViewState(type: string, parsedUrl: ParsedBbsUrl, title: string): CreatedBaseViewState {
 	return {
 		type,
 		state: { ...parsedUrl, title },

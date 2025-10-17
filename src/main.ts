@@ -12,8 +12,8 @@ import { createInstructions } from "./utils/keys";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
 import { showSelectionDialog } from "./utils/showSelectionDialog";
-import { BoardView } from "./view/BoardView";
-import { ThreadView } from "./view/ThreadView";
+import { BoardView } from "./view/board/BoardView";
+import { ThreadView } from "./view/thread/ThreadView";
 
 const logger = log.getLogger("nobit.main");
 
@@ -43,8 +43,14 @@ export default class NobitPlugin extends Plugin {
 	 */
 	private initializeDependencies(): void {
 		const isPlaywright = this.isPlaywrightEnvironment();
+		const useDefaultFetcher = (() => {
+			if (typeof process !== "undefined") {
+				return process.env.USE_DEFAULT_FETCHER === "true";
+			}
+			return false;
+		})();
 
-		if (!isPlaywright) {
+		if (!isPlaywright || useDefaultFetcher) {
 			this.fetcher = new ObsidianFetcher();
 			this.provider = new DefaultBBSProvider(this.fetcher);
 		} else {
