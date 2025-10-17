@@ -164,7 +164,7 @@ unpack_obsidian_assets() {
 
     # Extract app.asar
     log_info "Extracting ${APP_ASAR_PATH} to ${OBSIDIAN_UNPACKED_PATH}"
-    pnpm exec asar extract "${APP_ASAR_PATH}" "${OBSIDIAN_UNPACKED_PATH}"
+    pnpm dlx asar extract "${APP_ASAR_PATH}" "${OBSIDIAN_UNPACKED_PATH}"
 
     # Rename main.js to main.cjs to treat it as a CommonJS module
     local main_js_path="${OBSIDIAN_UNPACKED_PATH}/main.js"
