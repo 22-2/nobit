@@ -1,4 +1,5 @@
 import { App, SuggestModal, type Instruction } from "obsidian";
+import { isURL } from "./obsidian";
 
 export class SelectionDialog<T extends string[]> extends SuggestModal<
 	T[number]
@@ -42,14 +43,21 @@ export class SelectionDialog<T extends string[]> extends SuggestModal<
 		}
 
 		const lq = query.toLowerCase();
-		return this.items
+		const filteredItems = this.items
 			.map((item) => {
 				const score = microFuzzy(item.toLowerCase(), lq).score;
 				return { item, score };
 			})
 			.filter(({ score }) => score > 0)
 			.sort((a, b) => b.score - a.score)
-			.map(({ item }) => item) as T;
+			.map(({ item }) => item);
+
+		// URLが入力された場合は、「URLを開く」オプションを追加
+		if (isURL(query)) {
+			return [`URLを開く: ${query}`, ...filteredItems] as T;
+		}
+
+		return filteredItems as T;
 	}
 
 	renderSuggestion(item: T[number], el: HTMLElement): void {

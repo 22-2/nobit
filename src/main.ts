@@ -27,9 +27,23 @@ export default class NobitPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.configureLogging();
+		this.initializeDependencies();
+		this.registerViews();
+		this.registerCommands();
+		this.addSettingTab(new NobitSettingTab(this));
+		logger.debug("Plugin loaded");
+	}
 
-		// In Playwright environment, let DefaultBBSProvider choose the appropriate fetcher
+	onunload() {
+		logger.debug("Plugin unloaded");
+	}
+
+	/**
+	 * Initialize dependencies (provider, fetcher, and managers).
+	 */
+	private initializeDependencies(): void {
 		const isPlaywright = this.isPlaywrightEnvironment();
+
 		if (!isPlaywright) {
 			this.fetcher = new ObsidianFetcher();
 			this.provider = new DefaultBBSProvider(this.fetcher);
@@ -41,59 +55,85 @@ export default class NobitPlugin extends Plugin {
 
 		this.threadManager = new ThreadManager(this.app, this.provider);
 		this.boardManager = new BoardManager(this.app, this.provider);
-		this.addSettingTab(new NobitSettingTab(this));
+	}
 
+	/**
+	 * Register custom views.
+	 */
+	private registerViews(): void {
 		this.registerView(
 			VIEW_TYPE_THREAD,
 			(leaf) => new ThreadView(leaf, this, this.threadManager),
 		);
 		this.registerView(
 			VIEW_TYPE_BOARD,
-			leaf => new BoardView(leaf, this, this.boardManager)
-		)
+			(leaf) => new BoardView(leaf, this, this.boardManager),
+		);
+	}
 
+	/**
+	 * Register plugin commands.
+	 */
+	private registerCommands(): void {
 		this.addCommand({
 			id: "open-with-url",
 			name: "Open with-url",
-			callback: async () => {
-				const historyItems = this.settings.urlHistory
-					.slice()
-					.reverse()
-					.map((item) => `${item.title} - ${item.url}`);
-
-				// デフォルトのキー操作ガイドを作成
-				const instructions = createInstructions({
-					上へ: [{ modifiers: [], key: "ArrowUp" }],
-					下へ: [{ modifiers: [], key: "ArrowDown" }],
-					確定: [{ modifiers: [], key: "Enter" }],
-					キャンセル: [{ modifiers: [], key: "Escape" }],
-				});
-
-				const selected = await showSelectionDialog({
-					app: this.app,
-					message: "URLを選択または入力してEnterを押してください",
-					items: historyItems,
-					placeholder: "URLを選択または入力してEnterを押してください",
-					instructions: instructions,
-				});
-
-				if (!selected) return;
-
-				// Check if selected is from history (contains " - ")
-				if (selected.includes(" - ")) {
-					const url = selected.split(" - ").pop();
-					if (url) this.openWithURL(url);
-				} else {
-					// Treat as direct URL input
-					this.openWithURL(selected);
-				}
-			},
+			callback: () => this.handleOpenWithUrlCommand(),
 		});
-		logger.debug("Plugin loaded");
 	}
 
-	onunload() {
-		logger.debug("Plugin unloaded");
+	/**
+	 * Handle the 'open-with-url' command.
+	 */
+	private async handleOpenWithUrlCommand(): Promise<void> {
+		const selected = await this.showUrlSelectionDialog();
+		if (!selected) return;
+
+		const url = this.extractUrlFromSelection(selected);
+		if (url) {
+			await this.openWithURL(url);
+		}
+	}
+
+	/**
+	 * Show URL selection dialog with history.
+	 */
+	private async showUrlSelectionDialog(): Promise<string | null> {
+		const historyItems = this.settings.urlHistory
+			.slice()
+			.reverse()
+			.map((item) => `${item.title} - ${item.url}`);
+
+		const instructions = createInstructions({
+			上へ: [{ modifiers: [], key: "ArrowUp" }],
+			下へ: [{ modifiers: [], key: "ArrowDown" }],
+			確定: [{ modifiers: [], key: "Enter" }],
+			キャンセル: [{ modifiers: [], key: "Escape" }],
+		});
+
+		return await showSelectionDialog({
+			app: this.app,
+			message: "URLを選択または入力してEnterを押してください",
+			items: historyItems,
+			placeholder: "URLを選択または入力してEnterを押してください",
+			instructions: instructions,
+		});
+	}
+
+	/**
+	 * Extract URL from selection (either from history item or direct input).
+	 */
+	private extractUrlFromSelection(selected: string): string | undefined {
+		if (selected.startsWith("URLを開く: ")) {
+			// URL option: "URLを開く: <url>"
+			return selected.replace("URLを開く: ", "");
+		}
+		if (selected.includes(" - ")) {
+			// Selection from history: "title - url"
+			return selected.split(" - ").pop();
+		}
+		// Direct URL input
+		return selected;
 	}
 
 	/**
@@ -109,7 +149,10 @@ export default class NobitPlugin extends Plugin {
 		return false;
 	}
 
-	async openWithURL(inputUrl: string) {
+	/**
+	 * Open a thread view with the given URL.
+	 */
+	async openWithURL(inputUrl: string): Promise<void> {
 		if (!inputUrl || !isURL(inputUrl)) {
 			return;
 		}
@@ -120,15 +163,17 @@ export default class NobitPlugin extends Plugin {
 			return void new Notice("Invalid URL");
 		}
 
+		const viewState = {
+			...state,
+			url: inputUrl,
+			active: true,
+		};
+
 		const view = await activateView(
 			this.app.workspace.getLeaf.bind(this.app.workspace),
 			{
-				type: VIEW_TYPE_THREAD,
-				state: {
-					...state,
-					url: inputUrl,
-					active: true,
-				},
+				type: state.type,
+				state: viewState,
 			},
 		);
 		this.app.workspace.revealLeaf(view.leaf);
@@ -139,7 +184,10 @@ export default class NobitPlugin extends Plugin {
 		await this.addToUrlHistory(inputUrl, title);
 	}
 
-	async addToUrlHistory(url: string, title: string) {
+	/**
+	 * Add URL to history with title.
+	 */
+	async addToUrlHistory(url: string, title: string): Promise<void> {
 		const MAX_HISTORY = 20;
 
 		// Remove duplicate if exists
@@ -162,15 +210,24 @@ export default class NobitPlugin extends Plugin {
 		await this.saveSettings();
 	}
 
+	/**
+	 * Configure logging based on settings.
+	 */
 	configureLogging(): void {
 		toggleLoggerBy(this.settings.showLogger ? "DEBUG" : "ERROR");
 	}
 
-	async loadSettings() {
+	/**
+	 * Load plugin settings from disk.
+	 */
+	async loadSettings(): Promise<void> {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
-	async saveSettings() {
+	/**
+	 * Save plugin settings to disk.
+	 */
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
 }
