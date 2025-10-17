@@ -21,14 +21,13 @@
 		"manual": "pnpm dlx tsx e2e/manual.ts",
 		"manual:sandbox": "pnpm dlx tsx e2e/manual.ts --sandbox",
 		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build"
+		"build-storybook": "storybook build",
+		"prettier": "prettier --ignore-path .gitignore --write ."
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
-		"@biomejs/biome": "2.2.5",
-		"@electron/asar": "^4.0.1",
 		"@playwright/test": "^1.56.0",
 		"@storybook/addon-svelte-csf": "5.0.10",
 		"@storybook/svelte-vite": "9.1.10",
@@ -47,6 +46,8 @@
 		"obsidian": "^1.10.0",
 		"obsidian-typings": "4.58.0",
 		"playwright": "^1.56.0",
+		"prettier": "^3.6.2",
+		"prettier-plugin-svelte": "^3.4.0",
 		"semver": "^7.7.3",
 		"storybook": "9.1.10",
 		"svelte-preprocess": "^6.0.3",
