@@ -2,6 +2,7 @@ import builtins from "builtin-modules";
 import dotenv from "dotenv";
 import esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
+import fs from "fs";
 import path from "path";
 import process from "process";
 import { sveltePreprocess } from "svelte-preprocess";
@@ -110,11 +111,12 @@ const context = await esbuild.context({
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
 	outfile: "main.js",
+	metafile: prod,
 });
 
 if (prod) {
-	await context.rebuild();
-	await context.dispose();
+	const result = await context.rebuild();
+	fs.writeFileSync("./dist/meta.json", JSON.stringify(result.metafile));
 	process.exit(0);
 } else {
 	await context.watch();

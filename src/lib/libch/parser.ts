@@ -1,18 +1,10 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\lib\libch\parser.ts
-import { isValid, parse } from "date-fns";
-import he from "he";
 import type {
 	BBSMenu,
 	BBSMenuCategory,
 	Post,
 	SubjectItem,
 	Thread,
-} from "../types";
-import {
-	BBSMenuSchema,
-	PostSchema,
-	SubjectItemSchema,
-	ThreadSchema,
 } from "../types";
 import { invariant, normalizeDateStr } from "./utils";
 
@@ -29,14 +21,10 @@ export interface Parser {
 // Base Parser (共通ロジック)
 // ========================================
 export abstract class BaseParser implements Parser {
-	protected static readonly DATE_FORMATS = {
-		talkfm: "yyyy/MM/dd HH:mm:ss.SSS",
-		fivechfm: "yyyy/MM/dd HH:mm:ss.SS",
-		oldfm: "yyyy/MM/dd HH:mm:ss",
-	} as const;
-
 	protected decodeHtmlEntities(str: string): string {
-		return he.decode(str);
+		const textarea = document.createElement('textarea');
+		textarea.innerHTML = str;
+		return textarea.value;
 	}
 
 	protected parseDate(rawDateStr: string, resNum?: number): Date {
@@ -47,15 +35,29 @@ export abstract class BaseParser implements Parser {
 		const dateStr = normalizeDateStr(rawDateStr);
 		this.onDateParsing?.(resNum, rawDateStr, dateStr);
 
-		for (const [formatName, format] of Object.entries(
-			BaseParser.DATE_FORMATS,
-		)) {
-			const parsedDate = parse(dateStr, format, new Date());
-			if (isValid(parsedDate)) {
+		// Try parsing with regex patterns
+		// Format: yyyy/MM/dd HH:mm:ss.SSS or yyyy/MM/dd HH:mm:ss.SS or yyyy/MM/dd HH:mm:ss
+		const regex = /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?$/;
+		const match = dateStr.match(regex);
+
+		if (match) {
+			const [, year, month, day, hour, minute, second, millisecond] = match;
+			const ms = millisecond ? parseInt(millisecond.padEnd(3, '0').slice(0, 3), 10) : 0;
+			const parsedDate = new Date(
+				parseInt(year!, 10),
+				parseInt(month!, 10) - 1, // Month is 0-indexed
+				parseInt(day!, 10),
+				parseInt(hour!, 10),
+				parseInt(minute!, 10),
+				parseInt(second!, 10),
+				ms
+			);
+
+			if (!isNaN(parsedDate.getTime())) {
+				const formatName = millisecond ? (millisecond.length === 3 ? 'talkfm' : 'fivechfm') : 'oldfm';
 				this.onDateParseSuccess?.(resNum, dateStr, formatName);
 				return parsedDate;
 			}
-			this.onDateParseAttempt?.(resNum, formatName, false);
 		}
 
 		this.onDateParseFailure?.(resNum, rawDateStr, dateStr);
@@ -315,7 +317,7 @@ export abstract class BaseParser implements Parser {
 						};
 					}
 
-					return PostSchema.parse(fullPost);
+					return fullPost;
 				} catch (err) {
 					console.error(
 						"投稿のパースに失敗しました:",
@@ -339,7 +341,7 @@ export abstract class BaseParser implements Parser {
 			url,
 		};
 
-		return ThreadSchema.parse(thread);
+		return thread;
 	}
 
 	public parseSubject(subjectTxt: string): SubjectItem[] {
@@ -367,7 +369,7 @@ export abstract class BaseParser implements Parser {
 			}
 		}
 
-		return items.map((item) => SubjectItemSchema.parse(item));
+		return items;
 	}
 
 	public parseBBSMenu(html: string): BBSMenu {
@@ -412,7 +414,7 @@ export abstract class BaseParser implements Parser {
 		}
 
 		const filteredMenu = menu.filter((category) => category.boards.length > 0);
-		return BBSMenuSchema.parse(filteredMenu);
+		return filteredMenu;
 	}
 
 	// Hook methods for debugging (オーバーライド可能)

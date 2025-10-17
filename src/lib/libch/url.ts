@@ -1,14 +1,9 @@
-import { z } from "zod";
-
-export const ParsedBbsUrlSchema = z
-	.object({
-		host: z.string(),
-		board: z.string(),
-		threadId: z.string().optional(),
-	})
-	.passthrough(); // Allow additional properties for Obsidian ViewState compatibility
-
-export type ParsedBbsUrl = z.infer<typeof ParsedBbsUrlSchema>;
+export interface ParsedBbsUrl {
+	host: string;
+	board: string;
+	threadId?: string;
+	[key: string]: any; // Allow additional properties for Obsidian ViewState compatibility
+}
 
 export function parseBbsUrl(url: string): ParsedBbsUrl | null {
 	// Ensure the URL has a scheme for consistent parsing.
@@ -22,8 +17,7 @@ export function parseBbsUrl(url: string): ParsedBbsUrl | null {
 	if (threadMatch) {
 		const [, host, board, threadId] = threadMatch;
 		if (host && board && threadId) {
-			const parsed = { host, board, threadId };
-			return ParsedBbsUrlSchema.parse(parsed);
+			return { host, board, threadId };
 		}
 	}
 
@@ -51,8 +45,7 @@ export function parseBbsUrl(url: string): ParsedBbsUrl | null {
 
 		if (host && finalBoardSegments.length > 0) {
 			// 最初の意味のあるパスセグメントを板名として解釈
-			const parsed = { host, board: finalBoardSegments[0]! };
-			return ParsedBbsUrlSchema.parse(parsed);
+			return { host, board: finalBoardSegments[0]! };
 		}
 	} catch (e) {
 		// URLのパースに失敗した場合は何もしない
