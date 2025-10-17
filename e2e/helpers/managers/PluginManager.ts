@@ -56,13 +56,20 @@ export class PluginManager {
 			if (useSymlink) {
 				// シンボリックリンクを使用する場合
 				if (existsSync(destDir)) {
-					logger.debug(`Destination already exists: ${destDir}, skipping symlink`);
+					logger.debug(
+						`Destination already exists: ${destDir}, skipping symlink`,
+					);
 				} else {
 					try {
 						symlinkSync(pluginPath, destDir, "dir");
-						logger.debug(`Created symlink: ${pluginPath} -> ${destDir}`);
+						logger.debug(
+							`Created symlink: ${pluginPath} -> ${destDir}`,
+						);
 					} catch (error) {
-						console.error(`Failed to create symlink for ${pluginId}:`, error);
+						console.error(
+							`Failed to create symlink for ${pluginId}:`,
+							error,
+						);
 						if ((error as NodeJS.ErrnoException).code === "EPERM") {
 							console.error(
 								"Permission denied. You may need administrator privileges to create symlinks on Windows.",
@@ -107,7 +114,10 @@ export class PluginManager {
 		}
 
 		// community-plugins.json を書き込み
-		const pluginsJsonPath = path.join(obsidianDir, "community-plugins.json");
+		const pluginsJsonPath = path.join(
+			obsidianDir,
+			"community-plugins.json",
+		);
 		writeFileSync(pluginsJsonPath, JSON.stringify(installedIds));
 		logger.debug(`Installed plugins: ${installedIds.join(", ")}`);
 	}
@@ -231,9 +241,10 @@ export class PluginManager {
 			(window as any).app.setting.open();
 			(window as any).app.setting.openTabById("community-plugins");
 			const app = (window as any).app;
-			const button = app.setting.activeTab?.setting?.contentEl?.querySelector(
-				"button",
-			) as HTMLElement | null;
+			const button =
+				app.setting.activeTab?.setting?.contentEl?.querySelector(
+					"button",
+				) as HTMLElement | null;
 			if (button) {
 				const text = button.textContent as string;
 				button.click();

@@ -56,7 +56,8 @@ export class BaseTestSetup {
 		});
 
 		const threadUrl =
-			options.url || "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
+			options.url ||
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759626688/";
 		await this.threadPage.openAndVerifyThreadView(PLUGIN_ID, threadUrl);
 		await this.threadPage.waitForThreadContent();
 

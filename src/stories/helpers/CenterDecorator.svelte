@@ -1,28 +1,28 @@
 <script lang="ts">
-import type { Snippet } from "svelte";
-import ObsidianContainer from "./ObsidianContainer.svelte";
+	import type { Snippet } from "svelte";
+	import ObsidianContainer from "./ObsidianContainer.svelte";
 
-interface Props {
-	children: Snippet;
-	padding?: string;
-	minHeight?: string;
-	backgroundColor?: string;
-	borderRadius?: string;
-}
+	interface Props {
+		children: Snippet;
+		padding?: string;
+		minHeight?: string;
+		backgroundColor?: string;
+		borderRadius?: string;
+	}
 
-let {
-	children,
-	padding = "var(--size-4-8)" /* 32px */,
-	minHeight = "var(--size-4-25)" /* 100px */,
-	backgroundColor,
-	borderRadius,
-}: Props = $props();
+	let {
+		children,
+		padding = "var(--size-4-8)" /* 32px */,
+		minHeight = "var(--size-4-25)" /* 100px */,
+		backgroundColor,
+		borderRadius,
+	}: Props = $props();
 </script>
 
 <ObsidianContainer>
-    <div
-        class="center-decorator"
-        style="
+	<div
+		class="center-decorator"
+		style="
             display: flex;
             align-items: center;
             justify-content: center;
@@ -31,13 +31,13 @@ let {
             {backgroundColor ? `background-color: ${backgroundColor};` : ''}
             {borderRadius ? `border-radius: ${borderRadius};` : ''}
         "
-    >
-        {@render children()}
-    </div>
+	>
+		{@render children()}
+	</div>
 </ObsidianContainer>
 
 <style>
-    .center-decorator {
-        box-sizing: border-box;
-    }
+	.center-decorator {
+		box-sizing: border-box;
+	}
 </style>

@@ -19,7 +19,8 @@ test.describe("EditableTitleBar URL Navigation Tests", () => {
 		await setup.setupBasicThread();
 		console.log("Initial thread loaded");
 
-		const newUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/";
+		const newUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1759970037/";
 		await titleHelper.navigateViaTitle(newUrl);
 
 		const state = await setup.getThreadPage().getThreadManagerState();

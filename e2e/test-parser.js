@@ -38,7 +38,9 @@ function parsePost(postStr, resNum) {
 		const headerSplit = headerPart.split("ID:");
 		const rawDateStr = headerSplit[0]?.trim();
 		const authorId =
-			headerSplit.length > 1 ? headerSplit.slice(1).join("ID:").trim() : "";
+			headerSplit.length > 1
+				? headerSplit.slice(1).join("ID:").trim()
+				: "";
 
 		console.log(
 			`Line ${resNum}: OK - author="${authorName}", date="${rawDateStr}", id="${authorId}", content="${content.substring(0, 50)}..."`,

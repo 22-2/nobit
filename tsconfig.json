@@ -13,19 +13,10 @@
 		"downlevelIteration": true,
 		"resolveJsonModule": true,
 		"paths": {
-			"src/*": [
-				"src/*"
-			]
+			"src/*": ["src/*"]
 		},
-		"lib": [
-			"DOM",
-			"ESNext"
-		],
-		"types": [
-			"node",
-			"obsidian-typings",
-			"vitest/globals"
-		]
+		"lib": ["DOM", "ESNext"],
+		"types": ["node", "obsidian-typings", "vitest/globals"]
 	},
 	"include": [
 		"src/**/*",
@@ -33,7 +24,5 @@
 		"obsidian-testing-toolkit/**/*",
 		"scripts/*.*"
 	],
-	"exclude": [
-		"node_modules/*"
-	]
+	"exclude": ["node_modules/*"]
 }

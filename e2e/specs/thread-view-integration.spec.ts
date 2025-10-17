@@ -73,7 +73,10 @@ test.describe("Thread View Integration Tests", () => {
 
 			const filterState = await vault.window.evaluate(() => {
 				const activeLeaf = app.workspace.activeLeaf;
-				if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
+				if (
+					activeLeaf &&
+					activeLeaf.view.getViewType() === "thread-view"
+				) {
 					const threadView = activeLeaf.view as any;
 					return threadView.threadManager.filters.searchText;
 				}
@@ -86,7 +89,9 @@ test.describe("Thread View Integration Tests", () => {
 			await setup.getThreadPage().clearThreadSearchFilter();
 		}
 
-		console.log("✓ ThreadManager state changes trigger UI updates correctly");
+		console.log(
+			"✓ ThreadManager state changes trigger UI updates correctly",
+		);
 	});
 
 	test("should cleanup properly when closed", async ({ vault }) => {
@@ -103,7 +108,8 @@ test.describe("Thread View Integration Tests", () => {
 				return {
 					hasThreadManager: !!threadView.threadManager,
 					hasComponent: !!threadView.component,
-					contentElHasChildren: threadView.contentEl.children.length > 0,
+					contentElHasChildren:
+						threadView.contentEl.children.length > 0,
 				};
 			}
 			return null;
@@ -159,7 +165,8 @@ test.describe("Thread View Integration Tests", () => {
 						threadView.threadManager?.thread !== undefined
 					),
 					hasSvelteComponent: !!threadView.component,
-					contentElHasContent: threadView.contentEl.children.length > 0,
+					contentElHasContent:
+						threadView.contentEl.children.length > 0,
 					threadManagerThread: !!threadView.threadManager?.thread,
 					threadManagerFilters: !!threadView.threadManager?.filters,
 				};
@@ -179,7 +186,9 @@ test.describe("Thread View Integration Tests", () => {
 		await expect(vault.window.locator(".thread-view")).toBeVisible();
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
-		await expect(vault.window.locator(".thread-footer-toolbar")).toBeVisible();
+		await expect(
+			vault.window.locator(".thread-footer-toolbar"),
+		).toBeVisible();
 
 		const posts = await vault.window.locator(".posts-container .post");
 		const postCount = await posts.count();

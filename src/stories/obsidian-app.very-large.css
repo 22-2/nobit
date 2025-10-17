@@ -456,7 +456,9 @@
 		rgba(251, 251, 254, 0.14)
 	);
 	--button-secondary-hover-fg-color: var(--button-secondary-fg-color);
-	--button-secondary-hover-border-color: var(--button-secondary-hover-bg-color);
+	--button-secondary-hover-border-color: var(
+		--button-secondary-hover-bg-color
+	);
 	--button-secondary-disabled-bg-color: var(--button-secondary-bg-color);
 	--button-secondary-disabled-border-color: var(
 		--button-secondary-border-color
@@ -944,7 +946,9 @@
 
 .dialog
 	.mainContainer
-	button:not(.toggle-button):not(.closeButton):not(.clearInputButton):disabled {
+	button:not(.toggle-button):not(.closeButton):not(
+		.clearInputButton
+	):disabled {
 	pointer-events: none;
 }
 
@@ -1153,7 +1157,9 @@
 		--highlight-bg-color: transparent;
 		--highlight-selected-bg-color: transparent;
 		--highlight-backdrop-filter: var(--hcm-highlight-filter);
-		--highlight-selected-backdrop-filter: var(--hcm-highlight-selected-filter);
+		--highlight-selected-backdrop-filter: var(
+			--hcm-highlight-selected-filter
+		);
 	}
 }
 
@@ -1917,8 +1923,8 @@
 .xfaDisabled textarea,
 .xfaReadOnly input,
 .xfaReadOnly textarea {
-	background:
-		transparent none repeat 0 0 / auto auto padding-box border-box scroll;
+	background: transparent none repeat 0 0 / auto auto padding-box border-box
+		scroll;
 	background: initial;
 }
 
@@ -2221,7 +2227,8 @@ body {
 	--bases-cards-line-height: 24px;
 	--bases-cards-border-width: 1px;
 	--bases-cards-shadow: 0 0 0 1px var(--background-modifier-border);
-	--bases-cards-shadow-hover: 0 0 0 1px var(--background-modifier-border-hover);
+	--bases-cards-shadow-hover: 0 0 0 1px
+		var(--background-modifier-border-hover);
 	--bases-cards-text-size: var(--font-smaller);
 	/* Blockquotes */
 	--blockquote-border-thickness: 2px;
@@ -2342,8 +2349,8 @@ body {
 	--embed-font-style: inherit;
 	/* Blocks */
 	--embed-block-shadow-hover:
-		0 0 0 1px var(--background-modifier-border), inset 0 0 0 1px
-		var(--background-modifier-border);
+		0 0 0 1px var(--background-modifier-border),
+		inset 0 0 0 1px var(--background-modifier-border);
 	/* File layout */
 	--file-line-width: 700px;
 	--file-folding-offset: 24px;
@@ -2533,7 +2540,10 @@ body {
 	--link-unresolved-opacity: 0.7;
 	--link-unresolved-filter: none;
 	--link-unresolved-decoration-style: solid;
-	--link-unresolved-decoration-color: hsla(var(--interactive-accent-hsl), 0.3);
+	--link-unresolved-decoration-color: hsla(
+		var(--interactive-accent-hsl),
+		0.3
+	);
 	/* Lists */
 	--list-indent: calc(var(--indent-unit) * var(--indent-size));
 	--list-indent-editing: 0.75em;
@@ -2892,7 +2902,10 @@ body {
 	--background-primary-alt: var(--color-base-10);
 	--background-secondary: var(--color-base-20);
 	--background-modifier-hover: rgba(var(--mono-rgb-100), 0.067);
-	--background-modifier-active-hover: hsla(var(--interactive-accent-hsl), 0.1);
+	--background-modifier-active-hover: hsla(
+		var(--interactive-accent-hsl),
+		0.1
+	);
 	--background-modifier-border: var(--color-base-30);
 	--background-modifier-border-hover: var(--color-base-35);
 	--background-modifier-border-focus: var(--color-base-40);
@@ -2904,7 +2917,9 @@ body {
 	--background-modifier-message: rgba(0, 0, 0, 0.9);
 	/* Inputs */
 	--background-modifier-form-field: var(--color-base-00);
-	--background-modifier-form-field-hover: var(--background-modifier-form-field);
+	--background-modifier-form-field-hover: var(
+		--background-modifier-form-field
+	);
 	/* Text */
 	--text-normal: var(--color-base-100);
 	--text-muted: var(--color-base-70);
@@ -2987,11 +3002,11 @@ body {
 		0 1px 1.5px 0 rgba(0, 0, 0, 0.03), 0 1px 2px 0 rgba(0, 0, 0, 0.04),
 		0 0 0 0 transparent;
 	--shadow-s:
-		0px 1px 2px rgba(0, 0, 0, 0.028), 0px 3.4px 6.7px rgba(0, 0, 0, 0.042), 0px
-		15px 30px rgba(0, 0, 0, 0.07);
+		0px 1px 2px rgba(0, 0, 0, 0.028), 0px 3.4px 6.7px rgba(0, 0, 0, 0.042),
+		0px 15px 30px rgba(0, 0, 0, 0.07);
 	--shadow-l:
-		0px 1.8px 7.3px rgba(0, 0, 0, 0.071), 0px 6.3px 24.7px rgba(0, 0, 0, 0.112),
-		0px 30px 90px rgba(0, 0, 0, 0.2);
+		0px 1.8px 7.3px rgba(0, 0, 0, 0.071),
+		0px 6.3px 24.7px rgba(0, 0, 0, 0.112), 0px 30px 90px rgba(0, 0, 0, 0.2);
 }
 .theme-dark {
 	color-scheme: dark;
@@ -3057,11 +3072,11 @@ body {
 		0 2px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 1.5px 0 rgba(0, 0, 0, 0.2),
 		0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 0 0 0 transparent;
 	--shadow-s:
-		0px 1px 2px rgba(0, 0, 0, 0.121), 0px 3.4px 6.7px rgba(0, 0, 0, 0.179), 0px
-		15px 30px rgba(0, 0, 0, 0.3);
+		0px 1px 2px rgba(0, 0, 0, 0.121), 0px 3.4px 6.7px rgba(0, 0, 0, 0.179),
+		0px 15px 30px rgba(0, 0, 0, 0.3);
 	--shadow-l:
-		0px 1.8px 7.3px rgba(0, 0, 0, 0.071), 0px 6.3px 24.7px rgba(0, 0, 0, 0.112),
-		0px 30px 90px rgba(0, 0, 0, 0.2);
+		0px 1.8px 7.3px rgba(0, 0, 0, 0.071),
+		0px 6.3px 24.7px rgba(0, 0, 0, 0.112), 0px 30px 90px rgba(0, 0, 0, 0.2);
 	--pdf-shadow: 0 0 0 1px var(--background-modifier-border);
 	--pdf-thumbnail-shadow: 0 0 0 1px var(--background-modifier-border);
 }
@@ -3076,8 +3091,8 @@ iframe {
 body {
 	--font-default:
 		ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
-		Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-		sans-serif;
+		Roboto, "Inter", "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol", sans-serif;
 	--font-monospace-default:
 		ui-monospace, SFMono-Regular, "Cascadia Mono", "Roboto Mono",
 		"DejaVu Sans Mono", "Liberation Mono", Menlo, Monaco, "Consolas",
@@ -3283,7 +3298,11 @@ body:not(.is-mobile) .app-container {
 	pointer-events: none;
 	opacity: 0.5;
 	transition: box-shadow var(--anim-duration-superfast) ease-in-out;
-	background: linear-gradient(to top, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0) 50%);
+	background: linear-gradient(
+		to top,
+		rgba(0, 0, 0, 0.2),
+		rgba(0, 0, 0, 0) 50%
+	);
 }
 .download-attachments .download-attachment-item:hover:before {
 	box-shadow: inset 0 0 0 1px rgba(var(--mono-rgb-100), 0.3);
@@ -3684,8 +3703,7 @@ body:not(.is-mobile) .app-container {
 	top: 0;
 	inset-inline-end: 100%;
 	width: calc(
-		var(--table-drag-handle-size) -
-		var(--table-selection-border-width)
+		var(--table-drag-handle-size) - var(--table-selection-border-width)
 	);
 	height: 100%;
 	border-start-start-radius: var(--radius-s);
@@ -3695,8 +3713,7 @@ body:not(.is-mobile) .app-container {
 	inset-block-end: 100%;
 	width: 100%;
 	height: calc(
-		var(--table-drag-handle-size) -
-		var(--table-selection-border-width)
+		var(--table-drag-handle-size) - var(--table-selection-border-width)
 	);
 	border-start-start-radius: var(--radius-s);
 	border-start-end-radius: var(--radius-s);
@@ -5369,7 +5386,8 @@ body:not(.is-phone) .community-item.is-selected:hover .flair {
 	margin-top: 4px;
 }
 .community-modal-details {
-	flex: 1 1 calc(var(--modal-max-width) - var(--modal-community-sidebar-width));
+	flex: 1 1
+		calc(var(--modal-max-width) - var(--modal-community-sidebar-width));
 	overflow: auto;
 	display: flex;
 	flex-direction: column;
@@ -5512,7 +5530,8 @@ body:not(.is-fullscreen) .status-bar {
 	right: 0;
 	display: flex;
 	background-color: var(--titlebar-background);
-	border-bottom: var(--titlebar-border-width) solid var(--titlebar-border-color);
+	border-bottom: var(--titlebar-border-width) solid
+		var(--titlebar-border-color);
 }
 .titlebar-inner {
 	color: var(--titlebar-text-color);
@@ -6067,7 +6086,8 @@ body.is-phone .view-header-nav-buttons {
 	display: flex;
 }
 /* Hide tab icon if it's a note */
-.mod-root .workspace-tab-header[data-type="markdown"]
+.mod-root
+	.workspace-tab-header[data-type="markdown"]
 	.workspace-tab-header-inner-icon,
 .mod-root
 	.workspace-tab-header[data-type="empty"]
@@ -6530,7 +6550,8 @@ body > .workspace-split {
 	}
 }
 /* Stacked tabs */
-.workspace .mod-root
+.workspace
+	.mod-root
 	.workspace-tabs.mod-stacked
 	.workspace-tab-header-container-inner {
 	padding: 0 0 0 var(--size-4-3);
@@ -6706,7 +6727,7 @@ body > .workspace-split {
 }
 /* Smoother animation for right sidebar button positioning during close */
 .mod-macos.is-hidden-frameless:not(.is-popout-window)
-.sidebar-toggle-button.mod-right {
+	.sidebar-toggle-button.mod-right {
 	background-color: var(--tab-container-background);
 	position: fixed;
 	top: 0;
@@ -7288,9 +7309,7 @@ select:focus,
 }
 .is-phone .combobox.suggestion-container {
 	max-height: calc(
-		100vh -
-		var(--view-header-height) -
-		var(--safe-area-inset-top)
+		100vh - var(--view-header-height) - var(--safe-area-inset-top)
 	);
 }
 .is-phone .combobox .search-input-container {
@@ -7933,7 +7952,7 @@ input[type="color"]::-webkit-color-swatch {
 		box-shadow:
 			inset 0 0 0 1px rgba(var(--mono-rgb-100), 0.25),
 			0 0 0 var(--input-border-width-focus)
-			var(--background-modifier-border-hover);
+				var(--background-modifier-border-hover);
 	}
 }
 input[type="color"]:focus-visible::-webkit-color-swatch,
@@ -7941,7 +7960,7 @@ input[type="color"]:focus::-webkit-color-swatch {
 	box-shadow:
 		var(--swatch-shadow),
 		0 0 0 var(--input-border-width-focus)
-		var(--background-modifier-border-focus);
+			var(--background-modifier-border-focus);
 }
 select.mod-hidden {
 	display: none;
@@ -8045,10 +8064,8 @@ select.mod-hidden {
 }
 .is-mobile .formula-editor .cm-tooltip.cm-tooltip-autocomplete {
 	max-width: calc(
-		100vw -
-		20px -
-		var(--safe-area-inset-left) -
-		var(--safe-area-inset-right)
+		100vw - 20px - var(--safe-area-inset-left) -
+			var(--safe-area-inset-right)
 	);
 	max-height: 240px;
 }
@@ -9068,10 +9085,8 @@ body:not(.is-translucent):not(.is-mobile) .workspace-tabs {
 }
 .is-mobile .suggestion-container {
 	max-width: calc(
-		100vw -
-		20px -
-		var(--safe-area-inset-left) -
-		var(--safe-area-inset-right)
+		100vw - 20px - var(--safe-area-inset-left) -
+			var(--safe-area-inset-right)
 	);
 	max-height: 240px;
 }
@@ -9337,9 +9352,8 @@ body:not(.is-phone) .vertical-tab-header-group-items {
 .checkbox-container.is-enabled:after {
 	transform: translate3d(
 		calc(
-			var(--toggle-width) -
-			var(--toggle-thumb-width) -
-			var(--toggle-border-width)
+			var(--toggle-width) - var(--toggle-thumb-width) -
+				var(--toggle-border-width)
 		),
 		0,
 		0
@@ -9381,7 +9395,9 @@ body:not(.is-phone) .vertical-tab-header-group-items {
 }
 .checkbox-container.mod-small {
 	width: var(--toggle-s-width);
-	height: calc(var(--toggle-s-thumb-height) + var(--toggle-s-border-width) * 2);
+	height: calc(
+		var(--toggle-s-thumb-height) + var(--toggle-s-border-width) * 2
+	);
 }
 .checkbox-container.mod-small:focus-within {
 	outline: var(--toggle-s-border-width) solid
@@ -9396,9 +9412,8 @@ body:not(.is-phone) .vertical-tab-header-group-items {
 .checkbox-container.mod-small.is-enabled:after {
 	transform: translate3d(
 		calc(
-			var(--toggle-s-width) -
-			var(--toggle-s-thumb-width) -
-			var(--toggle-s-border-width)
+			var(--toggle-s-width) - var(--toggle-s-thumb-width) -
+				var(--toggle-s-border-width)
 		),
 		0,
 		0
@@ -12364,8 +12379,7 @@ li.is-collapsed .list-bullet:after,
 	> .cm-hmd-list-indent
 	> .cm-indent-spacing:last-child {
 	padding-inline-start: calc(
-		var(--list-indent-editing) +
-		var(--list-marker-space)
+		var(--list-indent-editing) + var(--list-marker-space)
 	);
 }
 .markdown-source-view.mod-cm6 .cm-hmd-list-indent {
@@ -13706,7 +13720,8 @@ body:not(.is-phone) .base-toolbar-sort-item {
 }
 .workspace-leaf-content[data-type="markdown"] .block-language-base .bases-view,
 .workspace-leaf-content[data-type="markdown"] .bases-embed .bases-view {
-	border: var(--bases-embed-border-width) solid var(--bases-embed-border-color);
+	border: var(--bases-embed-border-width) solid
+		var(--bases-embed-border-color);
 	border-radius: var(--bases-embed-border-radius);
 	padding: var(--bases-embed-padding);
 	overflow-x: auto;
@@ -13731,11 +13746,7 @@ body:not(.is-phone) .base-toolbar-sort-item {
 .markdown-source-view.mod-cm6 .cm-content > .cm-lang-base .edit-block-button {
 	opacity: 1;
 	top: calc(
-		var(--bases-header-height) /
-		2 -
-		var(--icon-m) /
-		2 -
-		var(--size-2-2)
+		var(--bases-header-height) / 2 - var(--icon-m) / 2 - var(--size-2-2)
 	);
 }
 .mod-sidedock {
@@ -14164,7 +14175,8 @@ body.mod-rtl .bases-table-header-resizer {
 .bases-tbody {
 	position: relative;
 	width: 100%;
-	box-shadow: 0 var(--bases-table-row-border-width) 0 var(--table-border-color);
+	box-shadow: 0 var(--bases-table-row-border-width) 0
+		var(--table-border-color);
 }
 .bases-tbody .bases-tr:hover {
 	background-color: var(--bases-table-row-background-hover);
@@ -16712,7 +16724,10 @@ body:not(.is-ios) .canvas-wrapper.mod-animating .canvas-group-label {
 	> .markdown-preview-view::after {
 	content: " ";
 	display: block;
-	min-height: min(calc(var(--canvas-node-height) * 0.1 - 3px), var(--size-4-4));
+	min-height: min(
+		calc(var(--canvas-node-height) * 0.1 - 3px),
+		var(--size-4-4)
+	);
 	max-height: var(--size-4-4);
 	flex: 1 1 0;
 }
@@ -17844,7 +17859,11 @@ body.is-phone .suggestion-bg {
 	left: var(--scroll-fade-offset-left);
 	width: 30px;
 	height: 100%;
-	background: linear-gradient(to right, var(--background-primary), transparent);
+	background: linear-gradient(
+		to right,
+		var(--background-primary),
+		transparent
+	);
 }
 .mod-fade:not(.mod-at-end):after {
 	content: " ";
@@ -17854,7 +17873,11 @@ body.is-phone .suggestion-bg {
 	right: var(--scroll-fade-offset-right);
 	width: 30px;
 	height: 100%;
-	background: linear-gradient(to right, transparent, var(--background-primary));
+	background: linear-gradient(
+		to right,
+		transparent,
+		var(--background-primary)
+	);
 }
 .is-phone {
 	--metadata-property-box-shadow: none;
@@ -17886,9 +17909,7 @@ body.is-phone .suggestion-bg {
 	background-color: var(--background-secondary);
 	border: none;
 	width: calc(
-		100% -
-		var(--safe-area-inset-left) -
-		var(--safe-area-inset-right)
+		100% - var(--safe-area-inset-left) - var(--safe-area-inset-right)
 	);
 	min-width: unset;
 	position: fixed;
@@ -17908,9 +17929,7 @@ body.is-phone .suggestion-bg {
 }
 .is-phone .query-toolbar-menu .menu-scroll {
 	max-height: calc(
-		100vh -
-		var(--view-header-height) -
-		var(--safe-area-inset-top)
+		100vh - var(--view-header-height) - var(--safe-area-inset-top)
 	);
 }
 .is-phone .bases-toolbar-menu-container {
@@ -18331,7 +18350,9 @@ body.is-phone .suggestion-bg {
 	align-items: flex-start;
 }
 .is-phone
-	.setting-item:not(.mod-toggle):not(.setting-item-heading):not(.mod-list-item)
+	.setting-item:not(.mod-toggle):not(.setting-item-heading):not(
+		.mod-list-item
+	)
 	.setting-item-control {
 	margin-top: 12px;
 	width: 100%;
@@ -19188,9 +19209,8 @@ body.is-tablet .sidebar-toggle-button.mod-left {
 	background-color: var(--background-primary);
 	padding-top: var(--size-4-2);
 	padding-bottom: calc(
-		var(--safe-area-inset-bottom) -
-		var(--keyboard-height) -
-		var(--keyboard-height)
+		var(--safe-area-inset-bottom) - var(--keyboard-height) -
+			var(--keyboard-height)
 	);
 	padding-right: calc(var(--size-4-2) + var(--safe-area-inset-right));
 	padding-left: calc(var(--size-4-2) + var(--safe-area-inset-left));
@@ -19330,9 +19350,7 @@ body.is-tablet .mobile-navbar {
 }
 .is-mobile .prompt {
 	--prompt-top: calc(
-		var(--safe-area-inset-top) +
-		var(--header-height) +
-		var(--size-4-2)
+		var(--safe-area-inset-top) + var(--header-height) + var(--size-4-2)
 	);
 	top: var(--prompt-top);
 	max-height: min(
@@ -19346,9 +19364,7 @@ body.is-tablet .mobile-navbar {
 .is-phone .prompt {
 	margin: 0 auto;
 	width: calc(
-		100% -
-		var(--safe-area-inset-left) -
-		var(--safe-area-inset-right)
+		100% - var(--safe-area-inset-left) - var(--safe-area-inset-right)
 	);
 	border-radius: var(--radius-l) var(--radius-l) 0 0;
 	min-width: unset;

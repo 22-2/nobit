@@ -50,7 +50,8 @@ export function isTestEnvironment(): boolean {
 				(typeof global !== "undefined" &&
 					(global as any).describe !== undefined))) ||
 		// Playwright test environment detection
-		(typeof window !== "undefined" && (window as any).playwright !== undefined)
+		(typeof window !== "undefined" &&
+			(window as any).playwright !== undefined)
 	);
 }
 /**

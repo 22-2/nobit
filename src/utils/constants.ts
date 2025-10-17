@@ -3,7 +3,8 @@ import manifest from "../../manifest.json" with { type: "json" };
 import { type NobitPluginSettings } from "../settings";
 
 export const DEBUG_MODE = Boolean(
-	(typeof process !== "undefined" && process.env.NODE_ENV === "development") ||
+	(typeof process !== "undefined" &&
+		process.env.NODE_ENV === "development") ||
 		process.env.CI,
 );
 

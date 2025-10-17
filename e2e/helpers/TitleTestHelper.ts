@@ -22,7 +22,10 @@ export class TitleTestHelper {
 		expect(consistency.allMatch).toBe(true);
 		expect(consistency.titleBar).toContain(expectedTitle);
 
-		console.log("✓ All title sources are synchronized:", consistency.titleBar);
+		console.log(
+			"✓ All title sources are synchronized:",
+			consistency.titleBar,
+		);
 	}
 
 	/**
@@ -52,7 +55,10 @@ export class TitleTestHelper {
 		const state = await this.threadPage.getThreadManagerState();
 		expect(state?.threadTitle).toBeTruthy();
 		expect(state?.threadTitle).toContain(expectedTitle);
-		console.log("✓ ThreadManager state has correct title:", state?.threadTitle);
+		console.log(
+			"✓ ThreadManager state has correct title:",
+			state?.threadTitle,
+		);
 	}
 
 	/**

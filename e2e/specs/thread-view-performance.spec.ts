@@ -69,11 +69,18 @@ test.describe("Thread View Performance Tests", () => {
 			`Memory - Initial: ${memoryResult.initialMemory}, After load: ${memoryResult.afterLoadMemory}, After cleanup: ${memoryResult.afterCleanupMemory}`,
 		);
 
-		if (memoryResult.initialMemory > 0 && memoryResult.afterLoadMemory > 0) {
-			console.log(`Memory increase: ${memoryResult.memoryIncrease} bytes`);
+		if (
+			memoryResult.initialMemory > 0 &&
+			memoryResult.afterLoadMemory > 0
+		) {
+			console.log(
+				`Memory increase: ${memoryResult.memoryIncrease} bytes`,
+			);
 			// macOS uses more memory, so we use a more generous limit
 			const memoryLimit =
-				process.platform === "darwin" ? 15 * 1024 * 1024 : 10 * 1024 * 1024;
+				process.platform === "darwin"
+					? 15 * 1024 * 1024
+					: 10 * 1024 * 1024;
 			expect(memoryResult.memoryIncrease).toBeLessThan(memoryLimit);
 
 			if (memoryResult.afterCleanupMemory > 0) {
@@ -81,8 +88,12 @@ test.describe("Thread View Performance Tests", () => {
 					`Memory after cleanup: ${memoryResult.memoryAfterCleanup} bytes`,
 				);
 				const cleanupLimit =
-					process.platform === "darwin" ? 20 * 1024 * 1024 : 15 * 1024 * 1024;
-				expect(memoryResult.memoryAfterCleanup).toBeLessThan(cleanupLimit);
+					process.platform === "darwin"
+						? 20 * 1024 * 1024
+						: 15 * 1024 * 1024;
+				expect(memoryResult.memoryAfterCleanup).toBeLessThan(
+					cleanupLimit,
+				);
 			}
 		}
 	});
@@ -103,7 +114,9 @@ test.describe("Thread View Performance Tests", () => {
 
 		console.log(`Refresh time: ${refreshTime}ms`);
 
-		const postCountAfterRefresh = await setup.getThreadPage().getPostCount();
+		const postCountAfterRefresh = await setup
+			.getThreadPage()
+			.getPostCount();
 		expect(postCountAfterRefresh).toBeGreaterThan(0);
 		expect(refreshTime).toBeLessThan(10000);
 
@@ -126,9 +139,11 @@ test.describe("Thread View Performance Tests", () => {
 			'.thread-filters input[type="text"]',
 		);
 		if ((await searchInput.count()) > 0) {
-			const filterTime = await perfHelper.measureExecutionTime(async () => {
-				await setup.getThreadPage().applyThreadSearchFilter("test");
-			});
+			const filterTime = await perfHelper.measureExecutionTime(
+				async () => {
+					await setup.getThreadPage().applyThreadSearchFilter("test");
+				},
+			);
 
 			console.log(`Search filter operation time: ${filterTime}ms`);
 			expect(filterTime).toBeLessThan(1000);
@@ -136,7 +151,9 @@ test.describe("Thread View Performance Tests", () => {
 			await setup.getThreadPage().clearThreadSearchFilter();
 		}
 
-		const filterButtons = vault.window.locator(".filter-buttons-group button");
+		const filterButtons = vault.window.locator(
+			".filter-buttons-group button",
+		);
 		const buttonCount = await filterButtons.count();
 
 		if (buttonCount > 0) {

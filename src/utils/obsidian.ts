@@ -66,14 +66,17 @@ export function getViewStateByUrl(
 // ビュー状態生成
 // ============================================================
 
-
 /**
  * 汎用的なビュー状態を生成する
  * @param type - ビューのタイプ
  * @param state - パース済みBBS URL情報
  * @returns ビュー状態オブジェクト
  */
-function createViewState(type: string, parsedUrl: ParsedBbsUrl, title: string): CreatedBaseViewState {
+function createViewState(
+	type: string,
+	parsedUrl: ParsedBbsUrl,
+	title: string,
+): CreatedBaseViewState {
 	return {
 		type,
 		state: { ...parsedUrl, title },
@@ -92,7 +95,10 @@ function createViewState(type: string, parsedUrl: ParsedBbsUrl, title: string): 
  * @param ephemeralState - 一時的な状態（オプション）
  * @returns アクティブ化されたビュー
  */
-export async function activateView<TView extends ItemView, TEphemeralState = unknown>(
+export async function activateView<
+	TView extends ItemView,
+	TEphemeralState = unknown,
+>(
 	getLeaf: Workspace["getLeaf"],
 	viewState: UViewState,
 	ephemeralState?: TEphemeralState,
@@ -130,4 +136,3 @@ export function recordPrevState<TView extends ItemView>(view: TView): void {
 		title: currentState.title,
 	});
 }
-

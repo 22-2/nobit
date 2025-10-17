@@ -21,7 +21,8 @@ test.describe("URL History", () => {
 			body: threadData,
 		});
 
-		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
+		const testUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 		await setup.getThreadPage().openAndVerifyThreadView(PLUGIN_ID, testUrl);
 		await setup.getThreadPage().waitForThreadContent();
 
@@ -59,7 +60,8 @@ test.describe("URL History", () => {
 			body: threadData,
 		});
 
-		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
+		const testUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 		await setup.getThreadPage().openAndVerifyThreadView(PLUGIN_ID, testUrl);
 		await setup.getThreadPage().waitForThreadContent();
 

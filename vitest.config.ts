@@ -30,7 +30,8 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			obsidian: new URL("src/__mocks__/obsidian.ts", import.meta.url).pathname,
+			obsidian: new URL("src/__mocks__/obsidian.ts", import.meta.url)
+				.pathname,
 			"src/": new URL("src/", import.meta.url).pathname,
 		},
 	},

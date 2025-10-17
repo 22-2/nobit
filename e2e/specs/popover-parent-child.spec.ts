@@ -34,7 +34,9 @@ test.describe("ポップアップの挙動テスト", () => {
 		);
 		await vault.window.waitForSelector(".post", { timeout: 10000 });
 
-		const firstAnchorLink = vault.window.locator(".internal-res-link").first();
+		const firstAnchorLink = vault.window
+			.locator(".internal-res-link")
+			.first();
 		await popoverHelper.testParentClickClosesChild(firstAnchorLink);
 	});
 

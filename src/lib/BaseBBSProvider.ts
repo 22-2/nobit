@@ -140,7 +140,11 @@ export abstract class BaseBBSProvider {
 	): Promise<T> {
 		let lastError: Error = new Error("Unknown error");
 
-		for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
+		for (
+			let attempt = 0;
+			attempt <= this.retryConfig.maxRetries;
+			attempt++
+		) {
 			try {
 				logger.debug(
 					`Attempt ${attempt + 1}/${
@@ -237,7 +241,9 @@ export abstract class BaseBBSProvider {
 	 * @returns True if network error
 	 */
 	protected isNetworkError(message: string): boolean {
-		return message.includes("Failed to fetch") || message.includes("Network");
+		return (
+			message.includes("Failed to fetch") || message.includes("Network")
+		);
 	}
 
 	/**

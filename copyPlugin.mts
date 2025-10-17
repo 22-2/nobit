@@ -36,7 +36,7 @@ export const copyPlugin = ({ opts }: CopyPluginOptions): esbuild.Plugin => ({
 							// 4. Copy the file
 							await fs.copyFile(srcPath, destPath);
 							console.log(
-								`[CopyPlugin] Copied: ${srcPath} -> ${destPath}`
+								`[CopyPlugin] Copied: ${srcPath} -> ${destPath}`,
 							);
 						} catch (e) {
 							if (
@@ -45,12 +45,12 @@ export const copyPlugin = ({ opts }: CopyPluginOptions): esbuild.Plugin => ({
 								e.code === "ENOENT"
 							) {
 								console.warn(
-									`[CopyPlugin] Warning: Source file not found: ${srcPath}. Skipping.`
+									`[CopyPlugin] Warning: Source file not found: ${srcPath}. Skipping.`,
 								);
 							} else {
 								console.error(
 									`[CopyPlugin] Failed to copy ${srcPath}:`,
-									e
+									e,
 								);
 							}
 						}
@@ -59,7 +59,7 @@ export const copyPlugin = ({ opts }: CopyPluginOptions): esbuild.Plugin => ({
 					// Catch critical errors, mainly those resulting from fs.mkdir failures.
 					console.error(
 						`[CopyPlugin] Failed processing destination group for '${dest}':`,
-						e
+						e,
 					);
 				}
 			}

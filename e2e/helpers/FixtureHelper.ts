@@ -58,7 +58,10 @@ export class FixtureHelper {
 					console.log(`✅ Successfully served fixture file`);
 					return;
 				} catch (error) {
-					console.error("❌ Failed to load fixture file in route:", error);
+					console.error(
+						"❌ Failed to load fixture file in route:",
+						error,
+					);
 					await route.fulfill({
 						status: 500,
 						body: "Failed to load fixture",

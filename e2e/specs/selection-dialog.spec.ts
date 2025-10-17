@@ -24,7 +24,8 @@ test.describe("Selection Dialog", () => {
 			body: threadData,
 		});
 
-		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
+		const testUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001770/";
 
 		await dialogHelper.testSelectionWithEnter(
 			testUrl,
@@ -50,7 +51,8 @@ test.describe("Selection Dialog", () => {
 			body: threadData,
 		});
 
-		const testUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001771/";
+		const testUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1760001771/";
 
 		await dialogHelper.testSelectionWithClick(
 			testUrl,

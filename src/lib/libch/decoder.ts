@@ -27,7 +27,8 @@ export class DefaultDecoder implements BufferDecoder {
 	 */
 	private get defaultEncoding(): string {
 		const useDefaultEncoding =
-			typeof process !== "undefined" && process.env.USE_UTF8_ENCODING === "true";
+			typeof process !== "undefined" &&
+			process.env.USE_UTF8_ENCODING === "true";
 		logger.debug(`USE_UTF8_ENCODING: ${useDefaultEncoding}`);
 		return useDefaultEncoding ? "utf-8" : "shift-jis";
 	}

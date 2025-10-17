@@ -89,7 +89,9 @@ This feature implements a lightweight, performant, and hackable 5ch-compatible b
 3. WHEN users prefer different layouts THEN the system SHALL support multiple view modes
 4. WHEN users want to filter content THEN the system SHALL provide keyword filtering options
 5. IF users have accessibility needs THEN the system SHALL support font size and contrast adjustments
+
 ### Requir
+
 ement 8: View Architecture and MVP Approach
 
 **User Story:** As a developer, I want a modular view architecture, so that I can implement features incrementally starting with an MVP.
@@ -101,7 +103,7 @@ ement 8: View Architecture and MVP Approach
 3. WHEN creating ThreadView THEN it SHALL use existing thread-related components
 4. WHEN implementing each view THEN they SHALL be completely independent and self-contained
 5. IF additional views are needed THEN they SHALL follow the same architectural pattern as ThreadView### Req
-uirement 9: Ruthless MVP Definition (v0.0.1)
+   uirement 9: Ruthless MVP Definition (v0.0.1)
 
 **User Story:** As a developer, I want to start with the absolute minimum viable implementation, so that I can validate the core architecture before adding complexity.
 

@@ -7,7 +7,11 @@ import type { BBSProvider } from "./lib/libch/provider";
 import { ThreadManager } from "./managers";
 import { BoardManager } from "./managers/BoardManager.svelte";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, VIEW_TYPE_BOARD, VIEW_TYPE_THREAD } from "./utils/constants";
+import {
+	DEFAULT_SETTINGS,
+	VIEW_TYPE_BOARD,
+	VIEW_TYPE_THREAD,
+} from "./utils/constants";
 import { createInstructions } from "./utils/keys";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
@@ -210,7 +214,8 @@ export default class NobitPlugin extends Plugin {
 
 		// Keep only the last MAX_HISTORY items
 		if (this.settings.urlHistory.length > MAX_HISTORY) {
-			this.settings.urlHistory = this.settings.urlHistory.slice(-MAX_HISTORY);
+			this.settings.urlHistory =
+				this.settings.urlHistory.slice(-MAX_HISTORY);
 		}
 
 		await this.saveSettings();
@@ -227,7 +232,11 @@ export default class NobitPlugin extends Plugin {
 	 * Load plugin settings from disk.
 	 */
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData(),
+		);
 	}
 
 	/**

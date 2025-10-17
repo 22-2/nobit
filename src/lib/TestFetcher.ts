@@ -92,7 +92,9 @@ export class TestFetcher implements HttpFetcher {
 			}
 
 			const arrayBuffer = await response.arrayBuffer();
-			logger.debug(`ArrayBuffer received, size: ${arrayBuffer.byteLength}`);
+			logger.debug(
+				`ArrayBuffer received, size: ${arrayBuffer.byteLength}`,
+			);
 
 			return arrayBuffer;
 		} catch (error: any) {
@@ -126,7 +128,8 @@ export class TestFetcher implements HttpFetcher {
 		const options: RequestInit = {
 			method: "POST",
 			headers: {
-				"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+				"Content-Type":
+					"application/x-www-form-urlencoded; charset=UTF-8",
 				...headers,
 			},
 			body: body.toString(),

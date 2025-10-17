@@ -63,7 +63,9 @@ export function usePopover(): UsePopoverReturn {
 		}
 
 		log.debug(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
-		console.log(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
+		console.log(
+			`[PopoverService] Hiding popovers from level ${fromLevel}.`,
+		);
 
 		const toClose = activePopovers.slice(fromLevel);
 		const remainingPopovers = activePopovers.slice(0, fromLevel);
@@ -76,7 +78,9 @@ export function usePopover(): UsePopoverReturn {
 		activePopovers.push(...remainingPopovers);
 
 		toClose.forEach((popover) => {
-			console.log(`[PopoverService] Hiding popover at level ${popover.level}`);
+			console.log(
+				`[PopoverService] Hiding popover at level ${popover.level}`,
+			);
 			popover.hide();
 		});
 	}
@@ -140,7 +144,12 @@ export function usePopover(): UsePopoverReturn {
 						index: number;
 						event: MouseEvent;
 					}) =>
-						handleHover(detail.targetEl, detail.index, level + 1, detail.event),
+						handleHover(
+							detail.targetEl,
+							detail.index,
+							level + 1,
+							detail.event,
+						),
 					onShowReplyTree: (detail: {
 						targetEl: HTMLElement;
 						originResNumber: number;
@@ -195,7 +204,12 @@ export function usePopover(): UsePopoverReturn {
 						index: number;
 						event: MouseEvent;
 					}) => {
-						handleHover(detail.targetEl, detail.index, level + 1, detail.event);
+						handleHover(
+							detail.targetEl,
+							detail.index,
+							level + 1,
+							detail.event,
+						);
 					},
 					onShowReplyTree: (detail: {
 						targetEl: HTMLElement;
@@ -383,7 +397,9 @@ export function usePopover(): UsePopoverReturn {
 						onJumpToPost: (resNumber: number) => {
 							// Close popovers and jump
 							hidePopoversFrom(0);
-							const postElement = document.getElementById(`res-${resNumber}`);
+							const postElement = document.getElementById(
+								`res-${resNumber}`,
+							);
 							if (postElement) {
 								postElement.scrollIntoView({
 									behavior: "smooth",
@@ -391,7 +407,9 @@ export function usePopover(): UsePopoverReturn {
 								});
 								postElement.classList.add("post-highlight");
 								setTimeout(() => {
-									postElement.classList.remove("post-highlight");
+									postElement.classList.remove(
+										"post-highlight",
+									);
 								}, 2000);
 							}
 						},

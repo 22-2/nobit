@@ -1,157 +1,157 @@
 <!-- src/stories/helpers/WheelRefreshTester.svelte -->
 <script lang="ts">
-import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
-import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
+	import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
+	import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 
-let {
-	isEnabled = true,
-	onUpRefresh,
-	onDownRefresh,
-	upThreshold = 7,
-	downThreshold = 7,
-	initialScrollTop = 0,
-	// デフォルトは 'top'
-	statePosition = "top",
-} = $props<{
-	isEnabled?: boolean;
-	onUpRefresh?: () => Promise<void>;
-	onDownRefresh?: () => Promise<void>;
-	upThreshold?: number;
-	downThreshold?: number;
-	initialScrollTop?: number;
-	// 状態表示の位置を指定するプロパティを追加
-	statePosition?: "top" | "bottom";
-}>();
+	let {
+		isEnabled = true,
+		onUpRefresh,
+		onDownRefresh,
+		upThreshold = 7,
+		downThreshold = 7,
+		initialScrollTop = 0,
+		// デフォルトは 'top'
+		statePosition = "top",
+	} = $props<{
+		isEnabled?: boolean;
+		onUpRefresh?: () => Promise<void>;
+		onDownRefresh?: () => Promise<void>;
+		upThreshold?: number;
+		downThreshold?: number;
+		initialScrollTop?: number;
+		// 状態表示の位置を指定するプロパティを追加
+		statePosition?: "top" | "bottom";
+	}>();
 
-let scrollContainerEl: HTMLElement | undefined = $state();
-let isPerformingRefreshAction = $state(false); // コールバック実行中のみtrue
+	let scrollContainerEl: HTMLElement | undefined = $state();
+	let isPerformingRefreshAction = $state(false); // コールバック実行中のみtrue
 
-const createRefreshHandler = (
-	callback?: () => Promise<void>,
-	isUp: boolean = true,
-) => {
-	if (!callback) return undefined;
+	const createRefreshHandler = (
+		callback?: () => Promise<void>,
+		isUp: boolean = true,
+	) => {
+		if (!callback) return undefined;
 
-	return {
-		onRefresh: async () => {
-			isPerformingRefreshAction = true;
-			try {
-				await callback();
-			} finally {
-				// コールバックが完了したら false に戻す
-				// useWheelRefresh 内部で success -> coolingDown の遷移が制御されるため、
-				// ここで isRefreshing を直接制御する必要はなくなる。
-				// ただし、Storybookのテストで onUpRefresh/onDownRefresh が呼ばれたことを確認するための一時的な状態。
-				setTimeout(() => {
-					isPerformingRefreshAction = false;
-				}, 500); // わずかな遅延
-			}
-		},
-		threshold: isUp ? upThreshold : downThreshold,
+		return {
+			onRefresh: async () => {
+				isPerformingRefreshAction = true;
+				try {
+					await callback();
+				} finally {
+					// コールバックが完了したら false に戻す
+					// useWheelRefresh 内部で success -> coolingDown の遷移が制御されるため、
+					// ここで isRefreshing を直接制御する必要はなくなる。
+					// ただし、Storybookのテストで onUpRefresh/onDownRefresh が呼ばれたことを確認するための一時的な状態。
+					setTimeout(() => {
+						isPerformingRefreshAction = false;
+					}, 500); // わずかな遅延
+				}
+			},
+			threshold: isUp ? upThreshold : downThreshold,
+		};
 	};
-};
 
-// useWheelRefresh から wheelState と bindRefreshTriggerLine を取得
-const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
-	getScrollElement: () => scrollContainerEl,
-	isEnabled: () => isEnabled && !isPerformingRefreshAction, // コールバック実行中はホイールリフレッシュを無効化
-	up: createRefreshHandler(onUpRefresh, true),
-	down: createRefreshHandler(onDownRefresh, false),
-});
+	// useWheelRefresh から wheelState と bindRefreshTriggerLine を取得
+	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
+		getScrollElement: () => scrollContainerEl,
+		isEnabled: () => isEnabled && !isPerformingRefreshAction, // コールバック実行中はホイールリフレッシュを無効化
+		up: createRefreshHandler(onUpRefresh, true),
+		down: createRefreshHandler(onDownRefresh, false),
+	});
 
-$effect(() => {
-	if (scrollContainerEl) {
-		scrollContainerEl.scrollTop =
-			initialScrollTop === -1
-				? scrollContainerEl.scrollHeight
-				: initialScrollTop;
-	}
-});
+	$effect(() => {
+		if (scrollContainerEl) {
+			scrollContainerEl.scrollTop =
+				initialScrollTop === -1
+					? scrollContainerEl.scrollHeight
+					: initialScrollTop;
+		}
+	});
 </script>
 
 <div
-    class="test-container"
-    data-testid="scroll-container"
-    bind:this={scrollContainerEl}
+	class="test-container"
+	data-testid="scroll-container"
+	bind:this={scrollContainerEl}
 >
-    <div class="content">
-        <!-- 有効なリフレッシュ方向に応じてインジケータを条件付きで表示 -->
-        {#if onUpRefresh}
-            <WheelProgressIndicator {wheelState} position="top" />
-        {/if}
-        {#if onDownRefresh}
-            <WheelProgressIndicator {wheelState} position="bottom" />
-        {/if}
-        <!-- statePositionに応じて状態表示の位置を切り替え -->
-        {#if statePosition === "top"}
-            <div class="indicator">
-                <h3>Current State</h3>
-                <p data-testid="state-direction">
-                    Direction: {wheelState.direction ?? "none"}
-                </p>
-                <p data-testid="state-count">Count: {wheelState.count}</p>
-                <p data-testid="state-status">
-                    Status: {wheelState.status}
-                </p>
-                <p data-testid="state-performing-refresh-action">
-                    isPerformingRefreshAction: {isPerformingRefreshAction}
-                </p>
-            </div>
-        {/if}
+	<div class="content">
+		<!-- 有効なリフレッシュ方向に応じてインジケータを条件付きで表示 -->
+		{#if onUpRefresh}
+			<WheelProgressIndicator {wheelState} position="top" />
+		{/if}
+		{#if onDownRefresh}
+			<WheelProgressIndicator {wheelState} position="bottom" />
+		{/if}
+		<!-- statePositionに応じて状態表示の位置を切り替え -->
+		{#if statePosition === "top"}
+			<div class="indicator">
+				<h3>Current State</h3>
+				<p data-testid="state-direction">
+					Direction: {wheelState.direction ?? "none"}
+				</p>
+				<p data-testid="state-count">Count: {wheelState.count}</p>
+				<p data-testid="state-status">
+					Status: {wheelState.status}
+				</p>
+				<p data-testid="state-performing-refresh-action">
+					isPerformingRefreshAction: {isPerformingRefreshAction}
+				</p>
+			</div>
+		{/if}
 
-        <p>Scroll up at the top to trigger refresh.</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p class="filler">Content</p>
-        <p>Scroll down at the bottom to trigger refresh.</p>
+		<p>Scroll up at the top to trigger refresh.</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p class="filler">Content</p>
+		<p>Scroll down at the bottom to trigger refresh.</p>
 
-        {#if statePosition === "bottom"}
-            <div class="indicator">
-                <h3>Current State</h3>
-                <p data-testid="state-direction">
-                    Direction: {wheelState.direction ?? "none"}
-                </p>
-                <p data-testid="state-count">Count: {wheelState.count}</p>
-                <p data-testid="state-status">
-                    Status: {wheelState.status}
-                </p>
-                <p data-testid="state-performing-refresh-action">
-                    isPerformingRefreshAction: {isPerformingRefreshAction}
-                </p>
-            </div>
-        {/if}
-    </div>
+		{#if statePosition === "bottom"}
+			<div class="indicator">
+				<h3>Current State</h3>
+				<p data-testid="state-direction">
+					Direction: {wheelState.direction ?? "none"}
+				</p>
+				<p data-testid="state-count">Count: {wheelState.count}</p>
+				<p data-testid="state-status">
+					Status: {wheelState.status}
+				</p>
+				<p data-testid="state-performing-refresh-action">
+					isPerformingRefreshAction: {isPerformingRefreshAction}
+				</p>
+			</div>
+		{/if}
+	</div>
 </div>
 
 <style>
-    .test-container {
-        height: var(--size-4-75); /* 300px */
-        width: var(--size-4-100); /* 400px */
-        overflow-y: auto;
-        border: var(--border-width-thick, 2px) solid var(--interactive-accent);
-        background-color: var(--background-primary);
-        font-family: var(--font-interface-theme);
-        font-size: var(--font-ui-small); /* 13px */
-    }
-    .content {
-        padding: var(--size-4-4); /* 16px */
-        position: relative;
-        color: var(--text-normal);
-    }
-    .indicator {
-        border: var(--border-width) solid var(--background-modifier-border);
-        padding: var(--size-4-2); /* 8px */
-        margin: var(--size-4-4) 0; /* 16px 0 */
-        background-color: var(--background-secondary);
-        border-radius: var(--radius-m);
-    }
-    .filler {
-        padding: var(--size-4-4) 0; /* 16px 0 */
-    }
+	.test-container {
+		height: var(--size-4-75); /* 300px */
+		width: var(--size-4-100); /* 400px */
+		overflow-y: auto;
+		border: var(--border-width-thick, 2px) solid var(--interactive-accent);
+		background-color: var(--background-primary);
+		font-family: var(--font-interface-theme);
+		font-size: var(--font-ui-small); /* 13px */
+	}
+	.content {
+		padding: var(--size-4-4); /* 16px */
+		position: relative;
+		color: var(--text-normal);
+	}
+	.indicator {
+		border: var(--border-width) solid var(--background-modifier-border);
+		padding: var(--size-4-2); /* 8px */
+		margin: var(--size-4-4) 0; /* 16px 0 */
+		background-color: var(--background-secondary);
+		border-radius: var(--radius-m);
+	}
+	.filler {
+		padding: var(--size-4-4) 0; /* 16px 0 */
+	}
 </style>

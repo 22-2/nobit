@@ -1,27 +1,27 @@
 <script lang="ts">
-import type { Snippet } from "svelte";
+	import type { Snippet } from "svelte";
 
-// Props
-interface Props {
-	/**
-	 * エラーメッセージ
-	 */
-	error?: string | null;
-	/**
-	 * エラー時の再試行ハンドラ
-	 */
-	onRetry?: () => void;
-	/**
-	 * ルートのCSSクラス名
-	 */
-	class?: string;
-	/**
-	 * コンテンツスニペット
-	 */
-	children?: Snippet;
-}
+	// Props
+	interface Props {
+		/**
+		 * エラーメッセージ
+		 */
+		error?: string | null;
+		/**
+		 * エラー時の再試行ハンドラ
+		 */
+		onRetry?: () => void;
+		/**
+		 * ルートのCSSクラス名
+		 */
+		class?: string;
+		/**
+		 * コンテンツスニペット
+		 */
+		children?: Snippet;
+	}
 
-let { error, onRetry, class: className = "", children }: Props = $props();
+	let { error, onRetry, class: className = "", children }: Props = $props();
 </script>
 
 <div class="base-view {className}">
@@ -31,9 +31,7 @@ let { error, onRetry, class: className = "", children }: Props = $props();
 			<div class="error-icon">⚠️</div>
 			<div class="error-message">{error}</div>
 			{#if onRetry}
-				<button class="retry-button" onclick={onRetry}>
-					再試行
-				</button>
+				<button class="retry-button" onclick={onRetry}> 再試行 </button>
 			{/if}
 		</div>
 	{:else}

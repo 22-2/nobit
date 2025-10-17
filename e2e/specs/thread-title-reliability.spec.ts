@@ -55,7 +55,8 @@ test.describe("Thread Title Reliability Tests", () => {
 			}),
 		});
 
-		const secondUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
+		const secondUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
 		await titleHelper.navigateViaTitle(secondUrl);
 
 		const secondTitle = await setup.getThreadPage().getTabHeaderText();
@@ -84,7 +85,9 @@ test.describe("Thread Title Reliability Tests", () => {
 		await setup.getThreadPage().clickRefreshButton();
 		await setup.getThreadPage().waitForThreadContent(10000);
 
-		const titleAfterRefresh = await setup.getThreadPage().getTabHeaderText();
+		const titleAfterRefresh = await setup
+			.getThreadPage()
+			.getTabHeaderText();
 		expect(titleAfterRefresh).toBe(originalTitle);
 		console.log("✓ Title preserved after refresh:", titleAfterRefresh);
 	});
@@ -156,7 +159,8 @@ test.describe("Thread Title Reliability Tests", () => {
 			}),
 		});
 
-		const firstUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
+		const firstUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/1111111111/";
 		await threadPage.openAndVerifyThreadView(PLUGIN_ID, firstUrl);
 		await threadPage.waitForThreadContent();
 
@@ -173,7 +177,8 @@ test.describe("Thread Title Reliability Tests", () => {
 			}),
 		});
 
-		const secondUrl = "http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
+		const secondUrl =
+			"http://bbs.eddibb.cc/test/read.cgi/liveedge/2222222222/";
 		await threadPage.openPluginWithURL(PLUGIN_ID, secondUrl);
 		await threadPage.waitForThreadContent();
 
@@ -250,7 +255,10 @@ test.describe("Thread Title Reliability Tests", () => {
 		// デフォルトタイトルが表示されることを確認
 		const displayedTitle = await threadPage.getTabHeaderText();
 		expect(displayedTitle).toBeTruthy();
-		console.log("✓ Fallback title displayed for empty title:", displayedTitle);
+		console.log(
+			"✓ Fallback title displayed for empty title:",
+			displayedTitle,
+		);
 	});
 
 	test("should sync title between ThreadManager and ThreadView", async ({

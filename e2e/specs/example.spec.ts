@@ -13,7 +13,9 @@ test("sandbox test: plugin activation and view creation via command", async ({
 	const setup = new BaseTestSetup(vault);
 
 	if (!process.env.CI) {
-		const vaultName = await vault.window.evaluate(() => app.vault.getName());
+		const vaultName = await vault.window.evaluate(() =>
+			app.vault.getName(),
+		);
 		expect(vaultName).toBe(SANDBOX_VAULT_NAME);
 	}
 

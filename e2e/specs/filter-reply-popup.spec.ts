@@ -28,9 +28,7 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 		await vault.window.waitForSelector(".post", { timeout: 10000 });
 
 		// Get initial post count
-		const initialPostCount = await vault.window
-			.locator(".post")
-			.count();
+		const initialPostCount = await vault.window.locator(".post").count();
 		console.log(`初期投稿数: ${initialPostCount}`);
 		expect(initialPostCount).toBeGreaterThan(5); // Need enough posts to test filtering
 
@@ -60,7 +58,9 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 		}
 
 		// Pick a post in the middle with replies (e.g., post 20 or 15)
-		const targetPost = postsWithReplies.find((p) => p.resNumber >= 15) || postsWithReplies[0];
+		const targetPost =
+			postsWithReplies.find((p) => p.resNumber >= 15) ||
+			postsWithReplies[0];
 		console.log(
 			`テスト対象レス: #${targetPost.resNumber} (${targetPost.replyLinkText})`,
 		);
@@ -74,9 +74,7 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 		await vault.window.waitForTimeout(500); // Wait for filter to apply
 
 		// Get filtered post count
-		const filteredPostCount = await vault.window
-			.locator(".post")
-			.count();
+		const filteredPostCount = await vault.window.locator(".post").count();
 		console.log(
 			`フィルタリング後の投稿数: ${filteredPostCount} (初期: ${initialPostCount})`,
 		);
@@ -90,16 +88,17 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 		const replyLinkCount = await replyTreeLinks.count();
 
 		if (replyLinkCount === 0) {
-			console.log("フィルタリング後に返信リンクが見つからないためスキップ");
+			console.log(
+				"フィルタリング後に返信リンクが見つからないためスキップ",
+			);
 			test.skip();
 			return;
 		}
 
 		// Click the first reply tree link
 		const firstReplyLink = replyTreeLinks.first();
-		const linkedResNumber = await firstReplyLink.getAttribute(
-			"data-res-number",
-		);
+		const linkedResNumber =
+			await firstReplyLink.getAttribute("data-res-number");
 		console.log(`返信リンクのレス番号: ${linkedResNumber}`);
 
 		await firstReplyLink.click({ force: true });
@@ -111,7 +110,8 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 
 		// Get the post content in the popover
 		const popoverPost = popover.locator(".post").first();
-		const popoverResNumber = await popoverPost.getAttribute("data-res-number");
+		const popoverResNumber =
+			await popoverPost.getAttribute("data-res-number");
 
 		console.log(
 			`ポップアップ内のレス番号: ${popoverResNumber}, 期待値: ${linkedResNumber}`,
@@ -122,7 +122,9 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 		expect(popoverResNumber).toBe(linkedResNumber);
 
 		// Additional verification: Check if the popover shows replies
-		const repliesInPopover = await popover.locator(".post-tree-replies .post").count();
+		const repliesInPopover = await popover
+			.locator(".post-tree-replies .post")
+			.count();
 		console.log(`ポップアップ内の返信数: ${repliesInPopover}`);
 
 		// Should have at least the origin post
@@ -156,7 +158,8 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 				const anchorLink = post.querySelector(".internal-res-link");
 				if (anchorLink) {
 					const resNumber = post.getAttribute("data-res-number");
-					const targetResNumber = anchorLink.getAttribute("data-res-number");
+					const targetResNumber =
+						anchorLink.getAttribute("data-res-number");
 					return {
 						resNumber: resNumber ? parseInt(resNumber) : 0,
 						targetResNumber: targetResNumber
@@ -186,9 +189,8 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 
 		// Hover over anchor link
 		const anchorLink = vault.window.locator(".internal-res-link").first();
-		const anchorTargetResNumber = await anchorLink.getAttribute(
-			"data-res-number",
-		);
+		const anchorTargetResNumber =
+			await anchorLink.getAttribute("data-res-number");
 
 		await anchorLink.hover();
 		await vault.window.waitForTimeout(300);
@@ -198,7 +200,8 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 		await expect(popover).toBeVisible({ timeout: 2000 });
 
 		const popoverPost = popover.locator(".post").first();
-		const popoverResNumber = await popoverPost.getAttribute("data-res-number");
+		const popoverResNumber =
+			await popoverPost.getAttribute("data-res-number");
 
 		console.log(
 			`ポップアップ内のレス番号: ${popoverResNumber}, 期待値: ${anchorTargetResNumber}`,
@@ -206,7 +209,9 @@ test.describe("フィルタリング時の返信ポップアップ", () => {
 
 		expect(popoverResNumber).toBe(anchorTargetResNumber);
 
-		console.log("✓ フィルタリング時にアンカーポップアップが正しく表示された");
+		console.log(
+			"✓ フィルタリング時にアンカーポップアップが正しく表示された",
+		);
 	});
 });
 

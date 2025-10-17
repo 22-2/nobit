@@ -54,9 +54,12 @@ export class PopoverTestHelper {
 	async testParentChildPopover(
 		parentAnchorLink: Locator,
 	): Promise<{ parent: Locator; child: Locator | null }> {
-		const parentPopover = await this.hoverAndVerifyPopover(parentAnchorLink);
+		const parentPopover =
+			await this.hoverAndVerifyPopover(parentAnchorLink);
 
-		const childAnchorLink = parentPopover.locator(".internal-res-link").first();
+		const childAnchorLink = parentPopover
+			.locator(".internal-res-link")
+			.first();
 		const childLinkCount = await childAnchorLink.count();
 
 		if (childLinkCount === 0) {
@@ -132,7 +135,9 @@ export class PopoverTestHelper {
 	): Promise<{ parent: Locator; child: Locator | null }> {
 		const parentPopover = await this.clickAndVerifyPopover(parentLink);
 
-		const childAnchorLink = parentPopover.locator(".internal-res-link").first();
+		const childAnchorLink = parentPopover
+			.locator(".internal-res-link")
+			.first();
 		const childLinkCount = await childAnchorLink.count();
 
 		if (childLinkCount === 0) {

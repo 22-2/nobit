@@ -1,35 +1,35 @@
 <script lang="ts">
-// Import obsidian styles only within this component's scope
-import "../../../styles.css";
-import "../obsidian-app.very-large.css";
-import "../obsidian-variables.css";
-import "../obsidian-variables.custom.css";
+	// Import obsidian styles only within this component's scope
+	import "../../../styles.css";
+	import "../obsidian-app.very-large.css";
+	import "../obsidian-variables.css";
+	import "../obsidian-variables.custom.css";
 </script>
 
 <div class="obsidian-app-container">
-    <slot />
+	<slot />
 </div>
 
 <style>
-    .obsidian-app-container {
-        /* Ensure obsidian styles are contained within this component */
-        isolation: isolate;
-        contain: style;
+	.obsidian-app-container {
+		/* Ensure obsidian styles are contained within this component */
+		isolation: isolate;
+		contain: style;
 
-        /* Apply obsidian theme variables */
-        color-scheme: dark;
+		/* Apply obsidian theme variables */
+		color-scheme: dark;
 
-        /* Reset any potential conflicts */
-        all: initial;
-        font-family: var(--font-interface-theme);
-        font-size: var(--font-ui-medium); /* 15px */
-        line-height: var(--line-height-normal); /* 1.5 */
-        color: var(--text-normal);
-        background: var(--background-primary);
-    }
+		/* Reset any potential conflicts */
+		all: initial;
+		font-family: var(--font-interface-theme);
+		font-size: var(--font-ui-medium); /* 15px */
+		line-height: var(--line-height-normal); /* 1.5 */
+		color: var(--text-normal);
+		background: var(--background-primary);
+	}
 
-    /* Re-apply necessary global styles within container */
-    .obsidian-app-container * {
-        box-sizing: border-box;
-    }
+	/* Re-apply necessary global styles within container */
+	.obsidian-app-container * {
+		box-sizing: border-box;
+	}
 </style>

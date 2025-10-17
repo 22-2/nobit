@@ -76,14 +76,20 @@ export class CustomHoverPopover extends Component {
 		this.initialEvent = initialEvent;
 
 		this.hoverEl = document.createElement("div");
-		this.hoverEl.classList.add("popover", "hover-popover", "bbs-post-preview");
+		this.hoverEl.classList.add(
+			"popover",
+			"hover-popover",
+			"bbs-post-preview",
+		);
 	}
 
 	show(mountFn: (target: HTMLElement) => ReturnType<typeof mount>) {
 		if (this.isShown) return;
 		this.isShown = true;
 
-		log.debug(`[CustomHoverPopover] show() called for level ${this.level}.`);
+		log.debug(
+			`[CustomHoverPopover] show() called for level ${this.level}.`,
+		);
 
 		this.popoverService.register(this);
 		this.svelteComponent = mountFn(this.hoverEl);
@@ -157,7 +163,9 @@ export class CustomHoverPopover extends Component {
 
 				// リンクやボタンをクリックした場合は、その要素の処理を優先
 				if (target.closest("a, button")) {
-					log.debug(`[CustomHoverPopover] Click on link/button, ignoring`);
+					log.debug(
+						`[CustomHoverPopover] Click on link/button, ignoring`,
+					);
 					return;
 				}
 				// それ以外の場所をクリックした場合は、子ポップアップを閉じる
@@ -222,7 +230,9 @@ export class CustomHoverPopover extends Component {
 				this.parentContainer.scrollLeft;
 
 			if (
-				this.initialEvent.clientX - parentRect.left + popoverRect.width >
+				this.initialEvent.clientX -
+					parentRect.left +
+					popoverRect.width >
 				this.parentContainer.clientWidth
 			) {
 				left =
@@ -233,7 +243,9 @@ export class CustomHoverPopover extends Component {
 					this.parentContainer.scrollLeft;
 			}
 			if (
-				this.initialEvent.clientY - parentRect.top + popoverRect.height >
+				this.initialEvent.clientY -
+					parentRect.top +
+					popoverRect.height >
 				this.parentContainer.clientHeight
 			) {
 				top =

@@ -61,7 +61,9 @@ export abstract class BaseManager {
 	 * @returns True if network error
 	 */
 	private isNetworkError(message: string): boolean {
-		return message.includes("Failed to fetch") || message.includes("Network");
+		return (
+			message.includes("Failed to fetch") || message.includes("Network")
+		);
 	}
 
 	/**

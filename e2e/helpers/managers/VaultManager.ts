@@ -60,7 +60,9 @@ export class VaultManager {
 				logger.debug(
 					"options.name and options.path not specified, create temp dir",
 				);
-				vaultPath = await fs.mkdtemp(path.join(os.tmpdir(), "obsidian-e2e-"));
+				vaultPath = await fs.mkdtemp(
+					path.join(os.tmpdir(), "obsidian-e2e-"),
+				);
 				logger.debug("temp dir created:", vaultPath);
 			}
 
@@ -98,7 +100,9 @@ export class VaultManager {
 			logger.debug("Plugins enabled.");
 
 			// --- Step 3: Reload Vault once after all plugin changes ---
-			logger.debug(chalk.blue("Reloading vault to apply plugin changes..."));
+			logger.debug(
+				chalk.blue("Reloading vault to apply plugin changes..."),
+			);
 			await newPage.reload();
 			await this.pageManager.waitForVaultReady(newPage);
 			logger.debug(chalk.blue("Vault reloaded."));

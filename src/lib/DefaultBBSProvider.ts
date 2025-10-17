@@ -96,7 +96,10 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 			const text = this.decodeBuffer(buffer);
 			return this.parser.parseSubject(text);
 		} catch (error) {
-			console.error(`Failed to get subject.txt from ${subjectTxtUrl}:`, error);
+			console.error(
+				`Failed to get subject.txt from ${subjectTxtUrl}:`,
+				error,
+			);
 			throw error;
 		}
 	}
@@ -159,7 +162,10 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 				console.error("❌ Parser returned undefined");
 				throw new Error(`Failed to parse thread from ${datUrl}`);
 			}
-			console.log("✅ Thread parsed successfully, posts:", thread.posts.length);
+			console.log(
+				"✅ Thread parsed successfully, posts:",
+				thread.posts.length,
+			);
 			return thread;
 		} catch (error) {
 			console.error(`Failed to get thread from ${datUrl}:`, error);
@@ -235,8 +241,12 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 				}
 				formData["submit"] = "上記全てを承諾して書き込む"; // Agree and post
 
-				const bodyContentMatch = responseText.match(/<body.*?>(.*?)<\/body>/is);
-				const html = String(bodyContentMatch ? bodyContentMatch[1] : "");
+				const bodyContentMatch = responseText.match(
+					/<body.*?>(.*?)<\/body>/is,
+				);
+				const html = String(
+					bodyContentMatch ? bodyContentMatch[1] : "",
+				);
 
 				return {
 					kind: "confirmation",
@@ -274,7 +284,9 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 					const bodyContentMatch = responseText.match(
 						/<body.*?>(.*?)<\/body>/is,
 					);
-					const html = String(bodyContentMatch ? bodyContentMatch[1] : "");
+					const html = String(
+						bodyContentMatch ? bodyContentMatch[1] : "",
+					);
 					return {
 						kind: "confirmation",
 						html,

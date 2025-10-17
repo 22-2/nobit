@@ -4,7 +4,8 @@ describe("parseBbsUrl", () => {
 	// Test cases for thread URLs
 	describe("Thread URLs", () => {
 		it("should parse a standard https thread URL", () => {
-			const url = "https://bbs.eddibb.cc/test/read.cgi/livejupiter/1678886400/";
+			const url =
+				"https://bbs.eddibb.cc/test/read.cgi/livejupiter/1678886400/";
 			expect(parseBbsUrl(url)).toEqual({
 				host: "bbs.eddibb.cc",
 				board: "livejupiter",
@@ -13,7 +14,8 @@ describe("parseBbsUrl", () => {
 		});
 
 		it("should parse a standard http thread URL", () => {
-			const url = "http://bbs.eddibb.cc/test/read.cgi/livejupiter/1234567890/";
+			const url =
+				"http://bbs.eddibb.cc/test/read.cgi/livejupiter/1234567890/";
 			expect(parseBbsUrl(url)).toEqual({
 				host: "bbs.eddibb.cc",
 				board: "livejupiter",
@@ -22,7 +24,8 @@ describe("parseBbsUrl", () => {
 		});
 
 		it("should parse a thread URL with a post number", () => {
-			const url = "http://bbs.eddibb.cc/test/read.cgi/liveedge/1757726099/14";
+			const url =
+				"http://bbs.eddibb.cc/test/read.cgi/liveedge/1757726099/14";
 			expect(parseBbsUrl(url)).toEqual({
 				host: "bbs.eddibb.cc",
 				board: "liveedge",

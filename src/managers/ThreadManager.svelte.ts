@@ -71,7 +71,9 @@ export class ThreadManager extends BaseManager {
 			const beforeCount = posts.length;
 			// Consider posts with 5+ replies as popular
 			posts = posts.filter((post) => (post.replies?.length ?? 0) >= 5);
-			logger.debug(`Popular filter: ${beforeCount} -> ${posts.length} posts`);
+			logger.debug(
+				`Popular filter: ${beforeCount} -> ${posts.length} posts`,
+			);
 		}
 
 		// Apply image filter
@@ -79,9 +81,12 @@ export class ThreadManager extends BaseManager {
 			const beforeCount = posts.length;
 			posts = posts.filter(
 				(post) =>
-					post.hasImage || (post.imageUrls && post.imageUrls.length > 0),
+					post.hasImage ||
+					(post.imageUrls && post.imageUrls.length > 0),
 			);
-			logger.debug(`Image filter: ${beforeCount} -> ${posts.length} posts`);
+			logger.debug(
+				`Image filter: ${beforeCount} -> ${posts.length} posts`,
+			);
 		}
 
 		// Apply video filter (currently not supported in Post type, skip for now)
@@ -90,16 +95,22 @@ export class ThreadManager extends BaseManager {
 			// Video detection would need to be added to the parser
 			// For now, we can check if content contains common video URLs
 			posts = posts.filter((post) =>
-				/youtube\.com|youtu\.be|nicovideo\.jp|nico\.ms/i.test(post.content),
+				/youtube\.com|youtu\.be|nicovideo\.jp|nico\.ms/i.test(
+					post.content,
+				),
 			);
-			logger.debug(`Video filter: ${beforeCount} -> ${posts.length} posts`);
+			logger.debug(
+				`Video filter: ${beforeCount} -> ${posts.length} posts`,
+			);
 		}
 
 		// Apply external link filter
 		if (this.filters.external) {
 			const beforeCount = posts.length;
 			posts = posts.filter((post) => post.hasExternalLink);
-			logger.debug(`External filter: ${beforeCount} -> ${posts.length} posts`);
+			logger.debug(
+				`External filter: ${beforeCount} -> ${posts.length} posts`,
+			);
 		}
 
 		// Apply internal link filter (anchors/references)
@@ -108,7 +119,9 @@ export class ThreadManager extends BaseManager {
 			posts = posts.filter(
 				(post) => post.references && post.references.length > 0,
 			);
-			logger.debug(`Internal filter: ${beforeCount} -> ${posts.length} posts`);
+			logger.debug(
+				`Internal filter: ${beforeCount} -> ${posts.length} posts`,
+			);
 		}
 
 		if (initialCount !== posts.length) {

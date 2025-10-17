@@ -7,7 +7,7 @@ export const normalizeDateStr = (str: string) => {
 export function invariant(
 	condition: any,
 	message: string,
-	onError?: () => void
+	onError?: () => void,
 ): asserts condition {
 	if (!condition) {
 		onError?.();
@@ -17,15 +17,15 @@ export function invariant(
 
 export const formatDate = (date: Date): string => {
 	const year = date.getFullYear();
-	const month = String(date.getMonth() + 1).padStart(2, '0');
-	const day = String(date.getDate()).padStart(2, '0');
-	const hours = String(date.getHours()).padStart(2, '0');
-	const minutes = String(date.getMinutes()).padStart(2, '0');
-	const seconds = String(date.getSeconds()).padStart(2, '0');
-	
-	const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+	const month = String(date.getMonth() + 1).padStart(2, "0");
+	const day = String(date.getDate()).padStart(2, "0");
+	const hours = String(date.getHours()).padStart(2, "0");
+	const minutes = String(date.getMinutes()).padStart(2, "0");
+	const seconds = String(date.getSeconds()).padStart(2, "0");
+
+	const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
 	const weekday = weekdays[date.getDay()];
-	
+
 	return `${year}/${month}/${day}(${weekday}) ${hours}:${minutes}:${seconds}`;
 };
 

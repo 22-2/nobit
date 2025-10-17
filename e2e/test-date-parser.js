@@ -52,7 +52,9 @@ function parseDate(rawDateStr) {
 					const secondParts = timeComponents[2].split(".");
 					const second = parseInt(secondParts[0]);
 					const millisecond = secondParts[1]
-						? parseInt(secondParts[1].padEnd(3, "0").substring(0, 3))
+						? parseInt(
+								secondParts[1].padEnd(3, "0").substring(0, 3),
+							)
 						: 0;
 
 					const date = new Date(
@@ -64,7 +66,9 @@ function parseDate(rawDateStr) {
 						second,
 						millisecond,
 					);
-					console.log(`  Success with format ${format}: ${date.toISOString()}`);
+					console.log(
+						`  Success with format ${format}: ${date.toISOString()}`,
+					);
 					return date;
 				}
 			}
@@ -97,7 +101,9 @@ try {
 			console.log(`Line ${index + 1}:`);
 
 			const splitParts = trimmed.split("<>");
-			const dateAndIdIdx = splitParts.findIndex((str) => str.includes("ID:"));
+			const dateAndIdIdx = splitParts.findIndex((str) =>
+				str.includes("ID:"),
+			);
 
 			if (dateAndIdIdx >= 2) {
 				const headerPart = splitParts[dateAndIdIdx];

@@ -19,7 +19,9 @@ export class SelectionDialogHelper {
 	async addToHistory(url: string, title: string): Promise<void> {
 		await this.window.evaluate(
 			async (args) => {
-				const plugin = (window as any).app.plugins.plugins[args.pluginId];
+				const plugin = (window as any).app.plugins.plugins[
+					args.pluginId
+				];
 				await plugin.addToUrlHistory(args.url, args.title);
 			},
 			{ pluginId: PLUGIN_ID, url, title },

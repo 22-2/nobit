@@ -22,7 +22,7 @@ export interface Parser {
 // ========================================
 export abstract class BaseParser implements Parser {
 	protected decodeHtmlEntities(str: string): string {
-		const textarea = document.createElement('textarea');
+		const textarea = document.createElement("textarea");
 		textarea.innerHTML = str;
 		return textarea.value;
 	}
@@ -37,12 +37,16 @@ export abstract class BaseParser implements Parser {
 
 		// Try parsing with regex patterns
 		// Format: yyyy/MM/dd HH:mm:ss.SSS or yyyy/MM/dd HH:mm:ss.SS or yyyy/MM/dd HH:mm:ss
-		const regex = /^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?$/;
+		const regex =
+			/^(\d{4})\/(\d{2})\/(\d{2})\s+(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?$/;
 		const match = dateStr.match(regex);
 
 		if (match) {
-			const [, year, month, day, hour, minute, second, millisecond] = match;
-			const ms = millisecond ? parseInt(millisecond.padEnd(3, '0').slice(0, 3), 10) : 0;
+			const [, year, month, day, hour, minute, second, millisecond] =
+				match;
+			const ms = millisecond
+				? parseInt(millisecond.padEnd(3, "0").slice(0, 3), 10)
+				: 0;
 			const parsedDate = new Date(
 				parseInt(year!, 10),
 				parseInt(month!, 10) - 1, // Month is 0-indexed
@@ -50,11 +54,15 @@ export abstract class BaseParser implements Parser {
 				parseInt(hour!, 10),
 				parseInt(minute!, 10),
 				parseInt(second!, 10),
-				ms
+				ms,
 			);
 
 			if (!isNaN(parsedDate.getTime())) {
-				const formatName = millisecond ? (millisecond.length === 3 ? 'talkfm' : 'fivechfm') : 'oldfm';
+				const formatName = millisecond
+					? millisecond.length === 3
+						? "talkfm"
+						: "fivechfm"
+					: "oldfm";
 				this.onDateParseSuccess?.(resNum, dateStr, formatName);
 				return parsedDate;
 			}
@@ -84,7 +92,9 @@ export abstract class BaseParser implements Parser {
 
 		try {
 			const splitParts = trimmedPostStr.split("<>");
-			const dateAndIdIdx = splitParts.findIndex((str) => str.includes("ID:"));
+			const dateAndIdIdx = splitParts.findIndex((str) =>
+				str.includes("ID:"),
+			);
 
 			if (dateAndIdIdx < 2 || dateAndIdIdx + 1 >= splitParts.length) {
 				this.onPostParseError?.(resNum, "Invalid structure", {
@@ -94,7 +104,10 @@ export abstract class BaseParser implements Parser {
 				return null;
 			}
 
-			const authorName = (splitParts[0]?.trim() || "").replace(/<.*?>/g, "");
+			const authorName = (splitParts[0]?.trim() || "").replace(
+				/<.*?>/g,
+				"",
+			);
 			const mail = splitParts[1]?.trim() || "";
 			const rawContent = splitParts[dateAndIdIdx + 1]?.trim() || "";
 			const content = rawContent
@@ -107,7 +120,9 @@ export abstract class BaseParser implements Parser {
 			const headerSplit = headerPart.split("ID:");
 			const rawDateStr = headerSplit[0]?.trim();
 			const authorId =
-				headerSplit.length > 1 ? headerSplit.slice(1).join("ID:").trim() : "";
+				headerSplit.length > 1
+					? headerSplit.slice(1).join("ID:").trim()
+					: "";
 
 			const date = this.parseDate(rawDateStr || "", resNum);
 
@@ -269,7 +284,9 @@ export abstract class BaseParser implements Parser {
 		// Some boards may have it in the 6th element (index 5)
 		const rawTitle =
 			firstLineParts.length > 4
-				? firstLineParts[4]?.trim() || firstLineParts[5]?.trim() || "無題"
+				? firstLineParts[4]?.trim() ||
+					firstLineParts[5]?.trim() ||
+					"無題"
 				: "無題";
 		console.log("🔍 Parser: Raw title", { rawTitle });
 		invariant(rawTitle, "failed to parse title");
@@ -413,7 +430,9 @@ export abstract class BaseParser implements Parser {
 			}
 		}
 
-		const filteredMenu = menu.filter((category) => category.boards.length > 0);
+		const filteredMenu = menu.filter(
+			(category) => category.boards.length > 0,
+		);
 		return filteredMenu;
 	}
 
@@ -482,7 +501,9 @@ export class DebugParser extends BaseParser {
 		console.log(`DEBUG: Total lines: ${count}`);
 		if (count > 100) {
 			this.verboseLogging = false;
-			console.log(`DEBUG: Large dataset detected, reducing log verbosity`);
+			console.log(
+				`DEBUG: Large dataset detected, reducing log verbosity`,
+			);
 		}
 	}
 
@@ -556,7 +577,9 @@ export class DebugParser extends BaseParser {
 		if (this.verboseLogging) {
 			console.log(`DEBUG: Post ${resNum} - ERROR: ${error}`);
 			if (context?.postStr) {
-				console.log(`DEBUG: Post ${resNum} - Content: ${context.postStr}...`);
+				console.log(
+					`DEBUG: Post ${resNum} - Content: ${context.postStr}...`,
+				);
 			}
 			if (context?.dateAndIdIdx !== undefined) {
 				console.log(

@@ -89,19 +89,18 @@ export type PostResult =
 	| ErrorPostResult
 	| ConfirmationPostResult;
 
-
 export type SortDirection = "asc" | "desc";
 /** ソーターの状態 */
 
 export type ColumnKey = keyof ThreadFilters;
 
 export type SorterState<T = any> = {
-    sortKey: ColumnKey | null;
-    sortDirection: SortDirection;
+	sortKey: ColumnKey | null;
+	sortDirection: SortDirection;
 };
 export type SorterStore<T = any> = SorterState<T> & {
-    sortedItems: () => T[];
-    setSort: (newKey: string) => void;
+	sortedItems: () => T[];
+	setSort: (newKey: string) => void;
 };
 
 /**
@@ -109,10 +108,10 @@ export type SorterStore<T = any> = SorterState<T> & {
  * @template T - ソート対象のアイテムの型
  */
 export type SortColumn<T> = {
-    /** 昇順でソートするための比較関数 */
-    compare: (a: T, b: T) => number;
-    /** このキーが選択されたときのデフォルトのソート方向 */
-    defaultDirection?: SortDirection;
+	/** 昇順でソートするための比較関数 */
+	compare: (a: T, b: T) => number;
+	/** このキーが選択されたときのデフォルトのソート方向 */
+	defaultDirection?: SortDirection;
 };
 /**
  * useSorterに渡すカラム設定の型
@@ -120,5 +119,5 @@ export type SortColumn<T> = {
  */
 
 export type SorterColumns<T> = {
-    [key: string]: SortColumn<T>;
+	[key: string]: SortColumn<T>;
 };

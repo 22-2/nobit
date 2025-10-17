@@ -82,7 +82,7 @@ class FileManager {
 	static writeJsonFile(
 		filePath: string,
 		jsonData: object,
-		space?: string | number
+		space?: string | number,
 	): void {
 		try {
 			const formattedJson = JSON.stringify(jsonData, null, space) + "\n";
@@ -102,7 +102,7 @@ class VersionManager {
 	 */
 	static getCurrentVersion(): string {
 		const pkg = FileManager.readJsonFile<JsonFile>(
-			CONFIG.files.package.path
+			CONFIG.files.package.path,
 		);
 		return pkg.version;
 	}
@@ -114,7 +114,7 @@ class VersionManager {
 	private static updateVersionInFile(
 		filePath: string,
 		newVersion: string,
-		space?: string | number
+		space?: string | number,
 	): boolean {
 		try {
 			const jsonData = FileManager.readJsonFile<JsonFile>(filePath);
@@ -147,10 +147,10 @@ class VersionManager {
 			FileManager.writeJsonFile(
 				versionsFile,
 				versions,
-				CONFIG.files.versions.space
+				CONFIG.files.versions.space,
 			);
 			console.log(
-				`✅ ${versionsFile} updated with version ${newVersion}.`
+				`✅ ${versionsFile} updated with version ${newVersion}.`,
 			);
 			return true;
 		} catch (error) {
@@ -167,13 +167,13 @@ class VersionManager {
 		const packageUpdated = this.updateVersionInFile(
 			CONFIG.files.package.path,
 			newVersion,
-			CONFIG.files.package.space
+			CONFIG.files.package.space,
 		);
 
 		const manifestUpdated = this.updateVersionInFile(
 			CONFIG.files.manifest.path,
 			newVersion,
-			CONFIG.files.manifest.space
+			CONFIG.files.manifest.space,
 		);
 
 		// versions.jsonの更新は、manifest.jsonが更新された後に行う
@@ -192,7 +192,7 @@ class GitManager {
 	 */
 	private static executeCommand(
 		command: string,
-		successMessage: string
+		successMessage: string,
 	): boolean {
 		try {
 			execSync(command, { stdio: "inherit" }); // stdio: 'inherit' for better output
@@ -212,7 +212,7 @@ class GitManager {
 		const fileList = files.join(" ");
 		return this.executeCommand(
 			`git add ${fileList}`,
-			`Staged files: ${fileList}`
+			`Staged files: ${fileList}`,
 		);
 	}
 
@@ -223,7 +223,7 @@ class GitManager {
 	static commit(message: string): boolean {
 		return this.executeCommand(
 			`git commit -m "${message}"`,
-			`Committed: ${message}`
+			`Committed: ${message}`,
 		);
 	}
 
@@ -235,7 +235,7 @@ class GitManager {
 		const tagName = `${CONFIG.git.tagPrefix}${version}`;
 		return this.executeCommand(
 			`git tag ${tagName}`,
-			`Git tag ${tagName} created locally.`
+			`Git tag ${tagName} created locally.`,
 		);
 	}
 
@@ -247,7 +247,7 @@ class GitManager {
 		const tagName = `${CONFIG.git.tagPrefix}${version}`;
 		return this.executeCommand(
 			`git push origin ${tagName}`,
-			`Git tag ${tagName} pushed to origin.`
+			`Git tag ${tagName} pushed to origin.`,
 		);
 	}
 }
@@ -297,14 +297,14 @@ class UserInteraction {
 							break;
 						default:
 							console.log(
-								"❌ Invalid update type. Please choose major, minor, patch, ma, mi, or pa."
+								"❌ Invalid update type. Please choose major, minor, patch, ma, mi, or pa.",
 							);
 							resolve(null);
 							return;
 					}
 
 					resolve(normalizedUpdateType);
-				}
+				},
 			);
 		});
 	}
@@ -330,7 +330,7 @@ class VersionCommands {
 	 * @returns The new version or null if failed
 	 */
 	static async updateVersion(
-		updateType: ReleaseType
+		updateType: ReleaseType,
 	): Promise<string | null> {
 		const currentVersion = VersionManager.getCurrentVersion();
 		const newVersion = semver.inc(currentVersion, updateType);
@@ -346,7 +346,7 @@ class VersionCommands {
 		}
 
 		console.log(
-			`\n🎉 Version successfully updated from ${currentVersion} to ${newVersion}.`
+			`\n🎉 Version successfully updated from ${currentVersion} to ${newVersion}.`,
 		);
 		return newVersion;
 	}
@@ -471,7 +471,7 @@ class CommandHandler {
 
 		// Ask for commit
 		const shouldCommit = await this.userInteraction.askYesNo(
-			"\nDo you want to commit the version changes?"
+			"\nDo you want to commit the version changes?",
 		);
 		if (!shouldCommit) return;
 
@@ -480,7 +480,7 @@ class CommandHandler {
 
 		// Ask for tag
 		const shouldTag = await this.userInteraction.askYesNo(
-			`Do you want to create a tag ${CONFIG.git.tagPrefix}${newVersion}?`
+			`Do you want to create a tag ${CONFIG.git.tagPrefix}${newVersion}?`,
 		);
 		if (!shouldTag) return;
 
@@ -489,7 +489,7 @@ class CommandHandler {
 
 		// Ask for push
 		const shouldPush = await this.userInteraction.askYesNo(
-			"Do you want to push the tag to origin?"
+			"Do you want to push the tag to origin?",
 		);
 		if (!shouldPush) return;
 

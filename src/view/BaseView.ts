@@ -26,9 +26,11 @@ export interface BaseViewState extends ParsedBbsUrl {
  * - Provides template methods for subclass customization
  */
 export abstract class BaseView<
-	TManager,
-	TState extends BaseViewState = BaseViewState,
-> extends ItemView implements EditableItemView
+		TManager,
+		TState extends BaseViewState = BaseViewState,
+	>
+	extends ItemView
+	implements EditableItemView
 {
 	protected component: ReturnType<typeof mount> | null = null;
 	protected plugin: NobitPlugin;

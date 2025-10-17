@@ -12,23 +12,23 @@ E2Eテスト実行時に、プラグインファイルをコピーする代わ�
 `TestPlugin`インターフェースに`useSymlink: true`オプションを追加します：
 
 ```typescript
-import { test } from '../base';
-import { DIST_DIR, PLUGIN_ID } from '../constants';
+import { test } from "../base";
+import { DIST_DIR, PLUGIN_ID } from "../constants";
 
 test.use({
-  vaultOptions: {
-    plugins: [
-      {
-        path: DIST_DIR,
-        pluginId: PLUGIN_ID,
-        useSymlink: true,  // シンボリックリンクを使用
-      },
-    ],
-  },
+	vaultOptions: {
+		plugins: [
+			{
+				path: DIST_DIR,
+				pluginId: PLUGIN_ID,
+				useSymlink: true, // シンボリックリンクを使用
+			},
+		],
+	},
 });
 
-test('your test', async ({ vault }) => {
-  // テストコード
+test("your test", async ({ vault }) => {
+	// テストコード
 });
 ```
 
@@ -37,20 +37,20 @@ test('your test', async ({ vault }) => {
 `DEFAULT_TEST_CONFIG`を拡張して使用します：
 
 ```typescript
-import { BaseTestSetup, DEFAULT_TEST_CONFIG } from '../helpers/BaseTestSetup';
-import { DIST_DIR, PLUGIN_ID } from '../constants';
+import { BaseTestSetup, DEFAULT_TEST_CONFIG } from "../helpers/BaseTestSetup";
+import { DIST_DIR, PLUGIN_ID } from "../constants";
 
 test.use({
-  vaultOptions: {
-    ...DEFAULT_TEST_CONFIG.vaultOptions,
-    plugins: [
-      {
-        path: DIST_DIR,
-        pluginId: PLUGIN_ID,
-        useSymlink: true,
-      },
-    ],
-  },
+	vaultOptions: {
+		...DEFAULT_TEST_CONFIG.vaultOptions,
+		plugins: [
+			{
+				path: DIST_DIR,
+				pluginId: PLUGIN_ID,
+				useSymlink: true,
+			},
+		],
+	},
 });
 ```
 
@@ -67,10 +67,12 @@ test.use({
 Windowsでシンボリックリンクを作成するには、管理者権限または開発者モードの有効化が必要です。
 
 **開発者モードを有効にする方法:**
+
 1. 設定 → 更新とセキュリティ → 開発者向け
 2. 「開発者モード」をオンにする
 
 権限がない場合、以下のエラーが発生します：
+
 ```
 Permission denied. You may need administrator privileges to create symlinks on Windows.
 ```

@@ -53,9 +53,13 @@ test.describe("Thread View MVP Tests", () => {
 		);
 
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
-		await expect(vault.window.locator(".filter-buttons-group")).toBeVisible();
+		await expect(
+			vault.window.locator(".filter-buttons-group"),
+		).toBeVisible();
 		await expect(vault.window.locator(".thread-title")).toBeVisible();
-		await expect(vault.window.locator(".post-count")).toContainText("posts");
+		await expect(vault.window.locator(".post-count")).toContainText(
+			"posts",
+		);
 
 		const postCount = await setup.getThreadPage().getPostCount();
 		expect(postCount).toBeGreaterThan(0);
@@ -76,7 +80,9 @@ test.describe("Thread View MVP Tests", () => {
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
 		await expect(vault.window.locator(".posts-container")).toBeVisible();
 		await expect(vault.window.locator(".thread-title")).toBeVisible();
-		await expect(vault.window.locator(".post-count")).toContainText("posts");
+		await expect(vault.window.locator(".post-count")).toContainText(
+			"posts",
+		);
 		await expect(vault.window.locator(".toolbar-section")).toBeVisible();
 		await expect(vault.window.locator(".filters-section")).toBeVisible();
 	});
@@ -102,7 +108,9 @@ test.describe("Thread View MVP Tests", () => {
 			vault.window.locator(".toolbar-section .clickable-icon"),
 		).toBeVisible();
 		await expect(vault.window.locator(".thread-filters")).toBeVisible();
-		await expect(vault.window.locator(".filter-buttons-group")).toBeVisible();
+		await expect(
+			vault.window.locator(".filter-buttons-group"),
+		).toBeVisible();
 	});
 });
 

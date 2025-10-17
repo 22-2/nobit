@@ -19,7 +19,9 @@ export async function getPluginHandleMap(
 	return page.evaluateHandle((plugins) => {
 		const map = new Map<string, Plugin>();
 		plugins.forEach((p) => {
-			const plugin = (globalThis as any).app?.plugins.getPlugin(p.pluginId);
+			const plugin = (globalThis as any).app?.plugins.getPlugin(
+				p.pluginId,
+			);
 			if (plugin) {
 				map.set(p.pluginId, plugin);
 			}

@@ -43,7 +43,8 @@ export class MockDataFactory {
 				content += `<br>https://example.com/image${i}.jpg<br>画像URLを含む投稿です。`;
 			}
 
-			const threadTitle = i === 1 ? "パフォーマンステスト用大規模スレッド" : "";
+			const threadTitle =
+				i === 1 ? "パフォーマンステスト用大規模スレッド" : "";
 
 			posts.push(
 				`${authorName}<>${mail}<>${timestamp} ${authorId}<>${content}<>${threadTitle}`,

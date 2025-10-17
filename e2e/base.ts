@@ -46,16 +46,20 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 				// エラーメッセージをカラー付きで出力する
 				if (testInfo.error) {
 					console.error(
-						"\n" + "=".repeat(20) + " TEST FAILED " + "=".repeat(20),
+						"\n" +
+							"=".repeat(20) +
+							" TEST FAILED " +
+							"=".repeat(20),
 					);
 					// Playwrightが生成したカラー付きのエラーメッセージを直接コンソールに出力
 					console.error(testInfo.error.message);
 					if (testInfo.error.stack) {
 						// スタックトレースも出力（多くの場合 message に含まれるが、念のため）
 						// messageと重複する部分を避けるためにstackからmessageを削除する
-						const stackWithoutMessage = testInfo.error.stack.substring(
-							testInfo.error.stack.indexOf("\n") + 1,
-						);
+						const stackWithoutMessage =
+							testInfo.error.stack.substring(
+								testInfo.error.stack.indexOf("\n") + 1,
+							);
 						console.error(stackWithoutMessage);
 					}
 					console.error("=".repeat(53) + "\n");

@@ -145,7 +145,10 @@ export class ObsidianPageObject {
 
 	async splitHorizontally(): Promise<void> {
 		await this.page.evaluate(() =>
-			app.workspace.duplicateLeaf(app.workspace.activeLeaf!, "horizontal"),
+			app.workspace.duplicateLeaf(
+				app.workspace.activeLeaf!,
+				"horizontal",
+			),
 		);
 	}
 
@@ -168,11 +171,15 @@ export class ObsidianPageObject {
 	}
 
 	async goBackInHistory(): Promise<void> {
-		await this.page.evaluate(() => app.workspace.activeLeaf?.history.back());
+		await this.page.evaluate(() =>
+			app.workspace.activeLeaf?.history.back(),
+		);
 	}
 
 	async goForwardInHistory(): Promise<void> {
-		await this.page.evaluate(() => app.workspace.activeLeaf?.history.forward());
+		await this.page.evaluate(() =>
+			app.workspace.activeLeaf?.history.forward(),
+		);
 	}
 
 	async switchToLeafIndex(index: number): Promise<void> {
@@ -230,7 +237,9 @@ export class ObsidianPageObject {
 
 	async getTabInnerTitle(): Promise<string | null> {
 		return this.page.evaluate(
-			() => app.workspace.activeLeaf?.tabHeaderInnerTitleEl.textContent ?? null,
+			() =>
+				app.workspace.activeLeaf?.tabHeaderInnerTitleEl.textContent ??
+				null,
 		);
 	}
 
@@ -288,9 +297,13 @@ export class ObsidianPageObject {
 	}
 
 	async waitForFileCreated(path: string, timeout = 5000): Promise<void> {
-		await this.page.waitForFunction((p) => app.vault.adapter.exists(p), path, {
-			timeout,
-		});
+		await this.page.waitForFunction(
+			(p) => app.vault.adapter.exists(p),
+			path,
+			{
+				timeout,
+			},
+		);
 	}
 
 	async waitForViewType(viewType: string, timeout = 5000): Promise<void> {
@@ -355,7 +368,9 @@ export class ObsidianPageObject {
 				timeout: 5000,
 			});
 		} else {
-			await expect(this.page.locator(".error-container")).not.toBeVisible();
+			await expect(
+				this.page.locator(".error-container"),
+			).not.toBeVisible();
 		}
 	}
 
@@ -366,7 +381,9 @@ export class ObsidianPageObject {
 		if (shouldBeVisible) {
 			await expect(this.page.locator(".loading-container")).toBeVisible();
 		} else {
-			await expect(this.page.locator(".loading-container")).not.toBeVisible();
+			await expect(
+				this.page.locator(".loading-container"),
+			).not.toBeVisible();
 		}
 	}
 
@@ -384,7 +401,9 @@ export class ObsidianPageObject {
 	 */
 	async getTabHeaderText(): Promise<string | null> {
 		return await this.page
-			.locator(".workspace-tab-header.mod-active .workspace-tab-header-inner")
+			.locator(
+				".workspace-tab-header.mod-active .workspace-tab-header-inner",
+			)
 			.textContent();
 	}
 

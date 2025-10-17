@@ -1,92 +1,102 @@
 <script lang="ts">
-import BaseViewComponent from "../BaseViewComponent.svelte";
-import { getContext, onMount } from "svelte";
-import { BoardManager } from "../../managers/BoardManager.svelte";
-import ThreadListTable from "./ThreadListTable.svelte";
-import type { SorterState, SubjectItem } from "src/lib/types";
+	import BaseViewComponent from "../BaseViewComponent.svelte";
+	import { getContext, onMount } from "svelte";
+	import { BoardManager } from "../../managers/BoardManager.svelte";
+	import ThreadListTable from "./ThreadListTable.svelte";
+	import type { SorterState, SubjectItem } from "src/lib/types";
 
-// Props
-interface Props {
-	initialUrl?: string;
-	onTitleChange?: (title: string) => void;
-}
-let { initialUrl, onTitleChange }: Props = $props();
-
-// Get BoardManager from context (injected by BoardView ItemView)
-const boardManager = getContext<BoardManager>("boardManager");
-
-console.log(
-	"🔥 BoardViewComponent: Script loaded, boardManager:",
-	boardManager,
-);
-console.log("🔥 BoardViewComponent: initialUrl:", initialUrl);
-
-// Watch board title changes and notify parent
-$effect(() => {
-	const title = boardManager.boardTitle;
-	if (title && onTitleChange) {
-		onTitleChange(title);
+	// Props
+	interface Props {
+		initialUrl?: string;
+		onTitleChange?: (title: string) => void;
 	}
-});
+	let { initialUrl, onTitleChange }: Props = $props();
 
-// State for table functionality
-let visibleColumns = $state({
-	index: true,
-	title: true,
-	resCount: true,
-	ikioi: true,
-});
+	// Get BoardManager from context (injected by BoardView ItemView)
+	const boardManager = getContext<BoardManager>("boardManager");
 
-let sortState = $state<SorterState>({
-	sortKey: null,
-	sortDirection: "asc",
-});
+	console.log(
+		"🔥 BoardViewComponent: Script loaded, boardManager:",
+		boardManager,
+	);
+	console.log("🔥 BoardViewComponent: initialUrl:", initialUrl);
 
-onMount(() => {
-	// Load board
-	(async () => {
-		console.log("🔥 BoardViewComponent: Starting to load board:", initialUrl);
-		try {
-			if (!initialUrl) {
-				return;
-			}
-			await boardManager.loadBoard(initialUrl);
-			console.log("🔥 BoardViewComponent: Board loaded successfully");
-		} catch (error) {
-			console.error("🔥 BoardViewComponent: Failed to load board:", error);
+	// Watch board title changes and notify parent
+	$effect(() => {
+		const title = boardManager.boardTitle;
+		if (title && onTitleChange) {
+			onTitleChange(title);
 		}
-	})();
-});
+	});
 
-// Event handlers
-async function handleRefresh() {
-	await boardManager.refreshBoard();
-}
+	// State for table functionality
+	let visibleColumns = $state({
+		index: true,
+		title: true,
+		resCount: true,
+		ikioi: true,
+	});
 
-function handleSortChange(newState: SorterState) {
-	sortState = newState;
-	console.log("Sort changed:", newState);
-}
+	let sortState = $state<SorterState>({
+		sortKey: null,
+		sortDirection: "asc",
+	});
 
-type ThreadItem = SubjectItem & { index: number };
+	onMount(() => {
+		// Load board
+		(async () => {
+			console.log(
+				"🔥 BoardViewComponent: Starting to load board:",
+				initialUrl,
+			);
+			try {
+				if (!initialUrl) {
+					return;
+				}
+				await boardManager.loadBoard(initialUrl);
+				console.log("🔥 BoardViewComponent: Board loaded successfully");
+			} catch (error) {
+				console.error(
+					"🔥 BoardViewComponent: Failed to load board:",
+					error,
+				);
+			}
+		})();
+	});
 
-async function handleOpenThread(thread: ThreadItem, e: MouseEvent) {
-	console.log("Open thread:", thread);
-	await boardManager.openThread(thread);
-}
+	// Event handlers
+	async function handleRefresh() {
+		await boardManager.refreshBoard();
+	}
 
-function handleContextMenu(thread: ThreadItem, e: MouseEvent) {
-	console.log("Context menu:", thread);
-	// TODO: Implement context menu logic
-}
+	function handleSortChange(newState: SorterState) {
+		sortState = newState;
+		console.log("Sort changed:", newState);
+	}
 
-function handleHeaderContextMenu(e: MouseEvent) {
-	console.log("Header context menu");
-	// TODO: Implement header context menu logic
-}
+	type ThreadItem = SubjectItem & { index: number };
+
+	async function handleOpenThread(thread: ThreadItem, e: MouseEvent) {
+		console.log("Open thread:", thread);
+		await boardManager.openThread(thread);
+	}
+
+	function handleContextMenu(thread: ThreadItem, e: MouseEvent) {
+		console.log("Context menu:", thread);
+		// TODO: Implement context menu logic
+	}
+
+	function handleHeaderContextMenu(e: MouseEvent) {
+		console.log("Header context menu");
+		// TODO: Implement header context menu logic
+	}
 </script>
 
-<BaseViewComponent error={boardManager.error} onRetry={handleRefresh} class="board-view">
+<BaseViewComponent
+	error={boardManager.error}
+	onRetry={handleRefresh}
+	class="board-view"
+>
 	<!-- Board Content with ThreadListTable -->
 	<div class="board-content">
 		<div class="board-header">

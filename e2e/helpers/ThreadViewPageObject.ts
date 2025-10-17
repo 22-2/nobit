@@ -22,7 +22,10 @@ export class ThreadViewPageObject extends ObsidianPageObject {
 	/**
 	 * ThreadViewを開いて基本的な検証を行う
 	 */
-	async openAndVerifyThreadView(pluginId: string, url: string): Promise<void> {
+	async openAndVerifyThreadView(
+		pluginId: string,
+		url: string,
+	): Promise<void> {
 		await this.openPluginWithURL(pluginId, url);
 		// Wait for the view to be created before checking count
 		await this.page.waitForFunction(
@@ -91,7 +94,9 @@ export class ThreadViewPageObject extends ObsidianPageObject {
 	 * リフレッシュボタンをクリック
 	 */
 	async clickRefreshButton(): Promise<void> {
-		const refreshButton = this.page.locator(".toolbar-section .clickable-icon");
+		const refreshButton = this.page.locator(
+			".toolbar-section .clickable-icon",
+		);
 		await expect(refreshButton).toBeVisible();
 		await refreshButton.click({ force: true });
 	}
@@ -144,7 +149,8 @@ export class ThreadViewPageObject extends ObsidianPageObject {
 		const state = await this.getThreadManagerState();
 		const managerState = state?.threadTitle || null;
 
-		const allMatch = titleBar === threadHeader && threadHeader === managerState;
+		const allMatch =
+			titleBar === threadHeader && threadHeader === managerState;
 
 		return {
 			titleBar,

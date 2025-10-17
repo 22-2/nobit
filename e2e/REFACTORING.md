@@ -9,6 +9,7 @@
 ### 1. Single Responsibility Principle (単一責任の原則)
 
 **問題点**: 各テストファイルが複数の責務を持っていた
+
 - テストロジック
 - モックデータ生成
 - ネットワークモック設定
@@ -19,19 +20,19 @@
 
 ```typescript
 // パフォーマンス測定専用
-PerformanceTestHelper
+PerformanceTestHelper;
 
 // ThreadView操作専用
-ThreadViewTestHelper
+ThreadViewTestHelper;
 
 // ネットワークモック専用
-NetworkMockHelper
+NetworkMockHelper;
 
 // モックデータ生成専用
-MockDataFactory
+MockDataFactory;
 
 // フィクスチャ管理専用
-FixtureHelper
+FixtureHelper;
 ```
 
 ### 2. Open/Closed Principle (開放閉鎖の原則)
@@ -89,11 +90,11 @@ const networkHelper = new NetworkMockHelper(page);
 ```typescript
 // Before: 具体的な実装に依存
 await vault.window.evaluate(() => {
-  const activeLeaf = app.workspace.activeLeaf;
-  if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
-    const threadView = activeLeaf.view as any;
-    return threadView.threadManager.thread;
-  }
+	const activeLeaf = app.workspace.activeLeaf;
+	if (activeLeaf && activeLeaf.view.getViewType() === "thread-view") {
+		const threadView = activeLeaf.view as any;
+		return threadView.threadManager.thread;
+	}
 });
 
 // After: 抽象化されたヘルパーに依存
@@ -103,12 +104,14 @@ const state = await threadHelper.getThreadManagerState();
 ## ヘルパークラスの構造
 
 ### PerformanceTestHelper
+
 - `measureExecutionTime()`: 処理時間測定
 - `getMemoryUsage()`: メモリ使用量取得
 - `measureScrollPerformance()`: スクロールパフォーマンス測定
 - `checkMemoryLeak()`: メモリリークチェック
 
 ### ThreadViewTestHelper
+
 - `openAndVerifyThreadView()`: ThreadViewを開いて検証
 - `waitForThreadContent()`: コンテンツ読み込み待機
 - `verifyBasicUIStructure()`: UI構造検証
@@ -122,6 +125,7 @@ const state = await threadHelper.getThreadManagerState();
 - `clearSearchFilter()`: 検索フィルタークリア
 
 ### NetworkMockHelper
+
 - `setupBasicRoute()`: 基本的なルートモック設定
 - `setupConditionalRoute()`: 条件付きルートモック設定
 - `resetRequestCount()`: リクエストカウントリセット
@@ -129,6 +133,7 @@ const state = await threadHelper.getThreadManagerState();
 - `clearRoutes()`: ルートクリア
 
 ### MockDataFactory
+
 - `createBasicThreadData()`: 基本スレッドデータ生成
 - `createLargeThreadData()`: 大規模スレッドデータ生成
 - `createEmptyThreadData()`: 空スレッドデータ生成
@@ -136,6 +141,7 @@ const state = await threadHelper.getThreadManagerState();
 - `createSuccessResponse()`: 成功レスポンス生成
 
 ### FixtureHelper
+
 - `getFixturePath()`: フィクスチャパス取得
 - `loadFixture()`: フィクスチャ読み込み
 - `setupFixtureRoute()`: フィクスチャルート設定
@@ -168,31 +174,35 @@ e2e/
 
 ```typescript
 test("Performance test", async ({ vault }) => {
-  // Setup
-  const vaultName = await vault.window.evaluate(() => app.vault.getName());
-  expect(vaultName).toBe(SANDBOX_VAULT_NAME);
+	// Setup
+	const vaultName = await vault.window.evaluate(() => app.vault.getName());
+	expect(vaultName).toBe(SANDBOX_VAULT_NAME);
 
-  // Mock setup
-  const mockData = generateLargeThreadData(500);
-  await vault.window.route('**/liveedge/1759320900/**', route => {
-    route.fulfill({
-      status: 200,
-      contentType: 'text/html; charset=Shift_JIS',
-      body: mockData
-    });
-  });
+	// Mock setup
+	const mockData = generateLargeThreadData(500);
+	await vault.window.route("**/liveedge/1759320900/**", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "text/html; charset=Shift_JIS",
+			body: mockData,
+		});
+	});
 
-  // Measure time
-  const startTime = Date.now();
-  await obsPage.openPluginWithURL(PLUGIN_ID, url);
-  await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-  await expect(vault.window.locator('.thread-content')).toBeVisible({ timeout: 15000 });
-  const loadTime = Date.now() - startTime;
+	// Measure time
+	const startTime = Date.now();
+	await obsPage.openPluginWithURL(PLUGIN_ID, url);
+	await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
+	await expect(vault.window.locator(".thread-content")).toBeVisible({
+		timeout: 15000,
+	});
+	const loadTime = Date.now() - startTime;
 
-  // Verify
-  const postCount = await vault.window.locator('.posts-container .post').count();
-  expect(postCount).toBeGreaterThan(0);
-  expect(loadTime).toBeLessThan(10000);
+	// Verify
+	const postCount = await vault.window
+		.locator(".posts-container .post")
+		.count();
+	expect(postCount).toBeGreaterThan(0);
+	expect(loadTime).toBeLessThan(10000);
 });
 ```
 
@@ -200,49 +210,53 @@ test("Performance test", async ({ vault }) => {
 
 ```typescript
 test("Performance test", async ({ vault }) => {
-  const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
-  const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
-  const networkHelper = new NetworkMockHelper(vault.window);
-  const perfHelper = new PerformanceTestHelper(vault.window);
+	const obsPage = new ObsidianPageObject(vault.window, vault.pluginHandleMap);
+	const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
+	const networkHelper = new NetworkMockHelper(vault.window);
+	const perfHelper = new PerformanceTestHelper(vault.window);
 
-  // Setup mock
-  const mockData = MockDataFactory.createLargeThreadData(500);
-  await networkHelper.setupBasicRoute(
-    "**/liveedge/1759320900/**",
-    MockDataFactory.createSuccessResponse(mockData)
-  );
+	// Setup mock
+	const mockData = MockDataFactory.createLargeThreadData(500);
+	await networkHelper.setupBasicRoute(
+		"**/liveedge/1759320900/**",
+		MockDataFactory.createSuccessResponse(mockData),
+	);
 
-  // Measure load time
-  const loadTime = await perfHelper.measureExecutionTime(async () => {
-    await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
-    await threadHelper.waitForThreadContent();
-  });
+	// Measure load time
+	const loadTime = await perfHelper.measureExecutionTime(async () => {
+		await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);
+		await threadHelper.waitForThreadContent();
+	});
 
-  // Verify
-  const postCount = await threadHelper.getPostCount();
-  expect(postCount).toBeGreaterThan(0);
-  expect(loadTime).toBeLessThan(10000);
+	// Verify
+	const postCount = await threadHelper.getPostCount();
+	expect(postCount).toBeGreaterThan(0);
+	expect(loadTime).toBeLessThan(10000);
 });
 ```
 
 ## メリット
 
 ### 1. 可読性の向上
+
 - テストの意図が明確
 - ボイラープレートコードの削減
 - ビジネスロジックに集中できる
 
 ### 2. 保守性の向上
+
 - 変更の影響範囲が限定的
 - 共通ロジックの一元管理
 - バグ修正が容易
 
 ### 3. 再利用性の向上
+
 - ヘルパークラスを他のテストでも使用可能
 - 新しいテストの作成が容易
 - コードの重複を削減
 
 ### 4. テスト性の向上
+
 - ヘルパークラス自体もテスト可能
 - モックの管理が容易
 - デバッグが簡単
@@ -252,12 +266,14 @@ test("Performance test", async ({ vault }) => {
 ### 既存テストの移行手順
 
 1. **ヘルパークラスのインスタンス化**
+
 ```typescript
 const threadHelper = new ThreadViewTestHelper(vault.window, obsPage);
 const perfHelper = new PerformanceTestHelper(vault.window);
 ```
 
 2. **モックデータの置き換え**
+
 ```typescript
 // Before
 const mockData = `1<>名無しさん@転載は禁止<>...`;
@@ -267,25 +283,27 @@ const mockData = MockDataFactory.createBasicThreadData();
 ```
 
 3. **ネットワークモックの置き換え**
+
 ```typescript
 // Before
-await vault.window.route('**/test/read.cgi/**', route => {
-  route.fulfill({ status: 200, body: mockData });
+await vault.window.route("**/test/read.cgi/**", (route) => {
+	route.fulfill({ status: 200, body: mockData });
 });
 
 // After
 await networkHelper.setupBasicRoute(
-  "**/test/read.cgi/**",
-  MockDataFactory.createSuccessResponse(mockData)
+	"**/test/read.cgi/**",
+	MockDataFactory.createSuccessResponse(mockData),
 );
 ```
 
 4. **UI操作の置き換え**
+
 ```typescript
 // Before
 await obsPage.openPluginWithURL(PLUGIN_ID, url);
 await obsPage.expectViewCount(VIEW_TYPE_THREAD, 1);
-await expect(vault.window.locator('.thread-content')).toBeVisible();
+await expect(vault.window.locator(".thread-content")).toBeVisible();
 
 // After
 await threadHelper.openAndVerifyThreadView(PLUGIN_ID, url);

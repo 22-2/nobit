@@ -1,216 +1,240 @@
 <script lang="ts">
-import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
-import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
-import { getContext, onMount } from "svelte";
-import { ThreadManager } from "../../managers/ThreadManager.svelte";
-import type { UsePopoverReturn } from "../../store/usePopover.svelte";
-import BaseViewComponent from "../BaseViewComponent.svelte";
-import PostItem from "./PostItem.svelte";
-import ThreadFiltersComponent from "./ThreadFilters.svelte";
-import ThreadToolbar from "./ThreadToolbar.svelte";
+	import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
+	import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
+	import { getContext, onMount } from "svelte";
+	import { ThreadManager } from "../../managers/ThreadManager.svelte";
+	import type { UsePopoverReturn } from "../../store/usePopover.svelte";
+	import BaseViewComponent from "../BaseViewComponent.svelte";
+	import PostItem from "./PostItem.svelte";
+	import ThreadFiltersComponent from "./ThreadFilters.svelte";
+	import ThreadToolbar from "./ThreadToolbar.svelte";
 
-// Props
-interface Props {
-	initialUrl?: string;
-	onTitleChange?: (title: string) => void;
-}
-let { initialUrl, onTitleChange }: Props = $props();
-
-// Get ThreadManager and popoverService from context (injected by ThreadView ItemView)
-const threadManager = getContext<ThreadManager>("threadManager");
-const popoverService = getContext<UsePopoverReturn>("popoverService");
-
-console.log(
-	"🔥 ThreadViewComponent: Script loaded, threadManager:",
-	threadManager,
-);
-console.log("🔥 ThreadViewComponent: popoverService:", popoverService);
-console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
-
-// Debug: Watch filters changes
-$effect(() => {
-	console.log("🔍 Filters changed:", JSON.stringify(threadManager.filters));
-	console.log("🔍 Filtered posts count:", threadManager.filteredPosts.length);
-});
-
-// Watch thread title changes and notify parent
-$effect(() => {
-	const title = threadManager.thread?.title;
-	if (title && onTitleChange) {
-		onTitleChange(title);
+	// Props
+	interface Props {
+		initialUrl?: string;
+		onTitleChange?: (title: string) => void;
 	}
-});
+	let { initialUrl, onTitleChange }: Props = $props();
 
-let postsContainer = $state<HTMLElement>();
-let popoverContainer = $state<HTMLElement>();
-let viewContentEl = $state<HTMLElement>();
+	// Get ThreadManager and popoverService from context (injected by ThreadView ItemView)
+	const threadManager = getContext<ThreadManager>("threadManager");
+	const popoverService = getContext<UsePopoverReturn>("popoverService");
 
-// Setup wheel refresh for down direction
-const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
-	getScrollElement: () => viewContentEl,
-	isEnabled: () => {
-		console.log("threadManager.isLoading", threadManager.isLoading);
-		return !threadManager.isLoading;
-	},
-	down: {
-		onRefresh: async () => {
-			await threadManager.refreshThread();
+	console.log(
+		"🔥 ThreadViewComponent: Script loaded, threadManager:",
+		threadManager,
+	);
+	console.log("🔥 ThreadViewComponent: popoverService:", popoverService);
+	console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
+
+	// Debug: Watch filters changes
+	$effect(() => {
+		console.log(
+			"🔍 Filters changed:",
+			JSON.stringify(threadManager.filters),
+		);
+		console.log(
+			"🔍 Filtered posts count:",
+			threadManager.filteredPosts.length,
+		);
+	});
+
+	// Watch thread title changes and notify parent
+	$effect(() => {
+		const title = threadManager.thread?.title;
+		if (title && onTitleChange) {
+			onTitleChange(title);
+		}
+	});
+
+	let postsContainer = $state<HTMLElement>();
+	let popoverContainer = $state<HTMLElement>();
+	let viewContentEl = $state<HTMLElement>();
+
+	// Setup wheel refresh for down direction
+	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
+		getScrollElement: () => viewContentEl,
+		isEnabled: () => {
+			console.log("threadManager.isLoading", threadManager.isLoading);
+			return !threadManager.isLoading;
 		},
-		threshold: 7,
-	},
-});
+		down: {
+			onRefresh: async () => {
+				await threadManager.refreshThread();
+			},
+			threshold: 7,
+		},
+	});
 
-// isRefreshing は wheelState の内部状態に連動させる
-const isRefreshing = $derived(wheelState.status === "refreshing");
+	// isRefreshing は wheelState の内部状態に連動させる
+	const isRefreshing = $derived(wheelState.status === "refreshing");
 
-// 外部からの isLoading と、ホイールリフレッシュ起因の isRefreshing の両方を考慮してローディング状態を決定する
-const shouldShowLoading = $derived(threadManager.isLoading || isRefreshing);
+	// 外部からの isLoading と、ホイールリフレッシュ起因の isRefreshing の両方を考慮してローディング状態を決定する
+	const shouldShowLoading = $derived(threadManager.isLoading || isRefreshing);
 
-// Update popoverService with thread data when thread changes
-$effect(() => {
-	if (threadManager.thread) {
-		popoverService.setThreadData(threadManager.thread);
-	}
-});
+	// Update popoverService with thread data when thread changes
+	$effect(() => {
+		if (threadManager.thread) {
+			popoverService.setThreadData(threadManager.thread);
+		}
+	});
 
-onMount(() => {
-	// Get view-content element
-	viewContentEl = postsContainer?.closest(".view-content") as
-		| HTMLElement
-		| undefined;
+	onMount(() => {
+		// Get view-content element
+		viewContentEl = postsContainer?.closest(".view-content") as
+			| HTMLElement
+			| undefined;
 
-	// Initialize popover container
-	if (popoverContainer) {
-		popoverService.init(popoverContainer);
-	}
+		// Initialize popover container
+		if (popoverContainer) {
+			popoverService.init(popoverContainer);
+		}
 
-	// Load thread
-	(async () => {
-		console.log("🔥 ThreadViewComponent: Starting to load thread:", initialUrl);
-		try {
-			if (!initialUrl) {
-				return;
+		// Load thread
+		(async () => {
+			console.log(
+				"🔥 ThreadViewComponent: Starting to load thread:",
+				initialUrl,
+			);
+			try {
+				if (!initialUrl) {
+					return;
+				}
+				await threadManager.loadThread(initialUrl);
+				console.log(
+					"🔥 ThreadViewComponent: Thread loaded successfully",
+				);
+			} catch (error) {
+				console.error(
+					"🔥 ThreadViewComponent: Failed to load thread:",
+					error,
+				);
 			}
-			await threadManager.loadThread(initialUrl);
-			console.log("🔥 ThreadViewComponent: Thread loaded successfully");
-		} catch (error) {
-			console.error("🔥 ThreadViewComponent: Failed to load thread:", error);
-		}
-	})();
+		})();
 
-	let scrollVelocity = 0;
-	let animationFrameId: number | null = null;
+		let scrollVelocity = 0;
+		let animationFrameId: number | null = null;
 
-	// Custom smooth scroll animation
-	const smoothScroll = () => {
-		const viewContent = postsContainer?.closest(
-			".view-content",
-		) as HTMLElement | null;
-		if (!viewContent) return;
+		// Custom smooth scroll animation
+		const smoothScroll = () => {
+			const viewContent = postsContainer?.closest(
+				".view-content",
+			) as HTMLElement | null;
+			if (!viewContent) return;
 
-		if (Math.abs(scrollVelocity) > 0.1) {
-			viewContent.scrollTop += scrollVelocity;
-			scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
-			animationFrameId = requestAnimationFrame(smoothScroll);
-		} else {
-			scrollVelocity = 0;
-			animationFrameId = null;
-		}
-	};
+			if (Math.abs(scrollVelocity) > 0.1) {
+				viewContent.scrollTop += scrollVelocity;
+				scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
+				animationFrameId = requestAnimationFrame(smoothScroll);
+			} else {
+				scrollVelocity = 0;
+				animationFrameId = null;
+			}
+		};
 
-	// Increase scroll amount for mouse wheel
-	const handleWheel = (e: Event) => {
-		if (!(e instanceof WheelEvent)) return;
+		// Increase scroll amount for mouse wheel
+		const handleWheel = (e: Event) => {
+			if (!(e instanceof WheelEvent)) return;
 
-		// Find the view-content element dynamically
-		const viewContent = postsContainer?.closest(
-			".view-content",
-		) as HTMLElement | null;
-		if (!viewContent) return;
+			// Find the view-content element dynamically
+			const viewContent = postsContainer?.closest(
+				".view-content",
+			) as HTMLElement | null;
+			if (!viewContent) return;
 
-		// Check if the wheel event is happening over our component
-		const target = e.target as HTMLElement;
-		if (!postsContainer?.contains(target) && postsContainer !== target) return;
+			// Check if the wheel event is happening over our component
+			const target = e.target as HTMLElement;
+			if (!postsContainer?.contains(target) && postsContainer !== target)
+				return;
 
-		e.preventDefault();
-		e.stopPropagation();
+			e.preventDefault();
+			e.stopPropagation();
 
-		const delta = e.deltaY;
-		const multiplier = 4;
+			const delta = e.deltaY;
+			const multiplier = 4;
 
-		// Add to velocity instead of direct scroll
-		scrollVelocity += delta * multiplier * 0.1;
+			// Add to velocity instead of direct scroll
+			scrollVelocity += delta * multiplier * 0.1;
 
-		// Start animation if not already running
-		if (!animationFrameId) {
-			animationFrameId = requestAnimationFrame(smoothScroll);
-		}
-	};
+			// Start animation if not already running
+			if (!animationFrameId) {
+				animationFrameId = requestAnimationFrame(smoothScroll);
+			}
+		};
 
-	const timer = setTimeout(() => {
-		console.log("🎯 Adding wheel listener to window");
-		window.addEventListener("wheel", handleWheel, { passive: false });
-	}, 100);
+		const timer = setTimeout(() => {
+			console.log("🎯 Adding wheel listener to window");
+			window.addEventListener("wheel", handleWheel, { passive: false });
+		}, 100);
 
-	return () => {
-		clearTimeout(timer);
-		window.removeEventListener("wheel", handleWheel);
-		if (animationFrameId) {
-			cancelAnimationFrame(animationFrameId);
-		}
-	};
-});
+		return () => {
+			clearTimeout(timer);
+			window.removeEventListener("wheel", handleWheel);
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId);
+			}
+		};
+	});
 
-// Event handlers that delegate to ThreadManager
-function handleRefresh() {
-	threadManager.refreshThread();
-}
+	// Event handlers that delegate to ThreadManager
+	function handleRefresh() {
+		threadManager.refreshThread();
+	}
 
-function handleJumpToPost(resNumber: number) {
-	threadManager.jumpToPost(resNumber);
-}
+	function handleJumpToPost(resNumber: number) {
+		threadManager.jumpToPost(resNumber);
+	}
 
-function handleHoverPostLink(detail: {
-	targetEl: HTMLElement;
-	index: number;
-	event: MouseEvent;
-}) {
-	popoverService.handleHover(detail.targetEl, detail.index, 0, detail.event);
-}
+	function handleHoverPostLink(detail: {
+		targetEl: HTMLElement;
+		index: number;
+		event: MouseEvent;
+	}) {
+		popoverService.handleHover(
+			detail.targetEl,
+			detail.index,
+			0,
+			detail.event,
+		);
+	}
 
-function handleLeavePostLink() {
-	popoverService.startHideTimer();
-}
+	function handleLeavePostLink() {
+		popoverService.startHideTimer();
+	}
 
-function handleShowReplyTree(detail: {
-	targetEl: HTMLElement;
-	originResNumber: number;
-	event: MouseEvent;
-}) {
-	popoverService.handleShowReplyTree(
-		detail.targetEl,
-		detail.originResNumber,
-		0,
-		detail.event,
-	);
-}
+	function handleShowReplyTree(detail: {
+		targetEl: HTMLElement;
+		originResNumber: number;
+		event: MouseEvent;
+	}) {
+		popoverService.handleShowReplyTree(
+			detail.targetEl,
+			detail.originResNumber,
+			0,
+			detail.event,
+		);
+	}
 
-function handleShowIdPosts(detail: {
-	targetEl: HTMLElement;
-	post: import("src/lib/types").Post;
-	siblingPostNumbers: number[];
-	event: MouseEvent;
-}) {
-	popoverService.handleShowIdPosts(
-		detail.targetEl,
-		detail.post,
-		0,
-		detail.event,
-	);
-}
+	function handleShowIdPosts(detail: {
+		targetEl: HTMLElement;
+		post: import("src/lib/types").Post;
+		siblingPostNumbers: number[];
+		event: MouseEvent;
+	}) {
+		popoverService.handleShowIdPosts(
+			detail.targetEl,
+			detail.post,
+			0,
+			detail.event,
+		);
+	}
 </script>
 
-<BaseViewComponent error={threadManager.error} onRetry={handleRefresh} class="thread-view">
+<BaseViewComponent
+	error={threadManager.error}
+	onRetry={handleRefresh}
+	class="thread-view"
+>
 	<!-- Wheel Progress Indicator -->
 	<WheelProgressIndicator {wheelState} position="bottom" />
 
@@ -237,7 +261,8 @@ function handleShowIdPosts(detail: {
 				<h2 class="thread-title">{threadManager.thread.title}</h2>
 				<div class="thread-info">
 					<span class="post-count"
-						>{threadManager.filteredPosts.length} / {threadManager.thread.posts.length} posts</span
+						>{threadManager.filteredPosts.length} / {threadManager
+							.thread.posts.length} posts</span
 					>
 				</div>
 			</div>

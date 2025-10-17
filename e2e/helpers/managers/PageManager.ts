@@ -92,7 +92,9 @@ export class PageManager {
 			async () => {
 				if ((window as any).app?.workspace?.onLayoutReady) {
 					return await new Promise<void>((resolve) => {
-						return app.workspace.onLayoutReady(() => resolve(undefined));
+						return app.workspace.onLayoutReady(() =>
+							resolve(undefined),
+						);
 					});
 				}
 			},

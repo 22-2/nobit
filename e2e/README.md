@@ -28,6 +28,7 @@ pnpm manual:sandbox
 ```
 
 The manual mode will:
+
 - ✅ Launch Obsidian with your plugin pre-installed
 - ✅ Enable the plugin automatically
 - ✅ Keep the window open for manual interaction

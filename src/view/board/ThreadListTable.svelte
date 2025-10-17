@@ -54,7 +54,9 @@
 	const shouldShowLoading = $derived(isLoading || isRefreshing);
 
 	// Derived state & sorting logic
-	const indexedThreads = $derived(threads.map((t, index) => ({ ...t, index: index + 1 })));
+	const indexedThreads = $derived(
+		threads.map((t, index) => ({ ...t, index: index + 1 })),
+	);
 
 	const sorter = useSorter(
 		() => indexedThreads,
@@ -76,7 +78,10 @@
 </script>
 
 <div class="table-wrapper">
-	<WheelProgressIndicator wheelState={wheelRefresh.wheelState} position="top" />
+	<WheelProgressIndicator
+		wheelState={wheelRefresh.wheelState}
+		position="top"
+	/>
 
 	{#if shouldShowLoading}
 		<!--

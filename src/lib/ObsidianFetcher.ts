@@ -12,7 +12,9 @@ export class ObsidianFetcher implements HttpFetcher {
 		this.queue = new RequestQueue(delay);
 	}
 
-	private async executeRequest(params: RequestUrlParam): Promise<ArrayBuffer> {
+	private async executeRequest(
+		params: RequestUrlParam,
+	): Promise<ArrayBuffer> {
 		logger.debug(`Fetching URL: ${params.url}`, params);
 
 		try {
