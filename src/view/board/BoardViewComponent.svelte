@@ -70,9 +70,9 @@ function handleSortChange(newState: SorterState) {
 
 type ThreadItem = SubjectItem & { index: number };
 
-function handleOpenThread(thread: ThreadItem, e: MouseEvent) {
+async function handleOpenThread(thread: ThreadItem, e: MouseEvent) {
 	console.log("Open thread:", thread);
-	// TODO: Implement thread opening logic
+	await boardManager.openThread(thread);
 }
 
 function handleContextMenu(thread: ThreadItem, e: MouseEvent) {

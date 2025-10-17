@@ -60,7 +60,7 @@ export default class NobitPlugin extends Plugin {
 		}
 
 		this.threadManager = new ThreadManager(this.app, this.provider);
-		this.boardManager = new BoardManager(this.app, this.provider);
+		this.boardManager = new BoardManager(this.app, this.provider, this);
 	}
 
 	/**

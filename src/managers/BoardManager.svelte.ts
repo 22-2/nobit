@@ -1,8 +1,10 @@
 import log from "loglevel";
 import type { App } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
+import { parseBbsUrl } from "src/lib/libch/url";
 import type { SubjectItem } from "../lib/types";
 import { BaseManager, type BaseManagerOptions } from "./BaseManager";
+import type NobitPlugin from "../main";
 
 const logger = log.getLogger("BoardManager");
 
@@ -31,6 +33,7 @@ export class BoardManager extends BaseManager {
 	constructor(
 		app: App,
 		private provider: BBSProvider,
+		private plugin: NobitPlugin,
 		protected options: BaseManagerOptions = {},
 	) {
 		super(app, options);
@@ -86,6 +89,39 @@ export class BoardManager extends BaseManager {
 
 		logger.info(`Refreshing board: ${this.boardUrl}`);
 		await this.loadBoard(this.boardUrl);
+	}
+
+	/**
+	 * Open a thread from the board.
+	 * Constructs the thread URL from the board URL and thread ID, then opens it.
+	 *
+	 * @param thread - The SubjectItem representing the thread to open
+	 */
+	async openThread(thread: SubjectItem): Promise<void> {
+		if (!this.boardUrl) {
+			logger.error("Cannot open thread: board URL not available");
+			this.error = "板が読み込まれていません。";
+			return;
+		}
+
+		// Parse board URL to get host and board name
+		const parsed = parseBbsUrl(this.boardUrl);
+		if (!parsed) {
+			logger.error(`Cannot parse board URL: ${this.boardUrl}`);
+			this.error = "板URLの解析に失敗しました。";
+			return;
+		}
+
+		// Construct thread URL: https://{host}/test/read.cgi/{board}/{threadId}/
+		const threadUrl = `https://${parsed.host}/test/read.cgi/${parsed.board}/${thread.id}/`;
+		logger.info(`Opening thread: ${threadUrl}`);
+
+		try {
+			await this.plugin.openWithURL(threadUrl);
+		} catch (error) {
+			logger.error("Failed to open thread:", error);
+			this.error = this.formatUserFriendlyError(error, "スレッド");
+		}
 	}
 
 	/**
