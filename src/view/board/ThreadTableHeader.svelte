@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { ColumnKey } from "../../lib/types";
+    import "./thread-table-styles.css";
 
     type Props = {
         visibleColumns: Record<string, boolean>;
@@ -62,7 +63,6 @@
 </div>
 
 <style>
-    @import "./thread-table-styles.css";
 
     .thread-table-header {
         flex-shrink: 0;
