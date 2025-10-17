@@ -2,11 +2,11 @@
 import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
 import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 import { getContext, onMount } from "svelte";
-import { ThreadManager } from "../managers/ThreadManager.svelte";
-import type { UsePopoverReturn } from "../store/usePopover.svelte";
-import PostItem from "./thread/PostItem.svelte";
-import ThreadFiltersComponent from "./thread/ThreadFilters.svelte";
-import ThreadToolbar from "./thread/ThreadToolbar.svelte";
+import { ThreadManager } from "../../managers/ThreadManager.svelte";
+import type { UsePopoverReturn } from "../../store/usePopover.svelte";
+import PostItem from "./PostItem.svelte";
+import ThreadFiltersComponent from "./ThreadFilters.svelte";
+import ThreadToolbar from "./ThreadToolbar.svelte";
 
 // Props
 interface Props {

@@ -5,12 +5,14 @@ import { ObsidianFetcher } from "./lib/ObsidianFetcher";
 import type { HttpFetcher } from "./lib/libch/fetcher";
 import type { BBSProvider } from "./lib/libch/provider";
 import { ThreadManager } from "./managers";
+import { BoardManager } from "./managers/BoardManager.svelte";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
-import { DEFAULT_SETTINGS, VIEW_TYPE_THREAD } from "./utils/constants";
+import { DEFAULT_SETTINGS, VIEW_TYPE_BOARD, VIEW_TYPE_THREAD } from "./utils/constants";
 import { createInstructions } from "./utils/keys";
 import { toggleLoggerBy } from "./utils/logger";
 import { activateView, getViewStateByUrl, isURL } from "./utils/obsidian";
 import { showSelectionDialog } from "./utils/showSelectionDialog";
+import { BoardView } from "./view/BoardView";
 import { ThreadView } from "./view/ThreadView";
 
 const logger = log.getLogger("nobit.main");
@@ -18,6 +20,7 @@ const logger = log.getLogger("nobit.main");
 export default class NobitPlugin extends Plugin {
 	settings: NobitPluginSettings = DEFAULT_SETTINGS;
 	threadManager!: ThreadManager;
+	boardManager!: BoardManager;
 	provider!: BBSProvider;
 	fetcher!: HttpFetcher;
 
@@ -37,12 +40,17 @@ export default class NobitPlugin extends Plugin {
 		}
 
 		this.threadManager = new ThreadManager(this.app, this.provider);
+		this.boardManager = new BoardManager(this.app, this.provider);
 		this.addSettingTab(new NobitSettingTab(this));
 
 		this.registerView(
 			VIEW_TYPE_THREAD,
 			(leaf) => new ThreadView(leaf, this, this.threadManager),
 		);
+		this.registerView(
+			VIEW_TYPE_BOARD,
+			leaf => new BoardView(leaf, this, this.boardManager)
+		)
 
 		this.addCommand({
 			id: "open-with-url",

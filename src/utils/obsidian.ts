@@ -1,4 +1,4 @@
-import type { UViewState, Workspace, WorkspaceLeaf } from "obsidian";
+import type { ItemView, UViewState, Workspace, WorkspaceLeaf } from "obsidian";
 import { type ParsedBbsUrl, parseBbsUrl } from "src/lib/libch/url";
 import { VIEW_TYPE_THREAD } from "./constants";
 
@@ -73,3 +73,21 @@ export function isURL(url: string | null | undefined) {
 		return false;
 	}
 }
+
+
+export function recordPrevState<T extends ItemView>(view: T) {
+	const oldState = {
+		state: view.getState(),
+		eState: view.getEphemeralState(),
+		icon: view.getIcon(),
+		title: view.getDisplayText(),
+		type: view.getViewType(),
+	};
+	(view.leaf as any).recordHistory({
+		state: oldState,
+		eState: oldState.eState,
+		icon: oldState.icon,
+		title: oldState.title,
+	});
+}
+

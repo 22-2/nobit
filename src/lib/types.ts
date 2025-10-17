@@ -114,3 +114,37 @@ export type ConfirmationPostResult = z.infer<
 	typeof ConfirmationPostResultSchema
 >;
 export type PostResult = z.infer<typeof PostResultSchema>;
+
+
+export type SortDirection = "asc" | "desc";
+/** ソーターの状態 */
+
+export type ColumnKey = keyof ThreadFilters;
+
+export type SorterState<T = any> = {
+    sortKey: ColumnKey | null;
+    sortDirection: SortDirection;
+};
+export type SorterStore<T = any> = SorterState<T> & {
+    sortedItems: () => T[];
+    setSort: (newKey: string) => void;
+};
+
+/**
+ * ソート可能なカラムの設定
+ * @template T - ソート対象のアイテムの型
+ */
+export type SortColumn<T> = {
+    /** 昇順でソートするための比較関数 */
+    compare: (a: T, b: T) => number;
+    /** このキーが選択されたときのデフォルトのソート方向 */
+    defaultDirection?: SortDirection;
+};
+/**
+ * useSorterに渡すカラム設定の型
+ * @template T - ソート対象のアイテムの型
+ */
+
+export type SorterColumns<T> = {
+    [key: string]: SortColumn<T>;
+};
