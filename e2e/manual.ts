@@ -11,6 +11,7 @@
  */
 
 import log from "loglevel";
+import { DEFAULT_TEST_CONFIG } from "./helpers/BaseTestSetup";
 import { ObsidianTestSetup } from "./setup/ObsidianTestSetup";
 import "./setup/logger-setup";
 
@@ -24,6 +25,7 @@ async function main() {
 	logger.info("📝 The plugin is already installed and enabled");
 	logger.info("⚠️  Press Ctrl+C to exit\n");
 
+
 	const setup = new ObsidianTestSetup();
 
 	try {
@@ -33,20 +35,10 @@ async function main() {
 		// Open vault with the plugin
 		const context = useSandbox
 			? await setup.openSandbox({
-					plugins: [
-						{
-							pluginId: "obsidian-nobit",
-							path: process.cwd(),
-						},
-					],
+					plugins: DEFAULT_TEST_CONFIG.vaultOptions.plugins,
 			  })
 			: await setup.openVault({
-					plugins: [
-						{
-							pluginId: "obsidian-nobit",
-							path: process.cwd(),
-						},
-					],
+					plugins: DEFAULT_TEST_CONFIG.vaultOptions.plugins,
 			  });
 
 		logger.info(`✅ Vault opened: ${context.vaultName || "Unknown"}`);
