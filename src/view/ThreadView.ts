@@ -1,158 +1,69 @@
 import log from "loglevel";
-import { ItemView, type ViewStateResult, WorkspaceLeaf } from "obsidian";
-import {
-	type EditableItemView,
-	EditableTitleBar,
-} from "src/components/EditableTitleBar";
-import type { ParsedBbsUrl } from "src/lib/libch/url";
+import type { WorkspaceLeaf } from "obsidian";
 import { usePopover } from "src/store/usePopover.svelte";
-import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
 import { ThreadManager } from "../managers/ThreadManager.svelte";
 import { VIEW_TYPE_THREAD } from "../utils/constants";
+import { BaseView, type BaseViewState } from "./BaseView";
 import ThreadViewComponent from "./thread/ThreadViewComponent.svelte";
 
 const logger = log.getLogger("ThreadView");
 
-interface ThreadViewState extends ParsedBbsUrl {
-	url: string;
-	title: string;
-
-	// Compat for obsidian api
-	[x: string]: any;
-}
+interface ThreadViewState extends BaseViewState {}
 
 /**
- * ThreadView extends Obsidian's ItemView to provide a bridge between
- * Obsidian's class-based world and Svelte's reactive UI world.
+ * ThreadView extends BaseView to provide thread-specific functionality.
  *
  * This class:
- * - Initializes ThreadManager with Obsidian app instance
- * - Mounts/unmounts Svelte components properly
- * - Injects ThreadManager into Svelte component tree via context
- * - Ensures architectural separation (no 'obsidian' imports in Svelte)
+ * - Configures thread-specific view type, icon, and title
+ * - Delegates thread loading to ThreadManager
+ * - Injects ThreadManager and popoverService into Svelte component tree via context
+ * - Manages popoverService lifecycle
  */
-export class ThreadView extends ItemView implements EditableItemView {
-	private component: ReturnType<typeof mount> | null = null;
-	private plugin: NobitPlugin;
-	private state: ThreadViewState | null = null;
-	private editableUrlView: EditableTitleBar | null = null;
+export class ThreadView extends BaseView<ThreadManager, ThreadViewState> {
 	private popoverService = usePopover();
 
 	constructor(
 		leaf: WorkspaceLeaf,
 		plugin: NobitPlugin,
-		private threadManager: ThreadManager,
+		threadManager: ThreadManager,
 	) {
-		super(leaf);
-		this.plugin = plugin;
-		// Initialize ThreadManager with Obsidian app instance
-
-		// Setup EditableTitleView
-		this.editableUrlView = new EditableTitleBar(this, plugin);
-		this.editableUrlView.setup();
+		super(leaf, plugin, threadManager);
 	}
 
 	getViewType(): string {
 		return VIEW_TYPE_THREAD;
 	}
 
-	getDisplayText(): string {
-		// Return thread title if available, otherwise default text
-		return this.state?.title || "5ch Thread";
-	}
-
 	getIcon(): string {
 		return "messages-square";
 	}
 
-	async onOpen(): Promise<void> {
-		await super.onOpen();
-		// Initial render to trigger the request
-		this.render();
+	getDefaultTitle(): string {
+		return "5ch Thread";
 	}
 
-	async setState(
-		newState: ThreadViewState,
-		result: ViewStateResult = { history: false },
-	): Promise<void> {
-		const urlChanged = this.state?.url !== newState.url;
-		this.state = newState;
-		// Re-render only when URL changes
-		if (urlChanged) {
-			this.render();
-			this.editableUrlView?.setText(newState.url);
-		}
-		await super.setState(newState, result);
+	getManagerContextKey(): string {
+		return "threadManager";
 	}
 
-	private render(): void {
-		if (!this.state) return;
-
-		// Clear any existing content
-		this.contentEl.empty();
-
-		// Unmount existing component if any
-		if (this.component) {
-			unmount(this.component);
-			this.component = null;
-		}
-
-		// Create a context map for Svelte component
-		const contextMap = new Map();
-		contextMap.set("threadManager", this.threadManager);
-		contextMap.set("popoverService", this.popoverService);
-
-		// Mount Svelte component with ThreadManager and popoverService injected via context
-		this.component = mount(ThreadViewComponent, {
-			target: this.contentEl,
-			props: {
-				initialUrl: this.state.url, // Pass URL to component
-				onTitleChange: (title: string) => this.updateTitle(title),
-			},
-			context: contextMap,
-		});
+	getComponentClass(): any {
+		return ThreadViewComponent;
 	}
 
-	private updateTitle(title: string): void {
-		if (this.state) {
-			this.setState({ ...this.state, title });
-			(this.leaf as any).updateHeader();
-			// Update history with the actual title
-			if (this.state.url) {
-				this.plugin.addToUrlHistory(this.state.url, title);
-			}
-		}
-	}
-
-	getState(): Record<string, unknown> {
-		return this.state || {};
-	}
-
-	// EditableTitleView interface implementation
-	async navigateToThreadFromUrl(url: string): Promise<void> {
+	async loadContent(url: string): Promise<void> {
 		logger.debug("Navigating to thread from URL:", url);
-		const state = this.state || {};
-		await this.setState({ url, ...state } as ThreadViewState);
-		// Directly load the thread with the new URL
-		await this.threadManager.loadThread(url);
+		await this.manager.loadThread(url);
 	}
 
-	getURL(): string {
-		return this.state?.url || "";
+	protected getAdditionalContexts(): Map<string, any> {
+		const contexts = new Map();
+		contexts.set("popoverService", this.popoverService);
+		return contexts;
 	}
 
-	async onClose(): Promise<void> {
+	protected onCloseCleanup(): void {
 		// Cleanup popover service
 		this.popoverService.destroy();
-
-		// Properly unmount Svelte component and cleanup
-		if (this.component) {
-			unmount(this.component);
-			this.component = null;
-		}
-
-		// Clear content element
-		this.contentEl.empty();
 	}
 }
