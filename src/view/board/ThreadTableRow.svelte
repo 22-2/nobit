@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { calculateIkioi } from "src/lib/libch/utils";
 	import type { SubjectItem } from "../../lib/types";
-	import "./thread-table-styles.css";
 
     type ThreadItem = SubjectItem & { index: number };
 

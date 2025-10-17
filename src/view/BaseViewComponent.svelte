@@ -1,5 +1,4 @@
 <script lang="ts">
-import "src/nobit-variables.css";
 import type { Snippet } from "svelte";
 
 // Props
