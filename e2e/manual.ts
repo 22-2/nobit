@@ -11,7 +11,7 @@
  */
 
 import log from "loglevel";
-import { DEFAULT_TEST_CONFIG } from "./helpers/BaseTestSetup";
+import { DEFAULT_TEST_CONFIG, HOT_RELOAD_PLUGIN } from "./helpers/BaseTestSetup";
 import { ObsidianTestSetup } from "./setup/ObsidianTestSetup";
 import "./setup/logger-setup";
 
@@ -32,13 +32,18 @@ async function main() {
 		await setup.launch({ useDefaultFetcher: true, useUTF8Encoding: false });
 		logger.info("✅ Obsidian launched successfully");
 
+		const plugins = [
+			{...DEFAULT_TEST_CONFIG.vaultOptions.plugins[0], useSymlink: true},
+			HOT_RELOAD_PLUGIN,
+		]
+
 		// Open vault with the plugin
 		const context = useSandbox
 			? await setup.openSandbox({
-					plugins: DEFAULT_TEST_CONFIG.vaultOptions.plugins,
+					plugins,
 			  })
 			: await setup.openVault({
-					plugins: DEFAULT_TEST_CONFIG.vaultOptions.plugins,
+					plugins,
 			  });
 
 		logger.info(`✅ Vault opened: ${context.vaultName || "Unknown"}`);

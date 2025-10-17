@@ -9,6 +9,7 @@ import {
 	mkdirSync,
 	readdirSync,
 	statSync,
+	symlinkSync,
 	writeFileSync,
 } from "fs";
 import log from "loglevel";
@@ -39,7 +40,7 @@ export class PluginManager {
 
 		const installedIds: string[] = [];
 
-		for (const { path: pluginPath, pluginId } of pluginPaths) {
+		for (const { path: pluginPath, pluginId, useSymlink } of pluginPaths) {
 			if (!existsSync(pluginPath)) {
 				console.warn(`Plugin path not found: ${pluginPath}`);
 				continue;
@@ -52,31 +53,52 @@ export class PluginManager {
 
 			const destDir = path.join(pluginsDir, pluginId);
 
-			if (!existsSync(destDir)) {
-				mkdirSync(destDir, { recursive: true });
-			}
-
-			// プラグインファイルをコピー（必要なファイルのみ）
-			// Skip directories and unnecessary files like .git, node_modules, etc.
-			const filesToCopy = ["manifest.json", "main.js", "styles.css"];
-
-			for (const file of readdirSync(pluginPath)) {
-				// Skip directories like .git, node_modules, etc.
-				const srcFile = path.join(pluginPath, file);
-				const stat = statSync(srcFile);
-
-				if (stat.isDirectory()) {
-					logger.debug(`Skipping directory: ${file}`);
-					continue;
+			if (useSymlink) {
+				// シンボリックリンクを使用する場合
+				if (existsSync(destDir)) {
+					logger.debug(`Destination already exists: ${destDir}, skipping symlink`);
+				} else {
+					try {
+						symlinkSync(pluginPath, destDir, "dir");
+						logger.debug(`Created symlink: ${pluginPath} -> ${destDir}`);
+					} catch (error) {
+						console.error(`Failed to create symlink for ${pluginId}:`, error);
+						if ((error as NodeJS.ErrnoException).code === "EPERM") {
+							console.error(
+								"Permission denied. You may need administrator privileges to create symlinks on Windows.",
+							);
+						}
+						continue;
+					}
+				}
+			} else {
+				// 従来のコピー方式
+				if (!existsSync(destDir)) {
+					mkdirSync(destDir, { recursive: true });
 				}
 
-				// Only copy essential plugin files
-				if (filesToCopy.includes(file)) {
-					const destFile = path.join(destDir, file);
-					copyFileSync(srcFile, destFile);
-					logger.debug(`Copied: ${file} to ${destDir}`);
-				} else {
-					logger.debug(`Skipping file: ${file}`);
+				// プラグインファイルをコピー（必要なファイルのみ）
+				// Skip directories and unnecessary files like .git, node_modules, etc.
+				const filesToCopy = ["manifest.json", "main.js", "styles.css"];
+
+				for (const file of readdirSync(pluginPath)) {
+					// Skip directories like .git, node_modules, etc.
+					const srcFile = path.join(pluginPath, file);
+					const stat = statSync(srcFile);
+
+					if (stat.isDirectory()) {
+						logger.debug(`Skipping directory: ${file}`);
+						continue;
+					}
+
+					// Only copy essential plugin files
+					if (filesToCopy.includes(file)) {
+						const destFile = path.join(destDir, file);
+						copyFileSync(srcFile, destFile);
+						logger.debug(`Copied: ${file} to ${destDir}`);
+					} else {
+						logger.debug(`Skipping file: ${file}`);
+					}
 				}
 			}
 

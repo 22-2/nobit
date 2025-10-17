@@ -1,9 +1,10 @@
 import type { Page } from "@playwright/test";
-import { DIST_DIR, PLUGIN_ID } from "../constants";
+import path from "path";
+import { DIST_DIR, E2E_ROOT_DIR, PLUGIN_ID } from "../constants";
 import { MockDataFactory } from "./MockDataFactory";
 import { TestFetcherMockHelper } from "./TestFetcherMockHelper";
 import { ThreadViewPageObject } from "./ThreadViewPageObject";
-import type { VaultPageTextContext } from "./types";
+import type { TestPlugin, VaultPageTextContext } from "./types";
 
 /**
  * Base test setup class following Single Responsibility Principle
@@ -115,4 +116,10 @@ export const DEFAULT_TEST_CONFIG = {
 			},
 		],
 	},
+};
+
+export const HOT_RELOAD_PLUGIN: TestPlugin = {
+	path: path.join(E2E_ROOT_DIR, "assets", "hot-reload"),
+	pluginId: "hot-reload",
+	useSymlink: true,
 };

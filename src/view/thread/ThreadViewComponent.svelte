@@ -1,10 +1,10 @@
 <script lang="ts">
-import BaseViewComponent from "../BaseViewComponent.svelte";
 import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
 import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 import { getContext, onMount } from "svelte";
 import { ThreadManager } from "../../managers/ThreadManager.svelte";
 import type { UsePopoverReturn } from "../../store/usePopover.svelte";
+import BaseViewComponent from "../BaseViewComponent.svelte";
 import PostItem from "./PostItem.svelte";
 import ThreadFiltersComponent from "./ThreadFilters.svelte";
 import ThreadToolbar from "./ThreadToolbar.svelte";
@@ -48,7 +48,10 @@ let viewContentEl = $state<HTMLElement>();
 // Setup wheel refresh for down direction
 const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
 	getScrollElement: () => viewContentEl,
-	isEnabled: () => !threadManager.isLoading,
+	isEnabled: () => {
+		console.log("threadManager.isLoading", threadManager.isLoading);
+		return !threadManager.isLoading;
+	},
 	down: {
 		onRefresh: async () => {
 			await threadManager.refreshThread();
@@ -56,6 +59,12 @@ const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
 		threshold: 7,
 	},
 });
+
+// isRefreshing は wheelState の内部状態に連動させる
+const isRefreshing = $derived(wheelState.status === "refreshing");
+
+// 外部からの isLoading と、ホイールリフレッシュ起因の isRefreshing の両方を考慮してローディング状態を決定する
+const shouldShowLoading = $derived(threadManager.isLoading || isRefreshing);
 
 // Update popoverService with thread data when thread changes
 $effect(() => {
@@ -216,7 +225,7 @@ function handleShowIdPosts(detail: {
 	</div>
 
 	<!-- Loading State -->
-	{#if threadManager.isLoading}
+	{#if shouldShowLoading}
 		<div class="loading-container">
 			<div class="loading-spinner"></div>
 			<div class="loading-text">スレッドを読み込み中...</div>
@@ -261,7 +270,7 @@ function handleShowIdPosts(detail: {
 	<div class="toolbar-section">
 		<ThreadToolbar
 			onRefresh={handleRefresh}
-			isLoading={threadManager.isLoading}
+			isLoading={shouldShowLoading}
 		/>
 	</div>
 </BaseViewComponent>
