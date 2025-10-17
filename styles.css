@@ -170,12 +170,12 @@ If your plugin does not need CSS, delete this file.
 
 .col-res {
     width: 70px;
-    text-align: right;
+    text-align: center;
     flex-shrink: 0;
 }
 
 .col-ikioi {
     width: 80px;
-    text-align: right;
+    text-align: center;
     flex-shrink: 0;
 }
