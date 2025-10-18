@@ -90,6 +90,13 @@ export default class NobitPlugin extends Plugin {
 			name: "Open with-url",
 			callback: () => this.handleOpenWithUrlCommand(),
 		});
+		this.addCommand({
+			id: "open-eddibb.cc",
+			name: "Open eddibb.cc",
+			callback: () => {
+				this.openWithURL("https://bbs.eddibb.cc/liveedge");
+			},
+		})
 	}
 
 	/**
