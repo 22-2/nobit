@@ -47,13 +47,12 @@
 		}
 	});
 
-	let postsContainer = $state<HTMLElement>();
-	let popoverContainer = $state<HTMLElement>();
-	let viewContentEl = $state<HTMLElement>();
+	let postsContainerEl = $state<HTMLElement>();
+	let popoverContainerEl = $state<HTMLElement>();
 
 	// Setup wheel refresh for down direction
 	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
-		getScrollElement: () => viewContentEl,
+		getScrollElement: () => postsContainerEl,
 		isEnabled: () => {
 			console.log("threadManager.isLoading", threadManager.isLoading);
 			return !threadManager.isLoading;
@@ -62,6 +61,7 @@
 			onRefresh: async () => {
 				await threadManager.refreshThread();
 			},
+			gap: -40,
 			threshold: 7,
 		},
 	});
@@ -80,14 +80,9 @@
 	});
 
 	onMount(() => {
-		// Get view-content element
-		viewContentEl = postsContainer?.closest(".view-content") as
-			| HTMLElement
-			| undefined;
-
 		// Initialize popover container
-		if (popoverContainer) {
-			popoverService.init(popoverContainer);
+		if (popoverContainerEl) {
+			popoverService.init(popoverContainerEl);
 		}
 
 		// Load thread
@@ -117,13 +112,10 @@
 
 		// Custom smooth scroll animation
 		const smoothScroll = () => {
-			const viewContent = postsContainer?.closest(
-				".view-content",
-			) as HTMLElement | null;
-			if (!viewContent) return;
+			if (!postsContainerEl) return;
 
 			if (Math.abs(scrollVelocity) > 0.1) {
-				viewContent.scrollTop += scrollVelocity;
+				postsContainerEl.scrollTop += scrollVelocity;
 				scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
 				animationFrameId = requestAnimationFrame(smoothScroll);
 			} else {
@@ -136,15 +128,10 @@
 		const handleWheel = (e: Event) => {
 			if (!(e instanceof WheelEvent)) return;
 
-			// Find the view-content element dynamically
-			const viewContent = postsContainer?.closest(
-				".view-content",
-			) as HTMLElement | null;
-			if (!viewContent) return;
-
 			// Check if the wheel event is happening over our component
-			const target = e.target as HTMLElement;
-			if (!postsContainer?.contains(target) && postsContainer !== target)
+
+			const target = (e.target as HTMLElement).closest(".posts-container");
+			if (!postsContainerEl?.contains(target) && postsContainerEl !== target)
 				return;
 
 			e.preventDefault();
@@ -239,7 +226,7 @@
 	<WheelProgressIndicator {wheelState} position="bottom" />
 
 	<!-- Popover container -->
-	<div class="popover-container" bind:this={popoverContainer}></div>
+	<div class="popover-container" bind:this={popoverContainerEl}></div>
 	<!-- Thread Filters Component -->
 	<div class="filters-section">
 		<ThreadFiltersComponent
@@ -267,7 +254,7 @@
 				</div>
 			</div>
 
-			<div class="posts-container" bind:this={postsContainer}>
+			<div class="posts-container" bind:this={postsContainerEl}>
 				{#each threadManager.filteredPosts as post}
 					<PostItem
 						{post}
@@ -279,9 +266,9 @@
 						onShowIdPosts={handleShowIdPosts}
 					/>
 				{/each}
-				<!-- Refresh trigger line for down direction -->
-				<div use:bindRefreshTriggerLine></div>
 			</div>
+			<!-- Refresh trigger line for down direction -->
+			<div class="refresh-trigger-line" use:bindRefreshTriggerLine></div>
 		</div>
 	{:else}
 		<!-- Empty State -->
@@ -301,6 +288,12 @@
 </BaseViewComponent>
 
 <style>
+
+	.thread-view {
+		display: block!important;
+		height: 100%;
+	}
+
 	.filters-section {
 		flex-shrink: 0;
 	}
@@ -346,10 +339,8 @@
 	}
 
 	.thread-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+		height: 100%;
+		margin: 32px 0;
 	}
 
 	.thread-header {
@@ -376,38 +367,10 @@
 	}
 
 	.posts-container {
-		flex: 1;
-		overflow-y: auto;
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-		scroll-behavior: auto;
-		overscroll-behavior: contain;
-	}
-
-	/* Increase mouse wheel scroll speed using CSS */
-	@supports (scrollbar-width: thin) {
-		.posts-container {
-			scroll-snap-type: none;
-		}
-	}
-
-	/* Increase scroll step size for mouse wheel */
-	.posts-container::-webkit-scrollbar {
-		width: 12px;
-	}
-
-	.posts-container::-webkit-scrollbar-track {
-		background: var(--background-secondary);
-	}
-
-	.posts-container::-webkit-scrollbar-thumb {
-		background: var(--background-modifier-border);
-		border-radius: 6px;
-	}
-
-	.posts-container::-webkit-scrollbar-thumb:hover {
-		background: var(--text-muted);
+		overflow-y: scroll;
 	}
 
 	.empty-container {

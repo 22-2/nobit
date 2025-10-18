@@ -4,6 +4,7 @@ import { onDestroy } from "svelte";
 interface DirectionalRefreshConfig {
 	onRefresh: () => Promise<void>;
 	threshold?: number;
+	gap?: number;
 }
 
 interface WheelRefreshOptions {
@@ -140,18 +141,38 @@ export function useWheelRefresh({
 	function shouldTriggerRefresh(
 		direction: WheelDirection,
 		scrollInfo: ScrollInfo,
-		threshold: number,
+		config: DirectionalRefreshConfig,
 	): boolean {
 		if (direction === "up") {
-			return wheelState.count >= threshold;
+			return wheelState.count >= (config.threshold ?? DEFAULT_WHEEL_THRESHOLD);
 		}
 
 		if (direction === "down") {
-			const isPastTriggerLine =
+			// const isPastTriggerLine =
+			// 	!refreshTriggerLineEl ||
+			// 	scrollInfo.scrollTop + scrollInfo.clientHeight >=
+			// 		refreshTriggerLineEl.offsetTop;
+			const isPastGapLine =
 				!refreshTriggerLineEl ||
 				scrollInfo.scrollTop + scrollInfo.clientHeight >=
-					refreshTriggerLineEl.offsetTop;
-			return wheelState.count >= threshold && isPastTriggerLine;
+					refreshTriggerLineEl.offsetTop + (config.gap ?? 0);
+
+			// Debug logging
+			if (refreshTriggerLineEl) {
+				console.log("🔍 shouldTriggerRefresh (down):", {
+					count: wheelState.count,
+					threshold: config.threshold,
+					gap: config.gap,
+					scrollTop: scrollInfo.scrollTop,
+					clientHeight: scrollInfo.clientHeight,
+					scrollBottom: scrollInfo.scrollTop + scrollInfo.clientHeight,
+					triggerLineOffsetTop: refreshTriggerLineEl.offsetTop,
+					isPastGapLine,
+					willTrigger: wheelState.count >= (config.threshold ?? DEFAULT_WHEEL_THRESHOLD) && isPastGapLine,
+				});
+			}
+
+			return wheelState.count >= (config.threshold ?? DEFAULT_WHEEL_THRESHOLD) && isPastGapLine;
 		}
 
 		return false;
@@ -190,7 +211,7 @@ export function useWheelRefresh({
 		scheduleReset();
 		updateWheelStateForWheeling(direction, config);
 
-		if (shouldTriggerRefresh(direction, scrollInfo, wheelState.threshold)) {
+		if (shouldTriggerRefresh(direction, scrollInfo, config)) {
 			await triggerRefresh(config);
 		}
 	}

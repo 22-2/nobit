@@ -100,8 +100,14 @@ available in the app when your plugin is enabled.
 
 If your plugin does not need CSS, delete this file.
 
+
 */
 
+[data-type="thread-view"] {
+	.view-content {
+		overflow: hidden !important;
+	}
+}
 /* Post highlight animation when jumping to a post */
 .post-highlight {
 	animation: highlight-flash 0.25s ease-out;

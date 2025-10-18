@@ -44,11 +44,7 @@
 
 <style>
 	.base-view {
-		display: flex;
-		flex-direction: column;
 		height: 100%;
-		padding: 1rem;
-		gap: 1rem;
 	}
 
 	.error-container {
