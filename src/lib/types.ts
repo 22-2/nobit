@@ -34,6 +34,10 @@ export interface ThreadFilters {
 	searchText: string;
 }
 
+export interface BoardFilters {
+	searchText: string;
+}
+
 export interface Thread {
 	id: string;
 	title: string;

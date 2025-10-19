@@ -1,5 +1,5 @@
 import log from "loglevel";
-import type { WorkspaceLeaf } from "obsidian";
+import { Scope, type WorkspaceLeaf } from "obsidian";
 import type NobitPlugin from "../../main";
 import { BoardManager } from "../../managers/BoardManager.svelte";
 import { VIEW_TYPE_BOARD } from "../../utils/constants";
@@ -49,9 +49,19 @@ export class BoardView extends BaseView<BoardManager, BoardViewState> {
 
 	async onOpen(): Promise<void> {
 		await super.onOpen();
+		this.scope = new Scope(this.scope!);
 		this.addAction("refresh-cw", "スレッド一覧を更新", () =>
 			this.manager.refreshBoard(),
 		);
+		this.addAction("filter", "フィルターの表示／非表示", () => {
+			this.manager.toggleFilterVisibility();
+		});
+		this.scope?.register(["Ctrl"], "f", () => {
+			this.manager.toggleFilterVisibility();
+			setTimeout(() => {
+				this.containerEl.find("input.search-input").focus();
+			});
+		});
 	}
 
 	async loadContent(url: string): Promise<void> {

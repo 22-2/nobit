@@ -6,6 +6,7 @@ import {
 import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
+import type { BaseManager } from "../managers/BaseManager";
 
 export interface BaseViewState extends ParsedBbsUrl {
 	url: string;
@@ -26,7 +27,7 @@ export interface BaseViewState extends ParsedBbsUrl {
  * - Provides template methods for subclass customization
  */
 export abstract class BaseView<
-		TManager,
+		TManager extends BaseManager,
 		TState extends BaseViewState = BaseViewState,
 	>
 	extends ItemView
@@ -77,6 +78,11 @@ export abstract class BaseView<
 		await super.onOpen();
 		this.scope?.register(["Ctrl"], "l", () => {
 			this.editableUrlView?.titleEl.focus();
+		});
+		this.scope?.register([], "Escape", () => {
+			if (this.manager.filterVisible) {
+				this.manager.toggleFilterVisibility();
+			}
 		});
 		// Initial render to trigger the request
 		this.render();

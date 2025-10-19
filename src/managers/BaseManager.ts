@@ -1,6 +1,9 @@
 import type { App } from "obsidian";
+import log from "loglevel";
 import { HttpError } from "src/lib/libch/fetcher";
 import { getErrorMessage } from "./utils";
+
+const logger = log.getLogger("BaseManager");
 
 /**
  * Configuration options for BaseManager
@@ -17,10 +20,21 @@ export interface BaseManagerOptions {}
  * - Handles HTTP errors with appropriate messages
  */
 export abstract class BaseManager {
+	// Reactive state for filter visibility using Svelte 5's $state
+	filterVisible = $state<boolean>(false);
+
 	constructor(
 		protected app: App,
 		options: BaseManagerOptions = {},
 	) {}
+
+	/**
+	 * Toggle the visibility of the filter UI.
+	 */
+	toggleFilterVisibility(): void {
+		this.filterVisible = !this.filterVisible;
+		logger.debug(`Filter visibility toggled: ${this.filterVisible}`);
+	}
 
 	/**
 	 * Format error messages in a user-friendly way with Japanese text.

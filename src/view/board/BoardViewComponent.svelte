@@ -3,6 +3,7 @@
 	import { getContext, onMount } from "svelte";
 	import { BoardManager } from "../../managers/BoardManager.svelte";
 	import ThreadListTable from "./ThreadListTable.svelte";
+	import BoardFilters from "./BoardFilters.svelte";
 	import type { SorterState, SubjectItem } from "src/lib/types";
 
 	// Props
@@ -101,10 +102,24 @@
 	<div class="board-content">
 		<div class="board-header">
 			<h2 class="board-title">{boardManager.boardTitle || "板"}</h2>
+			<div class="board-info">
+				<span class="thread-count"
+					>{boardManager.filteredThreads.length} / {boardManager
+						.threads.length} threads</span
+				>
+			</div>
+		</div>
+
+		<!-- Board Filters Component -->
+		<div class="filters-section">
+			<BoardFilters
+				bind:filters={boardManager.filters}
+				isVisible={boardManager.filterVisible}
+			/>
 		</div>
 
 		<ThreadListTable
-			threads={boardManager.threads}
+			threads={boardManager.filteredThreads}
 			{visibleColumns}
 			initialSortState={sortState}
 			isLoading={boardManager.isLoading}
@@ -126,6 +141,10 @@
 		overflow: hidden;
 	}
 
+	.filters-section {
+		flex-shrink: 0;
+	}
+
 	.board-header {
 		border-bottom: 1px solid var(--background-modifier-border);
 		padding-bottom: 0.5rem;
@@ -133,9 +152,20 @@
 	}
 
 	.board-title {
-		margin: 0;
+		margin: 0 0 0.5rem 0;
 		font-size: 1.2rem;
 		font-weight: 600;
 		color: var(--text-normal);
+	}
+
+	.board-info {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.thread-count {
+		color: var(--text-muted);
+		font-size: 0.9rem;
 	}
 </style>

@@ -2,7 +2,7 @@ import log from "loglevel";
 import { Menu, setTooltip, type App } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
-import type { SubjectItem } from "../lib/types";
+import type { BoardFilters, SubjectItem } from "../lib/types";
 import type NobitPlugin from "../main";
 import { BaseManager, type BaseManagerOptions } from "./BaseManager";
 import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
@@ -27,12 +27,48 @@ export class BoardManager extends BaseManager {
 	isLoading = $state<boolean>(false);
 	error = $state<string | null>(null);
 	boardUrl = $state<string>("");
+	filters = $state<BoardFilters>({
+		searchText: "",
+	});
 
 	// Callback for when board loads successfully
 	onBoardLoaded?: () => void;
 
 	// Menu builder for thread context menus
 	private menuBuilder: ThreadMenuBuilder;
+
+	/**
+	 * Get filtered threads based on current filter state.
+	 * Returns all threads if no filters are active.
+	 * Uses $derived for proper Svelte 5 reactivity.
+	 */
+	filteredThreads = $derived.by(() => {
+		if (!this.threads || this.threads.length === 0) {
+			return [];
+		}
+
+		let threads = this.threads;
+		const initialCount = threads.length;
+
+		// Apply search text filter
+		if (this.filters.searchText.trim()) {
+			const searchLower = this.filters.searchText.toLowerCase();
+			threads = threads.filter((thread) =>
+				thread.title.toLowerCase().includes(searchLower),
+			);
+			logger.debug(
+				`Search filter '${this.filters.searchText}': ${initialCount} -> ${threads.length} threads`,
+			);
+		}
+
+		if (initialCount !== threads.length) {
+			logger.info(
+				`Filtered threads: ${initialCount} -> ${threads.length} (filters: ${JSON.stringify(this.filters)})`,
+			);
+		}
+
+		return threads;
+	});
 
 	constructor(
 		app: App,
@@ -106,6 +142,18 @@ export class BoardManager extends BaseManager {
 		logger.info(`Refreshing board: ${this.boardUrl}`);
 		await this.loadBoard(this.boardUrl);
 	}
+
+	/**
+	 * Update board filters state.
+	 * Creates a new object to ensure Svelte reactivity.
+	 *
+	 * @param newFilters - Partial filter updates to apply
+	 */
+	updateFilters(newFilters: Partial<BoardFilters>): void {
+		this.filters = { ...this.filters, ...newFilters };
+	}
+
+
 
 	/**
 	 * Open a thread from the board.
