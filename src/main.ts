@@ -6,6 +6,10 @@ import type { HttpFetcher } from "./lib/libch/fetcher";
 import type { BBSProvider } from "./lib/libch/provider";
 import { ThreadManager } from "./managers";
 import { BoardManager } from "./managers/BoardManager.svelte";
+import type {
+	BoardManagerContext,
+	ThreadManagerContext,
+} from "./managers/types";
 import { type NobitPluginSettings, NobitSettingTab } from "./settings";
 import {
 	DEFAULT_SETTINGS,
@@ -70,20 +74,25 @@ export default class NobitPlugin extends Plugin {
 		this.registerView(
 			VIEW_TYPE_THREAD,
 			(leaf) => {
-				const threadManager = new ThreadManager(
-					this.app,
-					this.provider,
-					{},
-					(message: string) => new Notice(message),
-					async (url: string) => await this.openWithURL(url),
-				);
+				const threadManagerContext: ThreadManagerContext = {
+					app: this.app,
+					provider: this.provider,
+					showNotice: (message: string) => new Notice(message),
+					openWithURL: async (url: string) => await this.openWithURL(url),
+				};
+				const threadManager = new ThreadManager(threadManagerContext);
 				return new ThreadView(leaf, this, threadManager);
 			},
 		);
 		this.registerView(
 			VIEW_TYPE_BOARD,
 			(leaf) => {
-				const boardManager = new BoardManager(this.app, this.provider, this);
+				const boardManagerContext: BoardManagerContext = {
+					app: this.app,
+					provider: this.provider,
+					plugin: this,
+				};
+				const boardManager = new BoardManager(boardManagerContext);
 				return new BoardView(leaf, this, boardManager);
 			},
 		);

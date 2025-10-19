@@ -1,14 +1,10 @@
-import type { App } from "obsidian";
 import log from "loglevel";
+import type { App } from "obsidian";
 import { HttpError } from "src/lib/libch/fetcher";
+import type { BaseManagerContext } from "./types";
 import { getErrorMessage } from "./utils";
 
 const logger = log.getLogger("BaseManager");
-
-/**
- * Configuration options for BaseManager
- */
-export interface BaseManagerOptions {}
 
 /**
  * BaseManager provides common functionality for 5ch data managers.
@@ -23,10 +19,11 @@ export abstract class BaseManager {
 	// Reactive state for filter visibility using Svelte 5's $state
 	filterVisible = $state<boolean>(false);
 
-	constructor(
-		protected app: App,
-		options: BaseManagerOptions = {},
-	) {}
+	protected app: App;
+
+	constructor(context: BaseManagerContext) {
+		this.app = context.app;
+	}
 
 	/**
 	 * Toggle the visibility of the filter UI.

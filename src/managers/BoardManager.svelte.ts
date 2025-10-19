@@ -1,11 +1,12 @@
 import log from "loglevel";
-import { Menu, setTooltip, type App } from "obsidian";
+import { Menu, setTooltip } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
 import type { BoardFilters, SubjectItem } from "../lib/types";
 import type NobitPlugin from "../main";
-import { BaseManager, type BaseManagerOptions } from "./BaseManager.svelte";
+import { BaseManager } from "./BaseManager.svelte";
 import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
+import type { BoardManagerContext } from "./types";
 
 const logger = log.getLogger("BoardManager");
 
@@ -36,6 +37,10 @@ export class BoardManager extends BaseManager {
 
 	// Menu builder for thread context menus
 	private menuBuilder: ThreadMenuBuilder;
+
+	// Private board-specific dependencies
+	private provider: BBSProvider;
+	private plugin: NobitPlugin;
 
 	/**
 	 * Get filtered threads based on current filter state.
@@ -70,13 +75,11 @@ export class BoardManager extends BaseManager {
 		return threads;
 	});
 
-	constructor(
-		app: App,
-		private provider: BBSProvider,
-		private plugin: NobitPlugin,
-		protected options: BaseManagerOptions = {},
-	) {
-		super(app, options);
+	constructor(context: BoardManagerContext) {
+		super(context);
+
+		this.provider = context.provider;
+		this.plugin = context.plugin;
 
 		// Initialize menu builder with callbacks
 		this.menuBuilder = new ThreadMenuBuilder(

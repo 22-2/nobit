@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BBSProvider } from "../../lib/libch/provider";
 import type { Thread, ThreadFilters } from "../../lib/types";
 import { ThreadManager } from "../ThreadManager.svelte";
+import type { ThreadManagerContext } from "../types";
 
 // Unmock loglevel for this test file to allow proper spying
 vi.unmock("loglevel");
@@ -80,8 +81,14 @@ describe("ThreadManager", () => {
 		mockApp = createMockApp();
 		mockProvider = createMockProvider();
 
-		// Create ThreadManager instance
-		threadManager = new ThreadManager(mockApp, mockProvider);
+		// Create ThreadManager instance with context
+		const context: ThreadManagerContext = {
+			app: mockApp,
+			provider: mockProvider,
+			showNotice: vi.fn(),
+			openWithURL: vi.fn(),
+		};
+		threadManager = new ThreadManager(context);
 	});
 
 	describe("constructor", () => {

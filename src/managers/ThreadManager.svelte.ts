@@ -1,12 +1,13 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
-import { Menu, setTooltip, type App } from "obsidian";
+import { Menu, setTooltip } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "../lib/libch/url";
 import type { Post, Thread, ThreadFilters } from "../lib/types";
-import { BaseManager, type BaseManagerOptions } from "./BaseManager.svelte";
+import { BaseManager } from "./BaseManager.svelte";
 import { PostMenuBuilder } from "./menu/PostMenuBuilder";
 import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
+import type { ThreadManagerContext } from "./types";
 
 const logger = log.getLogger("ThreadManager");
 
@@ -139,19 +140,21 @@ export class ThreadManager extends BaseManager {
 		return posts;
 	});
 
-	// Private thread-specific components
-	constructor(
-		app: App,
-		private provider: BBSProvider,
-		protected options: BaseManagerOptions = {},
-		private showNotice: (message: string) => void = () => {},
-		private openWithURL: (url: string) => Promise<void> = async () => {},
-	) {
-		super(app, options);
+	// Private thread-specific dependencies
+	private provider: BBSProvider;
+	private showNotice: (message: string) => void;
+	private openWithURL: (url: string) => Promise<void>;
+
+	constructor(context: ThreadManagerContext) {
+		super(context);
+
+		this.provider = context.provider;
+		this.showNotice = context.showNotice;
+		this.openWithURL = context.openWithURL;
 
 		// Initialize menu builders with callbacks
 		this.threadMenuBuilder = new ThreadMenuBuilder(
-			showNotice,
+			this.showNotice,
 			async (host: string, board: string) => {
 				const boardUrl = `https://${host}/${board}/`;
 				await this.openWithURL(boardUrl);
@@ -159,7 +162,7 @@ export class ThreadManager extends BaseManager {
 			this.openWithURL,
 		);
 
-		this.postMenuBuilder = new PostMenuBuilder(showNotice);
+		this.postMenuBuilder = new PostMenuBuilder(this.showNotice);
 	}
 
 	/**
