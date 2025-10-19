@@ -1,6 +1,5 @@
 import type { App } from "obsidian";
 import type { BBSProvider } from "src/lib/libch/provider";
-import type NobitPlugin from "../main";
 
 /**
  * Base context interface for all managers.
@@ -11,9 +10,8 @@ export interface BaseManagerContext {
 	 * Obsidian App instance for accessing workspace, vault, and other core APIs.
 	 */
 	app: App;
-
 	/**
-	 * BBS provider for fetching board data from 5ch-compatible boards.
+	 * BBS provider for fetching thread data from 5ch-compatible boards.
 	 */
 	provider: BBSProvider;
 }
@@ -21,6 +19,7 @@ export interface BaseManagerContext {
 /**
  * Context interface for ThreadManager.
  * Extends BaseManagerContext with thread-specific dependencies.
+ * Each dependency is minimal and easily mockable for testing.
  */
 export interface ThreadManagerContext extends BaseManagerContext {
 	/**
@@ -37,11 +36,16 @@ export interface ThreadManagerContext extends BaseManagerContext {
 /**
  * Context interface for BoardManager.
  * Extends BaseManagerContext with board-specific dependencies.
+ * Each dependency is minimal and easily mockable for testing.
  */
 export interface BoardManagerContext extends BaseManagerContext {
 	/**
-	 * Plugin instance for accessing plugin-level functionality
-	 * (e.g., showNotice, openWithURL, settings).
+	 * Callback to show a notice message to the user.
 	 */
-	plugin: NobitPlugin;
+	showNotice: (message: string) => void;
+
+	/**
+	 * Callback to open a new view with the given URL.
+	 */
+	openWithURL: (url: string) => Promise<void>;
 }

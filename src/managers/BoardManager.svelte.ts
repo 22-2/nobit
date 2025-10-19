@@ -1,9 +1,8 @@
 import log from "loglevel";
 import { Menu, setTooltip } from "obsidian";
-import { type BBSProvider } from "src/lib/libch/provider";
+import type { BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
 import type { BoardFilters, SubjectItem } from "../lib/types";
-import type NobitPlugin from "../main";
 import { BaseManager } from "./BaseManager.svelte";
 import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
 import type { BoardManagerContext } from "./types";
@@ -40,7 +39,8 @@ export class BoardManager extends BaseManager {
 
 	// Private board-specific dependencies
 	private provider: BBSProvider;
-	private plugin: NobitPlugin;
+	private showNotice: (message: string) => void;
+	private openWithURL: (url: string) => Promise<void>;
 
 	/**
 	 * Get filtered threads based on current filter state.
@@ -79,18 +79,17 @@ export class BoardManager extends BaseManager {
 		super(context);
 
 		this.provider = context.provider;
-		this.plugin = context.plugin;
+		this.showNotice = context.showNotice;
+		this.openWithURL = context.openWithURL;
 
 		// Initialize menu builder with callbacks
 		this.menuBuilder = new ThreadMenuBuilder(
-			(message: string) => this.plugin.showNotice(message),
+			this.showNotice,
 			async (host: string, board: string) => {
 				const boardUrl = `https://${host}/${board}/`;
-				await this.plugin.openWithURL(boardUrl);
+				await this.openWithURL(boardUrl);
 			},
-			async (url: string) => {
-				await this.plugin.openWithURL(url);
-			},
+			this.openWithURL,
 		);
 	}
 
@@ -182,7 +181,7 @@ export class BoardManager extends BaseManager {
 		logger.info(`Opening thread: ${threadUrl}`);
 
 		try {
-			await this.plugin.openWithURL(threadUrl);
+			await this.openWithURL(threadUrl);
 		} catch (error) {
 			logger.error("Failed to open thread:", error);
 			this.error = this.formatUserFriendlyError(error, "スレッド");

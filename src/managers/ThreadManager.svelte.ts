@@ -1,7 +1,7 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
 import { Menu, setTooltip } from "obsidian";
-import { type BBSProvider } from "src/lib/libch/provider";
+import type { BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "../lib/libch/url";
 import type { Post, Thread, ThreadFilters } from "../lib/types";
 import { BaseManager } from "./BaseManager.svelte";

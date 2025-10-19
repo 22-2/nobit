@@ -90,7 +90,8 @@ export default class NobitPlugin extends Plugin {
 				const boardManagerContext: BoardManagerContext = {
 					app: this.app,
 					provider: this.provider,
-					plugin: this,
+					showNotice: (message: string) => this.showNotice(message),
+					openWithURL: async (url: string) => await this.openWithURL(url),
 				};
 				const boardManager = new BoardManager(boardManagerContext);
 				return new BoardView(leaf, this, boardManager);
