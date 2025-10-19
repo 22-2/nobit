@@ -51,6 +51,13 @@ export class ThreadView extends BaseView<ThreadManager, ThreadViewState> {
 		return ThreadViewComponent;
 	}
 
+	async onOpen(): Promise<void> {
+		await super.onOpen();
+		this.addAction("filter", "フィルターの表示／非表示", () => {
+			this.manager.toggleFilterVisibility();
+		});
+	}
+
 	async loadContent(url: string): Promise<void> {
 		logger.debug("Navigating to thread from URL:", url);
 		await this.manager.loadThread(url);

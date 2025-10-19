@@ -234,7 +234,7 @@
 	<div class="filters-section">
 		<ThreadFiltersComponent
 			bind:filters={threadManager.filters}
-			isVisible={true}
+			isVisible={threadManager.filterVisible}
 		/>
 	</div>
 

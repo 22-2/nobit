@@ -36,6 +36,7 @@ export class ThreadManager extends BaseManager {
 		internal: false,
 		searchText: "",
 	});
+	filterVisible = $state<boolean>(false);
 
 	// Callback for when thread loads successfully
 	onThreadLoaded?: () => void;
@@ -199,6 +200,14 @@ export class ThreadManager extends BaseManager {
 	 */
 	updateFilters(newFilters: Partial<ThreadFilters>): void {
 		this.filters = { ...this.filters, ...newFilters };
+	}
+
+	/**
+	 * Toggle the visibility of the filter UI.
+	 */
+	toggleFilterVisibility(): void {
+		this.filterVisible = !this.filterVisible;
+		logger.debug(`Filter visibility toggled: ${this.filterVisible}`);
 	}
 
 	/**
