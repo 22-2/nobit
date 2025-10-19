@@ -107,9 +107,11 @@
 	.post-tree-node {
 		/* prettier-ignore */
 		margin-left: calc(var(--level) * var(--size-4-3));
-		border-left: 2px solid var(--background-modifier-border);
+		border-left: var(--size-2-1) solid var(--background-modifier-border);
 		padding-left: var(--size-4-2);
 		contain: content;
+		padding: var(--size-4-1) var(--size-4-3);
+		overflow-y: scroll;
 	}
 	.post-tree-replies {
 		margin-top: 2px;
