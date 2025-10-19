@@ -48,8 +48,10 @@ export class BoardView extends BaseView<BoardManager, BoardViewState> {
 	}
 
 	async onOpen(): Promise<void> {
-		this.addAction("refresh-cw", "スレッド一覧を更新",() => this.manager.refreshBoard());
-		super.onOpen();
+		await super.onOpen();
+		this.addAction("refresh-cw", "スレッド一覧を更新", () =>
+			this.manager.refreshBoard(),
+		);
 	}
 
 	async loadContent(url: string): Promise<void> {

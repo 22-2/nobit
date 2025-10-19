@@ -14,7 +14,7 @@ export interface EditableItemView extends ItemView {
 export class EditableTitleBar {
 	private view: EditableItemView;
 	private plugin: NobitPlugin;
-	private titleEl: HTMLElement;
+	public titleEl: HTMLElement;
 	private titleContainerEl: HTMLElement;
 
 	constructor(view: EditableItemView, plugin: NobitPlugin) {

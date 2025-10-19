@@ -1,4 +1,4 @@
-import { ItemView, type ViewStateResult, WorkspaceLeaf } from "obsidian";
+import { ItemView, Scope, type ViewStateResult, WorkspaceLeaf } from "obsidian";
 import {
 	type EditableItemView,
 	EditableTitleBar,
@@ -48,6 +48,7 @@ export abstract class BaseView<
 		// Setup EditableTitleBar
 		this.editableUrlView = new EditableTitleBar(this, plugin);
 		this.editableUrlView.setup();
+		this.scope = new Scope(this.app.scope);
 	}
 
 	// Abstract methods to be implemented by subclasses
@@ -74,6 +75,9 @@ export abstract class BaseView<
 
 	async onOpen(): Promise<void> {
 		await super.onOpen();
+		this.scope?.register(["Ctrl"], "l", () => {
+			this.editableUrlView?.titleEl.focus();
+		});
 		// Initial render to trigger the request
 		this.render();
 	}

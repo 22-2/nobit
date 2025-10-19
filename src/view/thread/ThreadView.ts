@@ -1,5 +1,5 @@
 import log from "loglevel";
-import type { WorkspaceLeaf } from "obsidian";
+import { Scope, type WorkspaceLeaf } from "obsidian";
 import { usePopover } from "src/store/usePopover.svelte";
 import type NobitPlugin from "../../main";
 import { ThreadManager } from "../../managers/ThreadManager.svelte";
@@ -53,8 +53,15 @@ export class ThreadView extends BaseView<ThreadManager, ThreadViewState> {
 
 	async onOpen(): Promise<void> {
 		await super.onOpen();
+		this.scope = new Scope(this.scope!);
 		this.addAction("filter", "フィルターの表示／非表示", () => {
 			this.manager.toggleFilterVisibility();
+		});
+		this.scope?.register(["Ctrl"], "f", () => {
+			this.manager.toggleFilterVisibility();
+			setTimeout(() => {
+				this.containerEl.find("input.search-input").focus();
+			});
 		});
 	}
 
