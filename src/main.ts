@@ -23,8 +23,6 @@ const logger = log.getLogger("nobit.main");
 
 export default class NobitPlugin extends Plugin {
 	settings: NobitPluginSettings = DEFAULT_SETTINGS;
-	threadManager!: ThreadManager;
-	boardManager!: BoardManager;
 	provider!: BBSProvider;
 	fetcher!: HttpFetcher;
 
@@ -63,14 +61,6 @@ export default class NobitPlugin extends Plugin {
 			this.fetcher = (this.provider as any).fetcher; // Access the fetcher for compatibility
 		}
 
-		this.threadManager = new ThreadManager(
-			this.app,
-			this.provider,
-			{},
-			(message: string) => new Notice(message),
-			async (url: string) => await this.openWithURL(url),
-		);
-		this.boardManager = new BoardManager(this.app, this.provider, this);
 	}
 
 	/**
@@ -79,11 +69,23 @@ export default class NobitPlugin extends Plugin {
 	private registerViews(): void {
 		this.registerView(
 			VIEW_TYPE_THREAD,
-			(leaf) => new ThreadView(leaf, this, this.threadManager),
+			(leaf) => {
+				const threadManager = new ThreadManager(
+					this.app,
+					this.provider,
+					{},
+					(message: string) => new Notice(message),
+					async (url: string) => await this.openWithURL(url),
+				);
+				return new ThreadView(leaf, this, threadManager);
+			},
 		);
 		this.registerView(
 			VIEW_TYPE_BOARD,
-			(leaf) => new BoardView(leaf, this, this.boardManager),
+			(leaf) => {
+				const boardManager = new BoardManager(this.app, this.provider, this);
+				return new BoardView(leaf, this, boardManager);
+			},
 		);
 	}
 
