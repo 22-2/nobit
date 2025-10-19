@@ -81,6 +81,9 @@ export class CustomHoverPopover extends Component {
 			"hover-popover",
 			"bbs-post-preview",
 		);
+		this.hoverEl.setCssStyles({
+			maxHeight: "70%",
+		});
 	}
 
 	show(mountFn: (target: HTMLElement) => ReturnType<typeof mount>) {
