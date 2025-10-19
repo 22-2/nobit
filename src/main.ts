@@ -64,39 +64,32 @@ export default class NobitPlugin extends Plugin {
 			this.provider = new DefaultBBSProvider();
 			this.fetcher = (this.provider as any).fetcher; // Access the fetcher for compatibility
 		}
-
 	}
 
 	/**
 	 * Register custom views.
 	 */
 	private registerViews(): void {
-		this.registerView(
-			VIEW_TYPE_THREAD,
-			(leaf) => {
-				const threadManagerContext: ThreadManagerContext = {
-					app: this.app,
-					provider: this.provider,
-					showNotice: (message: string) => new Notice(message),
-					openWithURL: async (url: string) => await this.openWithURL(url),
-				};
-				const threadManager = new ThreadManager(threadManagerContext);
-				return new ThreadView(leaf, this, threadManager);
-			},
-		);
-		this.registerView(
-			VIEW_TYPE_BOARD,
-			(leaf) => {
-				const boardManagerContext: BoardManagerContext = {
-					app: this.app,
-					provider: this.provider,
-					showNotice: (message: string) => this.showNotice(message),
-					openWithURL: async (url: string) => await this.openWithURL(url),
-				};
-				const boardManager = new BoardManager(boardManagerContext);
-				return new BoardView(leaf, this, boardManager);
-			},
-		);
+		this.registerView(VIEW_TYPE_THREAD, (leaf) => {
+			const threadManagerContext: ThreadManagerContext = {
+				app: this.app,
+				provider: this.provider,
+				showNotice: (message: string) => new Notice(message),
+				openWithURL: async (url: string) => await this.openWithURL(url),
+			};
+			const threadManager = new ThreadManager(threadManagerContext);
+			return new ThreadView(leaf, this, threadManager);
+		});
+		this.registerView(VIEW_TYPE_BOARD, (leaf) => {
+			const boardManagerContext: BoardManagerContext = {
+				app: this.app,
+				provider: this.provider,
+				showNotice: (message: string) => this.showNotice(message),
+				openWithURL: async (url: string) => await this.openWithURL(url),
+			};
+			const boardManager = new BoardManager(boardManagerContext);
+			return new BoardView(leaf, this, boardManager);
+		});
 	}
 
 	/**
@@ -114,7 +107,7 @@ export default class NobitPlugin extends Plugin {
 			callback: () => {
 				this.openWithURL("https://bbs.eddibb.cc/liveedge");
 			},
-		})
+		});
 	}
 
 	/**
