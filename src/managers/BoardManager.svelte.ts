@@ -4,7 +4,7 @@ import { type BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
 import type { BoardFilters, SubjectItem } from "../lib/types";
 import type NobitPlugin from "../main";
-import { BaseManager, type BaseManagerOptions } from "./BaseManager";
+import { BaseManager, type BaseManagerOptions } from "./BaseManager.svelte";
 import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
 
 const logger = log.getLogger("BoardManager");
@@ -152,8 +152,6 @@ export class BoardManager extends BaseManager {
 	updateFilters(newFilters: Partial<BoardFilters>): void {
 		this.filters = { ...this.filters, ...newFilters };
 	}
-
-
 
 	/**
 	 * Open a thread from the board.

@@ -6,7 +6,7 @@ import {
 import type { ParsedBbsUrl } from "src/lib/libch/url";
 import { mount, unmount } from "svelte";
 import type NobitPlugin from "../main";
-import type { BaseManager } from "../managers/BaseManager";
+import type { BaseManager } from "../managers/BaseManager.svelte";
 
 export interface BaseViewState extends ParsedBbsUrl {
 	url: string;

@@ -4,7 +4,7 @@ import { Menu, setTooltip, type App } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "../lib/libch/url";
 import type { Post, Thread, ThreadFilters } from "../lib/types";
-import { BaseManager, type BaseManagerOptions } from "./BaseManager";
+import { BaseManager, type BaseManagerOptions } from "./BaseManager.svelte";
 import { PostMenuBuilder } from "./menu/PostMenuBuilder";
 import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
 
@@ -220,8 +220,6 @@ export class ThreadManager extends BaseManager {
 	updateFilters(newFilters: Partial<ThreadFilters>): void {
 		this.filters = { ...this.filters, ...newFilters };
 	}
-
-
 
 	/**
 	 * Jump to a specific post number within the thread.
