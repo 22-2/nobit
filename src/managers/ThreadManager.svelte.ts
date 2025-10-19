@@ -1,9 +1,12 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
-import type { App } from "obsidian";
+import { Menu, setTooltip, type App } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
-import type { Thread, ThreadFilters } from "../lib/types";
+import { parseBbsUrl } from "../lib/libch/url";
+import type { Post, Thread, ThreadFilters } from "../lib/types";
 import { BaseManager, type BaseManagerOptions } from "./BaseManager";
+import { PostMenuBuilder } from "./menu/PostMenuBuilder";
+import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
 
 const logger = log.getLogger("ThreadManager");
 
@@ -40,6 +43,10 @@ export class ThreadManager extends BaseManager {
 
 	// Callback for when thread loads successfully
 	onThreadLoaded?: () => void;
+
+	// Menu builders for context menus
+	private threadMenuBuilder: ThreadMenuBuilder;
+	private postMenuBuilder: PostMenuBuilder;
 
 	/**
 	 * Get filtered posts based on current filter state.
@@ -139,8 +146,22 @@ export class ThreadManager extends BaseManager {
 		app: App,
 		private provider: BBSProvider,
 		protected options: BaseManagerOptions = {},
+		private showNotice: (message: string) => void = () => {},
+		private openWithURL: (url: string) => Promise<void> = async () => {},
 	) {
 		super(app, options);
+
+		// Initialize menu builders with callbacks
+		this.threadMenuBuilder = new ThreadMenuBuilder(
+			showNotice,
+			async (host: string, board: string) => {
+				const boardUrl = `https://${host}/${board}/`;
+				await this.openWithURL(boardUrl);
+			},
+			this.openWithURL,
+		);
+
+		this.postMenuBuilder = new PostMenuBuilder(showNotice);
 	}
 
 	/**
@@ -244,5 +265,78 @@ export class ThreadManager extends BaseManager {
 		this.thread = null;
 		this.error = this.formatUserFriendlyError(error, "スレッド");
 		logger.error("Failed to load thread:", error);
+	}
+
+	/**
+	 * Show context menu for the current thread.
+	 * This method handles Obsidian Menu API, keeping it separated from Svelte components.
+	 *
+	 * @param event - The mouse event that triggered the menu
+	 */
+	showThreadContextMenu(event: MouseEvent): void {
+		if (!this.thread) {
+			logger.error("Cannot show thread menu: no thread loaded");
+			return;
+		}
+
+		const info = this.threadMenuBuilder.extractThreadInfoFromThread(
+			this.thread,
+		);
+		if (!info) {
+			logger.error("Failed to extract thread info for menu");
+			return;
+		}
+
+		// Create and show Obsidian Menu with full thread data for "copy full thread" feature
+		const menu = new Menu();
+		this.threadMenuBuilder.buildThreadMenu(menu, info, this.thread);
+		menu.showAtMouseEvent(event);
+	}
+
+	/**
+	 * Show context menu for a post item.
+	 * This method handles Obsidian Menu API, keeping it separated from Svelte components.
+	 *
+	 * @param post - The post to show menu for
+	 * @param index - The index of the post (0-based)
+	 * @param event - The mouse event that triggered the menu
+	 */
+	showPostContextMenu(post: Post, index: number, event: MouseEvent): void {
+		if (!this.thread) {
+			logger.error("Cannot show post menu: no thread loaded");
+			return;
+		}
+
+		const parsed = parseBbsUrl(this.thread.url);
+		if (!parsed) {
+			logger.error(`Cannot parse thread URL: ${this.thread.url}`);
+			return;
+		}
+
+		const info = {
+			host: parsed.host,
+			board: parsed.board,
+			threadId: parsed.threadId || "",
+			threadTitle: this.thread.title,
+			post,
+			index,
+		};
+
+		// Create and show Obsidian Menu
+		const menu = new Menu();
+		this.postMenuBuilder.buildPostMenu(menu, info);
+		menu.showAtMouseEvent(event);
+	}
+
+	/**
+	 * Set tooltip for a thread element.
+	 * This method handles Obsidian setTooltip API, keeping it separated from Svelte components.
+	 *
+	 * @param element - The HTML element to attach tooltip to
+	 * @param text - The tooltip text to display
+	 */
+	setTooltip(element: HTMLElement, text: string): void {
+		// Use Obsidian's setTooltip API
+		setTooltip(element, text);
 	}
 }

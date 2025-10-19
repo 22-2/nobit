@@ -82,8 +82,8 @@
 	}
 
 	function handleContextMenu(thread: ThreadItem, e: MouseEvent) {
-		console.log("Context menu:", thread);
-		// TODO: Implement context menu logic
+		e.preventDefault();
+		boardManager.showThreadContextMenu(thread, e);
 	}
 
 	function handleHeaderContextMenu(e: MouseEvent) {

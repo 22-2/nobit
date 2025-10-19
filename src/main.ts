@@ -63,7 +63,13 @@ export default class NobitPlugin extends Plugin {
 			this.fetcher = (this.provider as any).fetcher; // Access the fetcher for compatibility
 		}
 
-		this.threadManager = new ThreadManager(this.app, this.provider);
+		this.threadManager = new ThreadManager(
+			this.app,
+			this.provider,
+			{},
+			(message: string) => new Notice(message),
+			async (url: string) => await this.openWithURL(url),
+		);
 		this.boardManager = new BoardManager(this.app, this.provider, this);
 	}
 
@@ -251,5 +257,12 @@ export default class NobitPlugin extends Plugin {
 	 */
 	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
+	}
+
+	/**
+	 * Show a notice to the user.
+	 */
+	showNotice(message: string): void {
+		new Notice(message);
 	}
 }

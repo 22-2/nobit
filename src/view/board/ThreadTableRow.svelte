@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { calculateIkioi } from "src/lib/libch/utils";
+	import { getContext } from "svelte";
 	import type { SubjectItem } from "../../lib/types";
+	import type { BoardManager } from "../../managers/BoardManager.svelte";
 
 	type ThreadItem = SubjectItem & { index: number };
 
@@ -11,9 +13,21 @@
 	};
 
 	let { thread, visibleColumns, onMouseDown }: Props = $props();
+
+	const boardManager = getContext<BoardManager>("boardManager");
+
+	let rowElement: HTMLDivElement | undefined = $state();
+
+	// Setup tooltip when element is mounted
+	$effect(() => {
+		if (rowElement) {
+			boardManager.setThreadTooltip(rowElement, thread);
+		}
+	});
 </script>
 
 <div
+	bind:this={rowElement}
 	class="tr"
 	role="row"
 	tabindex="0"

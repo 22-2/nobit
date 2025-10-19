@@ -49,6 +49,7 @@
 
 	let threadContentEl = $state<HTMLElement>();
 	let popoverContainerEl = $state<HTMLElement>();
+	let threadHeaderEl = $state<HTMLElement>();
 
 	// Setup wheel refresh for down direction
 	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
@@ -76,6 +77,13 @@
 	$effect(() => {
 		if (threadManager.thread) {
 			popoverService.setThreadData(threadManager.thread);
+		}
+	});
+
+	// Setup tooltip for thread header
+	$effect(() => {
+		if (threadHeaderEl && threadManager.thread) {
+			threadManager.setTooltip(threadHeaderEl, threadManager.thread.title);
 		}
 	});
 
@@ -218,6 +226,18 @@
 			detail.event,
 		);
 	}
+
+	function handleShowPostContextMenu(detail: {
+		post: import("src/lib/types").Post;
+		index: number;
+		event: MouseEvent;
+	}) {
+		threadManager.showPostContextMenu(detail.post, detail.index, detail.event);
+	}
+
+	function handleThreadContextMenu(event: MouseEvent) {
+		threadManager.showThreadContextMenu(event);
+	}
 </script>
 
 <BaseViewComponent
@@ -242,7 +262,7 @@
 	{#if threadManager.thread}
 		<!-- Thread Content -->
 		<div class="thread-content" bind:this={threadContentEl}>
-			<div class="thread-header">
+			<div class="thread-header" bind:this={threadHeaderEl} oncontextmenu={handleThreadContextMenu}>
 				<h2 class="thread-title">{threadManager.thread.title}</h2>
 				<div class="thread-info">
 					<span class="post-count"
@@ -262,6 +282,7 @@
 						onLeavePostLink={handleLeavePostLink}
 						onShowReplyTree={handleShowReplyTree}
 						onShowIdPosts={handleShowIdPosts}
+						onShowPostContextMenu={handleShowPostContextMenu}
 					/>
 				{/each}
 			</div>

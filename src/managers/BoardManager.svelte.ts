@@ -1,10 +1,11 @@
 import log from "loglevel";
-import type { App } from "obsidian";
+import { Menu, setTooltip, type App } from "obsidian";
 import { type BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
 import type { SubjectItem } from "../lib/types";
-import { BaseManager, type BaseManagerOptions } from "./BaseManager";
 import type NobitPlugin from "../main";
+import { BaseManager, type BaseManagerOptions } from "./BaseManager";
+import { ThreadMenuBuilder } from "./menu/ThreadMenuBuilder";
 
 const logger = log.getLogger("BoardManager");
 
@@ -30,6 +31,9 @@ export class BoardManager extends BaseManager {
 	// Callback for when board loads successfully
 	onBoardLoaded?: () => void;
 
+	// Menu builder for thread context menus
+	private menuBuilder: ThreadMenuBuilder;
+
 	constructor(
 		app: App,
 		private provider: BBSProvider,
@@ -37,6 +41,18 @@ export class BoardManager extends BaseManager {
 		protected options: BaseManagerOptions = {},
 	) {
 		super(app, options);
+
+		// Initialize menu builder with callbacks
+		this.menuBuilder = new ThreadMenuBuilder(
+			(message: string) => this.plugin.showNotice(message),
+			async (host: string, board: string) => {
+				const boardUrl = `https://${host}/${board}/`;
+				await this.plugin.openWithURL(boardUrl);
+			},
+			async (url: string) => {
+				await this.plugin.openWithURL(url);
+			},
+		);
 	}
 
 	/**
@@ -134,5 +150,42 @@ export class BoardManager extends BaseManager {
 		this.threads = [];
 		this.error = this.formatUserFriendlyError(error, "板");
 		logger.error("Failed to load board:", error);
+	}
+
+	/**
+	 * Show context menu for a thread item.
+	 * This method handles Obsidian Menu API, keeping it separated from Svelte components.
+	 *
+	 * @param thread - The thread to show menu for
+	 * @param event - The mouse event that triggered the menu
+	 */
+	showThreadContextMenu(thread: SubjectItem, event: MouseEvent): void {
+		if (!this.boardUrl) {
+			logger.error("Cannot show thread menu: board URL not available");
+			return;
+		}
+
+		const info = this.menuBuilder.extractThreadInfo(thread, this.boardUrl);
+		if (!info) {
+			logger.error("Failed to extract thread info for menu");
+			return;
+		}
+
+		// Create and show Obsidian Menu
+		const menu = new Menu();
+		this.menuBuilder.buildThreadMenu(menu, info);
+		menu.showAtMouseEvent(event);
+	}
+
+	/**
+	 * Set tooltip for a thread element.
+	 * This method handles Obsidian setTooltip API, keeping it separated from Svelte components.
+	 *
+	 * @param element - The HTML element to attach tooltip to
+	 * @param thread - The thread to show tooltip for
+	 */
+	setThreadTooltip(element: HTMLElement, thread: SubjectItem): void {
+		// Use Obsidian's setTooltip API
+		setTooltip(element, thread.title);
 	}
 }
