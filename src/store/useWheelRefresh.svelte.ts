@@ -144,7 +144,10 @@ export function useWheelRefresh({
 		config: DirectionalRefreshConfig,
 	): boolean {
 		if (direction === "up") {
-			return wheelState.count >= (config.threshold ?? DEFAULT_WHEEL_THRESHOLD);
+			return (
+				wheelState.count >=
+				(config.threshold ?? DEFAULT_WHEEL_THRESHOLD)
+			);
 		}
 
 		if (direction === "down") {
@@ -159,20 +162,29 @@ export function useWheelRefresh({
 
 			// Debug logging
 			if (refreshTriggerLineEl) {
-				console.log("🔍 shouldTriggerRefresh (down):", {
-					count: wheelState.count,
-					threshold: config.threshold,
-					gap: config.gap,
-					scrollTop: scrollInfo.scrollTop,
-					clientHeight: scrollInfo.clientHeight,
-					scrollBottom: scrollInfo.scrollTop + scrollInfo.clientHeight,
-					triggerLineOffsetTop: refreshTriggerLineEl.offsetTop,
-					isPastGapLine,
-					willTrigger: wheelState.count >= (config.threshold ?? DEFAULT_WHEEL_THRESHOLD) && isPastGapLine,
-				});
+				console.log("🔍 shouldTriggerRefresh (down):");
+				// console.table({
+				// 	count: wheelState.count,
+				// 	clientHeight: scrollInfo.clientHeight,
+				// 	gap: config.gap,
+				// 	isPastGapLine,
+				// 	scrollBottom:
+				// 		scrollInfo.scrollTop + scrollInfo.clientHeight,
+				// 	scrollTop: scrollInfo.scrollTop,
+				// 	threshold: config.threshold,
+				// 	triggerLineOffsetTop: refreshTriggerLineEl.offsetTop,
+				// 	willTrigger:
+				// 		wheelState.count >=
+				// 			(config.threshold ?? DEFAULT_WHEEL_THRESHOLD) &&
+				// 		isPastGapLine,
+				// });
 			}
 
-			return wheelState.count >= (config.threshold ?? DEFAULT_WHEEL_THRESHOLD) && isPastGapLine;
+			return (
+				wheelState.count >=
+					(config.threshold ?? DEFAULT_WHEEL_THRESHOLD) &&
+				isPastGapLine
+			);
 		}
 
 		return false;

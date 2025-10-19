@@ -47,12 +47,12 @@
 		}
 	});
 
-	let postsContainerEl = $state<HTMLElement>();
+	let threadContentEl = $state<HTMLElement>();
 	let popoverContainerEl = $state<HTMLElement>();
 
 	// Setup wheel refresh for down direction
 	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
-		getScrollElement: () => postsContainerEl,
+		getScrollElement: () => threadContentEl,
 		isEnabled: () => {
 			console.log("threadManager.isLoading", threadManager.isLoading);
 			return !threadManager.isLoading;
@@ -61,7 +61,7 @@
 			onRefresh: async () => {
 				await threadManager.refreshThread();
 			},
-			gap: -40,
+			gap: -200,
 			threshold: 7,
 		},
 	});
@@ -112,10 +112,10 @@
 
 		// Custom smooth scroll animation
 		const smoothScroll = () => {
-			if (!postsContainerEl) return;
+			if (!threadContentEl) return;
 
 			if (Math.abs(scrollVelocity) > 0.1) {
-				postsContainerEl.scrollTop += scrollVelocity;
+				threadContentEl.scrollTop += scrollVelocity;
 				scrollVelocity *= 0.85; // Damping factor (higher = slower deceleration)
 				animationFrameId = requestAnimationFrame(smoothScroll);
 			} else {
@@ -130,8 +130,11 @@
 
 			// Check if the wheel event is happening over our component
 
-			const target = (e.target as HTMLElement).closest(".posts-container");
-			if (!postsContainerEl?.contains(target) && postsContainerEl !== target)
+			const target = (e.target as HTMLElement).closest(".thread-content");
+			if (
+				!threadContentEl?.contains(target) &&
+				threadContentEl !== target
+			)
 				return;
 
 			e.preventDefault();
@@ -236,14 +239,9 @@
 	</div>
 
 	<!-- Loading State -->
-	{#if shouldShowLoading}
-		<div class="loading-container">
-			<div class="loading-spinner"></div>
-			<div class="loading-text">スレッドを読み込み中...</div>
-		</div>
-	{:else if threadManager.thread}
+	{#if threadManager.thread}
 		<!-- Thread Content -->
-		<div class="thread-content">
+		<div class="thread-content" bind:this={threadContentEl}>
 			<div class="thread-header">
 				<h2 class="thread-title">{threadManager.thread.title}</h2>
 				<div class="thread-info">
@@ -254,7 +252,7 @@
 				</div>
 			</div>
 
-			<div class="posts-container" bind:this={postsContainerEl}>
+			<div class="posts-container">
 				{#each threadManager.filteredPosts as post}
 					<PostItem
 						{post}
@@ -288,9 +286,8 @@
 </BaseViewComponent>
 
 <style>
-
 	.thread-view {
-		display: block!important;
+		display: block !important;
 		height: 100%;
 	}
 
@@ -340,7 +337,7 @@
 
 	.thread-content {
 		height: 100%;
-		margin: 32px 0;
+		overflow-y: scroll;
 	}
 
 	.thread-header {
@@ -370,7 +367,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-		overflow-y: scroll;
 	}
 
 	.empty-container {
@@ -404,5 +400,12 @@
 
 	.popover-container :global(*) {
 		pointer-events: auto;
+	}
+
+	.refresh-trigger-line {
+		width: 100%;
+		height: 1px;
+		background-color: transparent;
+		pointer-events: none;
 	}
 </style>

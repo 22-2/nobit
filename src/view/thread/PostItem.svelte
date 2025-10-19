@@ -244,6 +244,8 @@
 <style>
 	.post {
 		padding-bottom: 1em;
+	}
+	.post:not(:last-child) {
 		border-bottom: 1px solid var(--background-modifier-border);
 	}
 
