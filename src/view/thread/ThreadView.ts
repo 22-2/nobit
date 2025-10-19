@@ -1,9 +1,9 @@
 import log from "loglevel";
-import { Scope, type WorkspaceLeaf } from "obsidian";
+import { Menu, Scope, type WorkspaceLeaf } from "obsidian";
 import { usePopover } from "src/store/usePopover.svelte";
 import type NobitPlugin from "../../main";
 import { ThreadManager } from "../../managers/ThreadManager.svelte";
-import { VIEW_TYPE_THREAD } from "../../utils/constants";
+import { ICON_THREAD, VIEW_TYPE_THREAD } from "../../utils/constants";
 import { BaseView, type BaseViewState } from "../BaseView";
 import ThreadViewComponent from "./ThreadViewComponent.svelte";
 
@@ -36,11 +36,11 @@ export class ThreadView extends BaseView<ThreadManager, ThreadViewState> {
 	}
 
 	getIcon(): string {
-		return "messages-square";
+		return ICON_THREAD;
 	}
 
 	getDefaultTitle(): string {
-		return "5ch Thread";
+		return "Thread";
 	}
 
 	getManagerContextKey(): string {
@@ -63,6 +63,25 @@ export class ThreadView extends BaseView<ThreadManager, ThreadViewState> {
 				this.containerEl.find("input.search-input").focus();
 			});
 		});
+	}
+
+	onPaneMenu(
+		menu: Menu,
+		source: "more-options" | "tab-header" | string,
+	): void {
+		super.onPaneMenu(menu, source);
+		if (source === "tab-header" && this.manager.thread) {
+			const threadInfo =
+				this.manager.threadMenuBuilder.extractThreadInfoFromThread(
+					this.manager.thread,
+				);
+			if (threadInfo) {
+				this.manager.threadMenuBuilder.buildThreadMenu(
+					menu,
+					threadInfo,
+				);
+			}
+		}
 	}
 
 	async loadContent(url: string): Promise<void> {

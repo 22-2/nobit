@@ -1,6 +1,7 @@
 import type { Menu } from "obsidian";
-import type { SubjectItem, Thread } from "../../lib/types";
+import { ICON_BOARD } from "src/utils/constants";
 import { parseBbsUrl } from "../../lib/libch/url";
+import type { SubjectItem, Thread } from "../../lib/types";
 
 /**
  * Information required to build thread context menu
@@ -37,18 +38,18 @@ export class ThreadMenuBuilder {
 		const url = `https://${info.host}/test/read.cgi/${info.board}/${info.threadId}/`;
 
 		// Open thread action
-		menu.addItem((item) => {
-			item.setTitle("スレッドを開く")
-				.setIcon("messages-square")
-				.onClick(async () => {
-					await this.openThread(url);
-				});
-		});
+		// menu.addItem((item) => {
+		// 	item.setTitle("スレッドを開く")
+		// 		.setIcon("messages-square")
+		// 		.onClick(async () => {
+		// 			await this.openThread(url);
+		// 		});
+		// });
 
 		// Open board action
 		menu.addItem((item) => {
 			item.setTitle("板を開く")
-				.setIcon("list")
+				.setIcon(ICON_BOARD)
 				.onClick(async () => {
 					await this.openBoard(info.host, info.board);
 				});
@@ -56,82 +57,87 @@ export class ThreadMenuBuilder {
 
 		menu.addSeparator();
 
-			// Copy submenu
-			menu.addItem((item) => {
-				const copySubmenu = ((item as any)
-					.setTitle("コピー")
+		// Copy submenu
+		menu.addItem((item) => {
+			const copySubmenu = (item as any)
+				.setTitle("コピー")
+				.setIcon("copy")
+				.setSubmenu() as Menu;
+
+			copySubmenu.addItem((subItem) =>
+				subItem
+					.setTitle("スレタイとURL")
 					.setIcon("copy")
-					.setSubmenu()) as Menu;
+					.onClick(() => {
+						navigator.clipboard.writeText(`${info.title}\n${url}`);
+						this.showNotice("スレタイとURLをコピーしました");
+					}),
+			);
 
+			copySubmenu.addItem((subItem) =>
+				subItem
+					.setTitle("スレタイ")
+					.setIcon("copy")
+					.onClick(() => {
+						navigator.clipboard.writeText(info.title);
+						this.showNotice("スレタイをコピーしました");
+					}),
+			);
+
+			copySubmenu.addItem((subItem) =>
+				subItem
+					.setTitle("URL")
+					.setIcon("link")
+					.onClick(() => {
+						navigator.clipboard.writeText(url);
+						this.showNotice("URLをコピーしました");
+					}),
+			);
+
+			// Add "Copy full thread" if thread data is available
+			if (threadData) {
+				copySubmenu.addSeparator();
 				copySubmenu.addItem((subItem) =>
 					subItem
-						.setTitle("スレタイとURL")
-						.setIcon("copy")
-						.onClick(() => {
-							navigator.clipboard.writeText(`${info.title}\n${url}`);
-							this.showNotice("スレタイとURLをコピーしました");
+						.setTitle("スレッド全文")
+						.setIcon("copy-plus")
+						.onClick(async () => {
+							try {
+								const header = `${threadData.title}\n${url}\n`;
+								const postsText = threadData.posts
+									.map((post, index) => {
+										const postNumber = index + 1;
+										const authorName = post.authorName;
+										const mail = post.mail
+											? ` ${post.mail}`
+											: "";
+										const date = this.formatDate(post.date);
+										const authorId = post.authorId || "???";
+										const content = post.content
+											.replace(/<br\s*\/?>/gi, "\n")
+											.replace(/<[^>]+>/g, "");
+
+										return `${postNumber}: ${authorName}${mail}  ${date} ID:${authorId}\n${content}`;
+									})
+									.join("\n\n");
+
+								const fullText = header + "\n" + postsText;
+
+								await navigator.clipboard.writeText(fullText);
+								this.showNotice("スレッド全文をコピーしました");
+							} catch (error) {
+								this.showNotice(
+									"コピーに失敗: スレッドデータの処理中にエラーが発生しました",
+								);
+								console.error(
+									"Failed to copy full thread:",
+									error,
+								);
+							}
 						}),
 				);
-
-				copySubmenu.addItem((subItem) =>
-					subItem
-						.setTitle("スレタイ")
-						.setIcon("copy")
-						.onClick(() => {
-							navigator.clipboard.writeText(info.title);
-							this.showNotice("スレタイをコピーしました");
-						}),
-				);
-
-				copySubmenu.addItem((subItem) =>
-					subItem
-						.setTitle("スレッドURL")
-						.setIcon("link")
-						.onClick(() => {
-							navigator.clipboard.writeText(url);
-							this.showNotice("スレッドURLをコピーしました");
-						}),
-				);
-
-				// Add "Copy full thread" if thread data is available
-				if (threadData) {
-					copySubmenu.addSeparator();
-					copySubmenu.addItem((subItem) =>
-						subItem
-							.setTitle("スレッド全文")
-							.setIcon("copy-plus")
-							.onClick(async () => {
-								try {
-									const header = `${threadData.title}\n${url}\n`;
-									const postsText = threadData.posts
-										.map((post, index) => {
-											const postNumber = index + 1;
-											const authorName = post.authorName;
-											const mail = post.mail ? ` ${post.mail}` : "";
-											const date = this.formatDate(post.date);
-											const authorId = post.authorId || "???";
-											const content = post.content
-												.replace(/<br\s*\/?>/gi, "\n")
-												.replace(/<[^>]+>/g, "");
-
-											return `${postNumber}: ${authorName}${mail}  ${date} ID:${authorId}\n${content}`;
-										})
-										.join("\n\n");
-
-									const fullText = header + "\n" + postsText;
-
-									await navigator.clipboard.writeText(fullText);
-									this.showNotice("スレッド全文をコピーしました");
-								} catch (error) {
-									this.showNotice(
-										"コピーに失敗: スレッドデータの処理中にエラーが発生しました",
-									);
-									console.error("Failed to copy full thread:", error);
-								}
-							}),
-					);
-				}
-			});
+			}
+		});
 
 		menu.addSeparator();
 

@@ -19,3 +19,5 @@ export const APP_NAME = manifest.name;
 
 export const VIEW_TYPE_THREAD = "thread-view";
 export const VIEW_TYPE_BOARD = "board-view";
+export const ICON_THREAD = "messages-square";
+export const ICON_BOARD = "layout-list";

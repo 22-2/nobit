@@ -43,8 +43,8 @@ export class ThreadManager extends BaseManager {
 	onThreadLoaded?: () => void;
 
 	// Menu builders for context menus
-	private threadMenuBuilder: ThreadMenuBuilder;
-	private postMenuBuilder: PostMenuBuilder;
+	public threadMenuBuilder: ThreadMenuBuilder;
+	public postMenuBuilder: PostMenuBuilder;
 
 	/**
 	 * Get filtered posts based on current filter state.
