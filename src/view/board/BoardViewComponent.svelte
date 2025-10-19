@@ -1,10 +1,10 @@
 <script lang="ts">
-	import BaseViewComponent from "../BaseViewComponent.svelte";
+	import type { SorterState, SubjectItem } from "src/lib/types";
 	import { getContext, onMount } from "svelte";
 	import { BoardManager } from "../../managers/BoardManager.svelte";
-	import ThreadListTable from "./ThreadListTable.svelte";
+	import BaseViewComponent from "../BaseViewComponent.svelte";
 	import BoardFilters from "./BoardFilters.svelte";
-	import type { SorterState, SubjectItem } from "src/lib/types";
+	import ThreadListTable from "./ThreadListTable.svelte";
 
 	// Props
 	interface Props {
@@ -100,7 +100,7 @@
 >
 	<!-- Board Content with ThreadListTable -->
 	<div class="board-content">
-		<div class="board-header">
+		<!-- <div class="board-header">
 			<h2 class="board-title">{boardManager.boardTitle || "板"}</h2>
 			<div class="board-info">
 				<span class="thread-count"
@@ -108,7 +108,8 @@
 						.threads.length} threads</span
 				>
 			</div>
-		</div>
+		</div> -->
+		<!-- todo: move to status bar -->
 
 		<!-- Board Filters Component -->
 		<div class="filters-section">
@@ -143,6 +144,7 @@
 
 	.filters-section {
 		flex-shrink: 0;
+		margin: 0 32px;
 	}
 
 	.board-header {
