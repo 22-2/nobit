@@ -47,6 +47,11 @@ export class BoardView extends BaseView<BoardManager, BoardViewState> {
 		return BoardViewComponent;
 	}
 
+	async onOpen(): Promise<void> {
+		this.addAction("refresh-cw", "スレッド一覧を更新",() => this.manager.refreshBoard());
+		super.onOpen();
+	}
+
 	async loadContent(url: string): Promise<void> {
 		logger.debug("Navigating to board from URL:", url);
 		await this.manager.loadBoard(url);
