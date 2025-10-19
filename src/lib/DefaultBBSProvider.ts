@@ -1,3 +1,4 @@
+import log from "loglevel";
 import {
 	BaseBBSProvider,
 	type BaseBBSProviderOptions,
@@ -16,6 +17,8 @@ import type {
 	SubjectItem,
 	Thread,
 } from "./types";
+
+const logger = log.getLogger("DefaultBBSProvider");
 
 export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 	readonly id = "default";
@@ -41,7 +44,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 
 		super(actualFetcher, decoder, parser, options);
 
-		console.log(
+		logger.debug(
 			`🔧 DefaultBBSProvider: Using ${
 				actualFetcher instanceof TestFetcher
 					? "TestFetcher"
@@ -145,12 +148,12 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 		const datUrl = `https://${host}/${board}/dat/${threadId}.dat`;
 
 		try {
-			console.log("📥 Fetching thread data from:", datUrl);
+			logger.debug("📥 Fetching thread data from:", datUrl);
 			const buffer = await this.fetchWithRetry(datUrl);
-			console.log("✅ Received buffer, size:", buffer.byteLength);
+			logger.debug("✅ Received buffer, size:", buffer.byteLength);
 
 			const text = this.decodeBuffer(buffer);
-			console.log(
+			logger.debug(
 				"✅ Decoded text, length:",
 				text.length,
 				"preview:",
@@ -162,7 +165,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 				console.error("❌ Parser returned undefined");
 				throw new Error(`Failed to parse thread from ${datUrl}`);
 			}
-			console.log(
+			logger.debug(
 				"✅ Thread parsed successfully, posts:",
 				thread.posts.length,
 			);
@@ -228,7 +231,7 @@ export class DefaultBBSProvider extends BaseBBSProvider implements BBSProvider {
 			);
 			const responseText = this.decodeBuffer(responseBuffer);
 
-			console.log(responseText);
+			logger.debug(responseText);
 
 			// Handle confirmation screen
 			if (/bbs\.cgi\?guid=ON/i.test(responseText)) {

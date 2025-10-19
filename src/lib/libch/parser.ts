@@ -1,4 +1,5 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\lib\libch\parser.ts
+import log from "loglevel";
 import type {
 	BBSMenu,
 	BBSMenuCategory,
@@ -7,6 +8,8 @@ import type {
 	Thread,
 } from "../types";
 import { invariant, normalizeDateStr } from "./utils";
+
+const logger = log.getLogger("Parser");
 
 // ========================================
 // Parser Interface
@@ -249,7 +252,7 @@ export abstract class BaseParser implements Parser {
 		threadId: string,
 		url: string,
 	): Thread | undefined {
-		console.log("🔍 Parser: Starting to parse thread", {
+		logger.debug("🔍 Parser: Starting to parse thread", {
 			datLength: dat?.length,
 			threadId,
 			url,
@@ -259,13 +262,13 @@ export abstract class BaseParser implements Parser {
 		this.onThreadParseStart?.(dat.length);
 
 		if (!dat?.trim().length) {
-			console.log("❌ Parser: Empty dat content");
+			logger.debug("❌ Parser: Empty dat content");
 			this.onThreadParseEmpty?.();
 			return undefined;
 		}
 
 		const lines = dat.trim().split("\n");
-		console.log("✅ Parser: Split into lines", {
+		logger.debug("✅ Parser: Split into lines", {
 			lineCount: lines.length,
 			firstLine: lines[0]?.substring(0, 100),
 		});
@@ -274,7 +277,7 @@ export abstract class BaseParser implements Parser {
 		invariant(!!lines.length && !!lines[0], "No posts found");
 
 		const firstLineParts = lines[0].split("<>");
-		console.log("🔍 Parser: First line parts", {
+		logger.debug("🔍 Parser: First line parts", {
 			partsCount: firstLineParts.length,
 			parts: firstLineParts,
 			part4: firstLineParts[4],
@@ -288,11 +291,11 @@ export abstract class BaseParser implements Parser {
 					firstLineParts[5]?.trim() ||
 					"無題"
 				: "無題";
-		console.log("🔍 Parser: Raw title", { rawTitle });
+		logger.debug("🔍 Parser: Raw title", { rawTitle });
 		invariant(rawTitle, "failed to parse title");
 
 		const title = this.decodeHtmlEntities(rawTitle);
-		console.log("✅ Parser: Final title", { title });
+		logger.debug("✅ Parser: Final title", { title });
 		this.onThreadParseTitle?.(title);
 
 		const postsToProcess = lines.slice(0, 1000);
@@ -486,7 +489,7 @@ export class DebugParser extends BaseParser {
 	private errorCount = 0;
 
 	protected onThreadParseStart(contentLength: number): void {
-		console.log(
+		logger.debug(
 			`DEBUG: Starting thread parsing, content length: ${contentLength}`,
 		);
 		this.successCount = 0;
@@ -494,25 +497,25 @@ export class DebugParser extends BaseParser {
 	}
 
 	protected onThreadParseEmpty(): void {
-		console.log(`DEBUG: Empty content`);
+		logger.debug(`DEBUG: Empty content`);
 	}
 
 	protected onThreadParseLinesCount(count: number): void {
-		console.log(`DEBUG: Total lines: ${count}`);
+		logger.debug(`DEBUG: Total lines: ${count}`);
 		if (count > 100) {
 			this.verboseLogging = false;
-			console.log(
+			logger.debug(
 				`DEBUG: Large dataset detected, reducing log verbosity`,
 			);
 		}
 	}
 
 	protected onThreadParseTitle(title: string): void {
-		console.log(`DEBUG: Thread title: "${title}"`);
+		logger.debug(`DEBUG: Thread title: "${title}"`);
 	}
 
 	protected onThreadParseProcessingCount(count: number): void {
-		console.log(`DEBUG: Processing ${count} posts`);
+		logger.debug(`DEBUG: Processing ${count} posts`);
 	}
 
 	protected onDateParsing(
@@ -521,7 +524,7 @@ export class DebugParser extends BaseParser {
 		normalized: string,
 	): void {
 		if (this.verboseLogging && resNum) {
-			console.log(
+			logger.debug(
 				`DEBUG: Post ${resNum} - Parsing date: "${raw}" -> "${normalized}"`,
 			);
 		}
@@ -533,7 +536,7 @@ export class DebugParser extends BaseParser {
 		success: boolean,
 	): void {
 		if (this.verboseLogging && resNum && !success) {
-			console.log(`DEBUG: Post ${resNum} - ${format} failed`);
+			logger.debug(`DEBUG: Post ${resNum} - ${format} failed`);
 		}
 	}
 
@@ -543,7 +546,7 @@ export class DebugParser extends BaseParser {
 		format: string,
 	): void {
 		if (this.verboseLogging && resNum) {
-			console.log(
+			logger.debug(
 				`DEBUG: Post ${resNum} - Date parsed successfully with ${format}`,
 			);
 		}
@@ -555,7 +558,7 @@ export class DebugParser extends BaseParser {
 		normalized: string,
 	): void {
 		if (this.verboseLogging && resNum) {
-			console.log(
+			logger.debug(
 				`DEBUG: Post ${resNum} - All date formats failed for: "${raw}" -> "${normalized}"`,
 			);
 		}
@@ -564,7 +567,7 @@ export class DebugParser extends BaseParser {
 	protected onPostParseSuccess(resNum: number): void {
 		this.successCount++;
 		if (this.verboseLogging) {
-			console.log(`DEBUG: Post ${resNum} - SUCCESS`);
+			logger.debug(`DEBUG: Post ${resNum} - SUCCESS`);
 		}
 	}
 
@@ -575,14 +578,14 @@ export class DebugParser extends BaseParser {
 	): void {
 		this.errorCount++;
 		if (this.verboseLogging) {
-			console.log(`DEBUG: Post ${resNum} - ERROR: ${error}`);
+			logger.debug(`DEBUG: Post ${resNum} - ERROR: ${error}`);
 			if (context?.postStr) {
-				console.log(
+				logger.debug(
 					`DEBUG: Post ${resNum} - Content: ${context.postStr}...`,
 				);
 			}
 			if (context?.dateAndIdIdx !== undefined) {
-				console.log(
+				logger.debug(
 					`DEBUG: Post ${resNum} - Invalid structure, dateAndIdIdx=${context.dateAndIdIdx}, parts=${context.partsLength}`,
 				);
 			}
@@ -595,7 +598,7 @@ export class DebugParser extends BaseParser {
 		url: string,
 	): Thread | undefined {
 		const result = super.parseThread(dat, threadId, url);
-		console.log(
+		logger.debug(
 			`DEBUG: Parsing summary - Success: ${this.successCount}, Errors: ${this.errorCount}`,
 		);
 		return result;

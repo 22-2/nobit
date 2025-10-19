@@ -1,4 +1,5 @@
 <script lang="ts">
+	import log from "loglevel";
 	import WheelProgressIndicator from "src/components/WheelProgressIndicator.svelte";
 	import { useWheelRefresh } from "src/store/useWheelRefresh.svelte";
 	import { getContext, onMount } from "svelte";
@@ -8,6 +9,8 @@
 	import PostItem from "./PostItem.svelte";
 	import ThreadFiltersComponent from "./ThreadFilters.svelte";
 	import ThreadToolbar from "./ThreadToolbar.svelte";
+
+	const logger = log.getLogger("ThreadViewComponent");
 
 	// Props
 	interface Props {
@@ -20,20 +23,20 @@
 	const threadManager = getContext<ThreadManager>("threadManager");
 	const popoverService = getContext<UsePopoverReturn>("popoverService");
 
-	console.log(
+	logger.debug(
 		"🔥 ThreadViewComponent: Script loaded, threadManager:",
 		threadManager,
 	);
-	console.log("🔥 ThreadViewComponent: popoverService:", popoverService);
-	console.log("🔥 ThreadViewComponent: initialUrl:", initialUrl);
+	logger.debug("🔥 ThreadViewComponent: popoverService:", popoverService);
+	logger.debug("🔥 ThreadViewComponent: initialUrl:", initialUrl);
 
 	// Debug: Watch filters changes
 	$effect(() => {
-		console.log(
+		logger.debug(
 			"🔍 Filters changed:",
 			JSON.stringify(threadManager.filters),
 		);
-		console.log(
+		logger.debug(
 			"🔍 Filtered posts count:",
 			threadManager.filteredPosts.length,
 		);
@@ -55,7 +58,7 @@
 	const { wheelState, bindRefreshTriggerLine } = useWheelRefresh({
 		getScrollElement: () => threadContentEl,
 		isEnabled: () => {
-			console.log("threadManager.isLoading", threadManager.isLoading);
+			logger.debug("threadManager.isLoading", threadManager.isLoading);
 			return !threadManager.isLoading;
 		},
 		down: {
@@ -83,7 +86,10 @@
 	// Setup tooltip for thread header
 	$effect(() => {
 		if (threadHeaderEl && threadManager.thread) {
-			threadManager.setTooltip(threadHeaderEl, threadManager.thread.title);
+			threadManager.setTooltip(
+				threadHeaderEl,
+				threadManager.thread.title,
+			);
 		}
 	});
 
@@ -95,7 +101,7 @@
 
 		// Load thread
 		(async () => {
-			console.log(
+			logger.debug(
 				"🔥 ThreadViewComponent: Starting to load thread:",
 				initialUrl,
 			);
@@ -104,7 +110,7 @@
 					return;
 				}
 				await threadManager.loadThread(initialUrl);
-				console.log(
+				logger.debug(
 					"🔥 ThreadViewComponent: Thread loaded successfully",
 				);
 			} catch (error) {
@@ -161,7 +167,7 @@
 		};
 
 		const timer = setTimeout(() => {
-			console.log("🎯 Adding wheel listener to window");
+			logger.debug("🎯 Adding wheel listener to window");
 			window.addEventListener("wheel", handleWheel, { passive: false });
 		}, 100);
 
@@ -232,7 +238,11 @@
 		index: number;
 		event: MouseEvent;
 	}) {
-		threadManager.showPostContextMenu(detail.post, detail.index, detail.event);
+		threadManager.showPostContextMenu(
+			detail.post,
+			detail.index,
+			detail.event,
+		);
 	}
 
 	function handleThreadContextMenu(event: MouseEvent) {
@@ -262,7 +272,11 @@
 	{#if threadManager.thread}
 		<!-- Thread Content -->
 		<div class="thread-content" bind:this={threadContentEl}>
-			<div class="thread-header" bind:this={threadHeaderEl} oncontextmenu={handleThreadContextMenu}>
+			<div
+				class="thread-header"
+				bind:this={threadHeaderEl}
+				oncontextmenu={handleThreadContextMenu}
+			>
 				<h2 class="thread-title">{threadManager.thread.title}</h2>
 				<div class="thread-info">
 					<span class="post-count"

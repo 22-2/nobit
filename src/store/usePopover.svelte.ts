@@ -9,6 +9,8 @@ import {
 	type PopoverService as IPopoverService,
 } from "./CustomHoverPopover";
 
+const logger = log.getLogger("usePopover");
+
 export interface UsePopoverReturn {
 	handleHover: (
 		targetEl: HTMLElement,
@@ -52,35 +54,30 @@ export function usePopover(): UsePopoverReturn {
 	}
 
 	function hidePopoversFrom(fromLevel: number) {
-		console.log(
-			`[PopoverService] hidePopoversFrom called with level ${fromLevel}, activePopovers.length: ${activePopovers.length}`,
+		logger.debug(
+			`hidePopoversFrom called with level ${fromLevel}, activePopovers.length: ${activePopovers.length}`,
 		);
 		if (activePopovers.length <= fromLevel) {
-			console.log(
-				`[PopoverService] No popovers to hide (length ${activePopovers.length} <= ${fromLevel})`,
+			logger.debug(
+				`No popovers to hide (length ${activePopovers.length} <= ${fromLevel})`,
 			);
 			return;
 		}
 
-		log.debug(`[PopoverService] Hiding popovers from level ${fromLevel}.`);
-		console.log(
-			`[PopoverService] Hiding popovers from level ${fromLevel}.`,
-		);
+		logger.debug(`Hiding popovers from level ${fromLevel}.`);
 
 		const toClose = activePopovers.slice(fromLevel);
 		const remainingPopovers = activePopovers.slice(0, fromLevel);
 
-		console.log(
-			`[PopoverService] toClose count: ${toClose.length}, remaining count: ${remainingPopovers.length}`,
+		logger.debug(
+			`toClose count: ${toClose.length}, remaining count: ${remainingPopovers.length}`,
 		);
 
 		activePopovers.length = 0;
 		activePopovers.push(...remainingPopovers);
 
 		toClose.forEach((popover) => {
-			console.log(
-				`[PopoverService] Hiding popover at level ${popover.level}`,
-			);
+			logger.debug(`Hiding popover at level ${popover.level}`);
 			popover.hide();
 		});
 	}
@@ -119,9 +116,7 @@ export function usePopover(): UsePopoverReturn {
 		event: MouseEvent,
 	) {
 		if (!popoverContainer) {
-			log.error(
-				"[PopoverService] Popover container is not set. Call init() first.",
-			);
+			log.error("Popover container is not set. Call init() first.");
 			return;
 		}
 
@@ -180,7 +175,7 @@ export function usePopover(): UsePopoverReturn {
 	) {
 		if (!popoverContainer || !threadData) {
 			log.error(
-				"[PopoverService] Popover container or thread data is not set. Call init() and setThreadData() first.",
+				"Popover container or thread data is not set. Call init() and setThreadData() first.",
 			);
 			return;
 		}
@@ -238,9 +233,7 @@ export function usePopover(): UsePopoverReturn {
 
 	function showSimplePopup(message: string, event: MouseEvent) {
 		if (!popoverContainer) {
-			log.error(
-				"[PopoverService] Popover container is not set. Call init() first.",
-			);
+			log.error("Popover container is not set. Call init() first.");
 			return;
 		}
 
@@ -313,7 +306,7 @@ export function usePopover(): UsePopoverReturn {
 		clearHideTimer();
 
 		if (!threadData) {
-			log.error("[PopoverService] Thread data is not set.");
+			log.error("Thread data is not set.");
 			return;
 		}
 
@@ -339,9 +332,7 @@ export function usePopover(): UsePopoverReturn {
 		event: MouseEvent,
 	) {
 		if (!popoverContainer || !threadData) {
-			log.error(
-				"[PopoverService] Popover container or thread data is not set.",
-			);
+			log.error("Popover container or thread data is not set.");
 			return;
 		}
 

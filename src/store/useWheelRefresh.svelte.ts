@@ -162,7 +162,7 @@ export function useWheelRefresh({
 
 			// Debug logging
 			if (refreshTriggerLineEl) {
-				console.log("🔍 shouldTriggerRefresh (down):");
+				// console.log("🔍 shouldTriggerRefresh (down):");
 				// console.table({
 				// 	count: wheelState.count,
 				// 	clientHeight: scrollInfo.clientHeight,

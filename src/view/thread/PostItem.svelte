@@ -1,7 +1,10 @@
 <!-- src/components/PostItem.svelte -->
 <script lang="ts">
+	import log from "loglevel";
 	import { type Post } from "src/lib/types";
 	import { formatDate } from "src/utils/utils";
+
+	const logger = log.getLogger("PostItem");
 
 	export type HoverDetail = {
 		targetEl: HTMLElement;
@@ -129,12 +132,12 @@
 			// リンクやボタン以外をクリックした場合
 			// ポップアップ内にいる場合は、カスタムイベントを発火して親ポップアップに通知
 			const popover = target.closest(".popover.hover-popover");
-			console.log(
+			logger.debug(
 				"[PostItem] Click on non-trigger element, popover:",
 				popover,
 			);
 			if (popover) {
-				console.log(
+				logger.debug(
 					"[PostItem] Dispatching popover-content-click event",
 				);
 				const customEvent = new CustomEvent("popover-content-click", {

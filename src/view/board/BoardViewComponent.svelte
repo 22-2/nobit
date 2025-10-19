@@ -1,10 +1,13 @@
 <script lang="ts">
+	import log from "loglevel";
 	import type { SorterState, SubjectItem } from "src/lib/types";
 	import { getContext, onMount } from "svelte";
 	import { BoardManager } from "../../managers/BoardManager.svelte";
 	import BaseViewComponent from "../BaseViewComponent.svelte";
 	import BoardFilters from "./BoardFilters.svelte";
 	import ThreadListTable from "./ThreadListTable.svelte";
+
+	const logger = log.getLogger("BoardViewComponent");
 
 	// Props
 	interface Props {
@@ -16,11 +19,11 @@
 	// Get BoardManager from context (injected by BoardView ItemView)
 	const boardManager = getContext<BoardManager>("boardManager");
 
-	console.log(
+	logger.debug(
 		"🔥 BoardViewComponent: Script loaded, boardManager:",
 		boardManager,
 	);
-	console.log("🔥 BoardViewComponent: initialUrl:", initialUrl);
+	logger.debug("🔥 BoardViewComponent: initialUrl:", initialUrl);
 
 	// Watch board title changes and notify parent
 	$effect(() => {
@@ -46,7 +49,7 @@
 	onMount(() => {
 		// Load board
 		(async () => {
-			console.log(
+			logger.debug(
 				"🔥 BoardViewComponent: Starting to load board:",
 				initialUrl,
 			);
@@ -55,7 +58,9 @@
 					return;
 				}
 				await boardManager.loadBoard(initialUrl);
-				console.log("🔥 BoardViewComponent: Board loaded successfully");
+				logger.debug(
+					"🔥 BoardViewComponent: Board loaded successfully",
+				);
 			} catch (error) {
 				console.error(
 					"🔥 BoardViewComponent: Failed to load board:",
@@ -72,13 +77,13 @@
 
 	function handleSortChange(newState: SorterState) {
 		sortState = newState;
-		console.log("Sort changed:", newState);
+		logger.debug("Sort changed:", newState);
 	}
 
 	type ThreadItem = SubjectItem & { index: number };
 
 	async function handleOpenThread(thread: ThreadItem, e: MouseEvent) {
-		console.log("Open thread:", thread);
+		logger.debug("Open thread:", thread);
 		await boardManager.openThread(thread);
 	}
 
@@ -88,7 +93,7 @@
 	}
 
 	function handleHeaderContextMenu(e: MouseEvent) {
-		console.log("Header context menu");
+		logger.debug("Header context menu");
 		// TODO: Implement header context menu logic
 	}
 </script>

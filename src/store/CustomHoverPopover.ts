@@ -1,6 +1,8 @@
 import log from "loglevel";
 import { mount, unmount } from "svelte";
 
+const logger = log.getLogger("PopoverService");
+
 // A minimal Component class to replicate Obsidian's lifecycle management
 // without the dependency on Obsidian itself.
 export class Component {
@@ -90,7 +92,7 @@ export class CustomHoverPopover extends Component {
 		if (this.isShown) return;
 		this.isShown = true;
 
-		log.debug(
+		logger.debug(
 			`[CustomHoverPopover] show() called for level ${this.level}.`,
 		);
 
@@ -106,7 +108,7 @@ export class CustomHoverPopover extends Component {
 
 	override onload() {
 		super.onload();
-		log.debug(
+		logger.debug(
 			`[CustomHoverPopover] onload() called. Appending hoverEl to parentContainer.`,
 			{
 				hoverEl: this.hoverEl,
@@ -130,11 +132,11 @@ export class CustomHoverPopover extends Component {
 
 		// カスタムイベントをリッスン（PostItemから発火される）
 		const contentClickListener = (event: Event) => {
-			log.debug(
+			logger.debug(
 				`[CustomHoverPopover] Popover content click on level ${this.level}`,
 				event,
 			);
-			console.log(
+			logger.debug(
 				`[CustomHoverPopover] Popover content click on level ${this.level}`,
 			);
 			// 子ポップアップを閉じる（levelではなく、配列のインデックスを渡す）
@@ -145,7 +147,7 @@ export class CustomHoverPopover extends Component {
 			"popover-content-click",
 			contentClickListener,
 		);
-		console.log(
+		logger.debug(
 			`[CustomHoverPopover] Registered popover-content-click listener on level ${this.level}`,
 		);
 		this.domEventListeners.push({
@@ -159,20 +161,20 @@ export class CustomHoverPopover extends Component {
 			"click",
 			(event: MouseEvent) => {
 				const target = event.target as HTMLElement;
-				log.debug(
+				logger.debug(
 					`[CustomHoverPopover] Click event on level ${this.level}, target:`,
 					target,
 				);
 
 				// リンクやボタンをクリックした場合は、その要素の処理を優先
 				if (target.closest("a, button")) {
-					log.debug(
+					logger.debug(
 						`[CustomHoverPopover] Click on link/button, ignoring`,
 					);
 					return;
 				}
 				// それ以外の場所をクリックした場合は、子ポップアップを閉じる
-				log.debug(
+				logger.debug(
 					`[CustomHoverPopover] Hiding popovers from level ${this.level}`,
 				);
 				this.popoverService.hidePopoversFrom(this.level);
