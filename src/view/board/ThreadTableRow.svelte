@@ -43,7 +43,7 @@
 		</div>
 	{/if}
 	{#if visibleColumns.title}
-		<div class="td col-title" role="cell" title={thread.title}>
+		<div class="td col-title" role="cell">
 			<div class="title-cell-content">
 				{thread.title}
 			</div>
