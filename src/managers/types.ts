@@ -57,3 +57,10 @@ export interface BoardManagerContext extends BaseManagerContext {
 	 */
 	openWithURL: (url: string) => Promise<void>;
 }
+
+/**
+ * Union type for all manager contexts.
+ * Since ThreadManagerContext and BoardManagerContext have identical structure,
+ * this type can be used for creating contexts that work with both managers.
+ */
+export type ManagerContext = ThreadManagerContext | BoardManagerContext;

@@ -30,6 +30,10 @@ export default class NobitPlugin extends Plugin {
 	provider!: BBSProvider;
 	fetcher!: HttpFetcher;
 
+	// ========================================
+	// Plugin Lifecycle
+	// ========================================
+
 	async onload() {
 		await this.loadSettings();
 		this.configureLogging();
@@ -44,17 +48,18 @@ export default class NobitPlugin extends Plugin {
 		logger.debug("Plugin unloaded");
 	}
 
+	// ========================================
+	// Initialization
+	// ========================================
+
 	/**
-	 * Initialize dependencies (provider, fetcher, and managers).
+	 * Initialize dependencies (provider and fetcher).
+	 * In Playwright environment without USE_DEFAULT_FETCHER flag,
+	 * TestFetcher will be auto-detected and used.
 	 */
 	private initializeDependencies(): void {
 		const isPlaywright = this.isPlaywrightEnvironment();
-		const useDefaultFetcher = (() => {
-			if (typeof process !== "undefined") {
-				return process.env.USE_DEFAULT_FETCHER === "true";
-			}
-			return false;
-		})();
+		const useDefaultFetcher = this.shouldUseDefaultFetcher();
 
 		if (!isPlaywright || useDefaultFetcher) {
 			this.fetcher = new ObsidianFetcher();
@@ -62,51 +67,73 @@ export default class NobitPlugin extends Plugin {
 		} else {
 			// Let DefaultBBSProvider auto-detect and use TestFetcher
 			this.provider = new DefaultBBSProvider();
-			this.fetcher = (this.provider as any).fetcher; // Access the fetcher for compatibility
+			this.fetcher = (this.provider as any).fetcher;
 		}
 	}
 
-	/**
-	 * Register custom views.
-	 */
+	private isPlaywrightEnvironment(): boolean {
+		if (typeof process !== "undefined" && process.env.PLAYWRIGHT) {
+			return true;
+		}
+		if (typeof window !== "undefined" && (window as any).playwright) {
+			return true;
+		}
+		return false;
+	}
+
+	private shouldUseDefaultFetcher(): boolean {
+		if (typeof process !== "undefined") {
+			return process.env.USE_DEFAULT_FETCHER === "true";
+		}
+		return false;
+	}
+
+	// ========================================
+	// View Registration
+	// ========================================
+
 	private registerViews(): void {
 		this.registerView(VIEW_TYPE_THREAD, (leaf) => {
-			const threadManagerContext: ThreadManagerContext = {
-				app: this.app,
-				provider: this.provider,
-				showNotice: (message: string) => new Notice(message),
-				openWithURL: async (url: string) => await this.openWithURL(url),
-				createMenu: () => new Menu(),
-				setTooltip: (element: HTMLElement, tooltip: string) =>
-					setTooltip(element, tooltip),
-			};
-			const threadManager = new ThreadManager(threadManagerContext);
+			const threadManager = new ThreadManager(
+				this.createManagerContext(),
+			);
 			return new ThreadView(leaf, this, threadManager);
 		});
+
 		this.registerView(VIEW_TYPE_BOARD, (leaf) => {
-			const boardManagerContext: BoardManagerContext = {
-				app: this.app,
-				provider: this.provider,
-				showNotice: (message: string) => this.showNotice(message),
-				openWithURL: async (url: string) => await this.openWithURL(url),
-				createMenu: () => new Menu(),
-				setTooltip: (element: HTMLElement, tooltip: string) =>
-					setTooltip(element, tooltip),
-			};
-			const boardManager = new BoardManager(boardManagerContext);
+			const boardManager = new BoardManager(this.createManagerContext());
 			return new BoardView(leaf, this, boardManager);
 		});
 	}
 
 	/**
-	 * Register plugin commands.
+	 * Create context for managers with all required dependencies.
+	 * This context is compatible with both ThreadManager and BoardManager
+	 * since they share the same structure.
 	 */
+	private createManagerContext(): ThreadManagerContext & BoardManagerContext {
+		return {
+			app: this.app,
+			provider: this.provider,
+			showNotice: (message: string) => new Notice(message),
+			openWithURL: async (url: string) => await this.openWithURL(url),
+			createMenu: () => new Menu(),
+			setTooltip: (element: HTMLElement, tooltip: string) =>
+				setTooltip(element, tooltip),
+		};
+	}
+
+	// ========================================
+	// Command Registration
+	// ========================================
+
 	private registerCommands(): void {
 		this.addCommand({
 			id: "open-with-url",
 			name: "Open with-url",
 			callback: () => this.handleOpenWithUrlCommand(),
 		});
+
 		this.addCommand({
 			id: "open-eddibb.cc",
 			name: "Open eddibb.cc",
@@ -117,7 +144,7 @@ export default class NobitPlugin extends Plugin {
 	}
 
 	/**
-	 * Handle the 'open-with-url' command.
+	 * Handle the 'open-with-url' command by showing URL selection dialog.
 	 */
 	private async handleOpenWithUrlCommand(): Promise<void> {
 		const selected = await this.showUrlSelectionDialog();
@@ -129,21 +156,17 @@ export default class NobitPlugin extends Plugin {
 		}
 	}
 
+	// ========================================
+	// URL Selection & History
+	// ========================================
+
 	/**
-	 * Show URL selection dialog with history.
+	 * Show URL selection dialog with history items.
+	 * User can select from history or input a new URL.
 	 */
 	private async showUrlSelectionDialog(): Promise<string | null> {
-		const historyItems = this.settings.urlHistory
-			.slice()
-			.reverse()
-			.map((item) => `${item.title} - ${item.url}`);
-
-		const instructions = createInstructions({
-			上へ: [{ modifiers: [], key: "ArrowUp" }],
-			下へ: [{ modifiers: [], key: "ArrowDown" }],
-			確定: [{ modifiers: [], key: "Enter" }],
-			キャンセル: [{ modifiers: [], key: "Escape" }],
-		});
+		const historyItems = this.getFormattedHistoryItems();
+		const instructions = this.createDialogInstructions();
 
 		return await showSelectionDialog({
 			app: this.app,
@@ -155,36 +178,80 @@ export default class NobitPlugin extends Plugin {
 	}
 
 	/**
-	 * Extract URL from selection (either from history item or direct input).
+	 * Get formatted history items for display (title - url).
+	 * Items are reversed to show most recent first.
+	 */
+	private getFormattedHistoryItems(): string[] {
+		return this.settings.urlHistory
+			.slice()
+			.reverse()
+			.map((item) => `${item.title} - ${item.url}`);
+	}
+
+	/**
+	 * Create keyboard instructions for the selection dialog.
+	 */
+	private createDialogInstructions() {
+		return createInstructions({
+			上へ: [{ modifiers: [], key: "ArrowUp" }],
+			下へ: [{ modifiers: [], key: "ArrowDown" }],
+			確定: [{ modifiers: [], key: "Enter" }],
+			キャンセル: [{ modifiers: [], key: "Escape" }],
+		});
+	}
+
+	/**
+	 * Extract URL from selection string.
+	 * Handles three formats:
+	 * 1. "URLを開く: <url>" - from URL option
+	 * 2. "title - url" - from history selection
+	 * 3. "<url>" - direct URL input
 	 */
 	private extractUrlFromSelection(selected: string): string | undefined {
 		if (selected.startsWith("URLを開く: ")) {
-			// URL option: "URLを開く: <url>"
 			return selected.replace("URLを開く: ", "");
 		}
 		if (selected.includes(" - ")) {
-			// Selection from history: "title - url"
 			return selected.split(" - ").pop();
 		}
-		// Direct URL input
 		return selected;
 	}
 
 	/**
-	 * Check if running in Playwright test environment.
+	 * Add URL to history with title and timestamp.
+	 * Maintains a maximum of 20 history items.
 	 */
-	private isPlaywrightEnvironment(): boolean {
-		if (typeof process !== "undefined" && process.env.PLAYWRIGHT) {
-			return true;
+	async addToUrlHistory(url: string, title: string): Promise<void> {
+		const MAX_HISTORY = 20;
+
+		// Remove duplicate if exists
+		this.settings.urlHistory = this.settings.urlHistory.filter(
+			(item) => item.url !== url,
+		);
+
+		// Add new item at the end
+		this.settings.urlHistory.push({
+			url,
+			title,
+			timestamp: Date.now(),
+		});
+
+		// Keep only the last MAX_HISTORY items
+		if (this.settings.urlHistory.length > MAX_HISTORY) {
+			this.settings.urlHistory =
+				this.settings.urlHistory.slice(-MAX_HISTORY);
 		}
-		if (typeof window !== "undefined" && (window as any).playwright) {
-			return true;
-		}
-		return false;
+
+		await this.saveSettings();
 	}
 
+	// ========================================
+	// View Management
+	// ========================================
+
 	/**
-	 * Open a thread view with the given URL.
+	 * Open a view (thread or board) with the given URL.
+	 * Validates URL, determines view type, and adds to history.
 	 */
 	async openWithURL(inputUrl: string): Promise<void> {
 		if (!inputUrl || !isURL(inputUrl)) {
@@ -218,42 +285,12 @@ export default class NobitPlugin extends Plugin {
 		await this.addToUrlHistory(inputUrl, title);
 	}
 
-	/**
-	 * Add URL to history with title.
-	 */
-	async addToUrlHistory(url: string, title: string): Promise<void> {
-		const MAX_HISTORY = 20;
-
-		// Remove duplicate if exists
-		this.settings.urlHistory = this.settings.urlHistory.filter(
-			(item) => item.url !== url,
-		);
-
-		// Add new item at the end
-		this.settings.urlHistory.push({
-			url,
-			title,
-			timestamp: Date.now(),
-		});
-
-		// Keep only the last MAX_HISTORY items
-		if (this.settings.urlHistory.length > MAX_HISTORY) {
-			this.settings.urlHistory =
-				this.settings.urlHistory.slice(-MAX_HISTORY);
-		}
-
-		await this.saveSettings();
-	}
+	// ========================================
+	// Settings Management
+	// ========================================
 
 	/**
-	 * Configure logging based on settings.
-	 */
-	configureLogging(): void {
-		toggleLoggerBy(this.settings.showLogger ? "DEBUG" : "ERROR");
-	}
-
-	/**
-	 * Load plugin settings from disk.
+	 * Load plugin settings from disk and merge with defaults.
 	 */
 	async loadSettings(): Promise<void> {
 		this.settings = Object.assign(
@@ -271,9 +308,10 @@ export default class NobitPlugin extends Plugin {
 	}
 
 	/**
-	 * Show a notice to the user.
+	 * Configure logging level based on settings.
+	 * DEBUG when showLogger is true, ERROR otherwise.
 	 */
-	showNotice(message: string): void {
-		new Notice(message);
+	configureLogging(): void {
+		toggleLoggerBy(this.settings.showLogger ? "DEBUG" : "ERROR");
 	}
 }
