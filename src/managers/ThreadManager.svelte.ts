@@ -1,7 +1,6 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
 import type { Menu } from "obsidian";
-import type { BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "../lib/libch/url";
 import type { Post, Thread, ThreadFilters } from "../lib/types";
 import { BaseManager } from "./BaseManager.svelte";
@@ -47,9 +46,8 @@ export class ThreadManager extends BaseManager {
 	public threadMenuBuilder: ThreadMenuBuilder;
 	public postMenuBuilder: PostMenuBuilder;
 
-	// Obsidian API functions
-	private createMenu: () => Menu;
-	private setTooltipFn: (element: HTMLElement, tooltip: string) => void;
+	// Override context with more specific type
+	declare protected context: ThreadManagerContext;
 
 	/**
 	 * Get filtered posts based on current filter state.
@@ -144,31 +142,22 @@ export class ThreadManager extends BaseManager {
 		return posts;
 	});
 
-	// Private thread-specific dependencies
-	private provider: BBSProvider;
-	private showNotice: (message: string) => void;
-	private openWithURL: (url: string) => Promise<void>;
-
 	constructor(context: ThreadManagerContext) {
 		super(context);
 
-		this.provider = context.provider;
-		this.showNotice = context.showNotice;
-		this.openWithURL = context.openWithURL;
-		this.createMenu = context.createMenu;
-		this.setTooltipFn = context.setTooltip;
+		this.context = context;
 
 		// Initialize menu builders with callbacks
 		this.threadMenuBuilder = new ThreadMenuBuilder(
-			this.showNotice,
+			this.context.showNotice,
 			async (host: string, board: string) => {
 				const boardUrl = `https://${host}/${board}/`;
-				await this.openWithURL(boardUrl);
+				await this.context.openWithURL(boardUrl);
 			},
-			this.openWithURL,
+			this.context.openWithURL,
 		);
 
-		this.postMenuBuilder = new PostMenuBuilder(this.showNotice);
+		this.postMenuBuilder = new PostMenuBuilder(this.context.showNotice);
 	}
 
 	/**
@@ -185,7 +174,7 @@ export class ThreadManager extends BaseManager {
 		logger.info(`Loading thread from URL: ${url}`);
 
 		try {
-			const thread = await this.provider.getThread(url);
+			const thread = await this.context.provider.getThread(url);
 
 			if (!thread) {
 				throw new Error("Failed to load thread data");
@@ -287,7 +276,7 @@ export class ThreadManager extends BaseManager {
 		}
 
 		// Create and show Obsidian Menu with full thread data for "copy full thread" feature
-		const menu = this.createMenu();
+		const menu = this.context.createMenu();
 		this.threadMenuBuilder.buildThreadMenu(menu, info, this.thread);
 		menu.showAtMouseEvent(event);
 	}
@@ -322,7 +311,7 @@ export class ThreadManager extends BaseManager {
 		};
 
 		// Create and show Obsidian Menu
-		const menu = this.createMenu();
+		const menu = this.context.createMenu();
 		this.postMenuBuilder.buildPostMenu(menu, info);
 		menu.showAtMouseEvent(event);
 	}
@@ -336,6 +325,6 @@ export class ThreadManager extends BaseManager {
 	 */
 	setTooltip(element: HTMLElement, text: string): void {
 		// Use Obsidian's setTooltip API
-		this.setTooltipFn(element, text);
+		this.context.setTooltip(element, text);
 	}
 }

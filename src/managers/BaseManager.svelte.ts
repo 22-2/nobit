@@ -1,5 +1,4 @@
 import log from "loglevel";
-import type { App } from "obsidian";
 import { HttpError } from "src/lib/libch/fetcher";
 import type { BaseManagerContext } from "./types";
 import { getErrorMessage } from "./utils";
@@ -19,10 +18,10 @@ export abstract class BaseManager {
 	// Reactive state for filter visibility using Svelte 5's $state
 	filterVisible = $state<boolean>(false);
 
-	protected app: App;
+	protected context: BaseManagerContext;
 
 	constructor(context: BaseManagerContext) {
-		this.app = context.app;
+		this.context = context;
 	}
 
 	/**

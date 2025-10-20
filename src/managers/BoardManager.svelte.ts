@@ -1,6 +1,5 @@
 import log from "loglevel";
 import type { Menu } from "obsidian";
-import type { BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
 import type { BoardFilters, SubjectItem } from "../lib/types";
 import { BaseManager } from "./BaseManager.svelte";
@@ -37,14 +36,8 @@ export class BoardManager extends BaseManager {
 	// Menu builder for thread context menus
 	private menuBuilder: ThreadMenuBuilder;
 
-	// Private board-specific dependencies
-	private provider: BBSProvider;
-	private showNotice: (message: string) => void;
-	private openWithURL: (url: string) => Promise<void>;
-
-	// Obsidian API functions
-	private createMenu: () => Menu;
-	private setTooltipFn: (element: HTMLElement, tooltip: string) => void;
+	// Override context with more specific type
+	declare protected context: BoardManagerContext;
 
 	/**
 	 * Get filtered threads based on current filter state.
@@ -82,20 +75,16 @@ export class BoardManager extends BaseManager {
 	constructor(context: BoardManagerContext) {
 		super(context);
 
-		this.provider = context.provider;
-		this.showNotice = context.showNotice;
-		this.openWithURL = context.openWithURL;
-		this.createMenu = context.createMenu;
-		this.setTooltipFn = context.setTooltip;
+		this.context = context;
 
 		// Initialize menu builder with callbacks
 		this.menuBuilder = new ThreadMenuBuilder(
-			this.showNotice,
+			this.context.showNotice,
 			async (host: string, board: string) => {
 				const boardUrl = `https://${host}/${board}/`;
-				await this.openWithURL(boardUrl);
+				await this.context.openWithURL(boardUrl);
 			},
-			this.openWithURL,
+			this.context.openWithURL,
 		);
 	}
 
@@ -114,8 +103,8 @@ export class BoardManager extends BaseManager {
 
 		try {
 			const [title, threads] = await Promise.all([
-				this.provider.getBoardTitle(url),
-				this.provider.getThreads(url),
+				this.context.provider.getBoardTitle(url),
+				this.context.provider.getThreads(url),
 			]);
 
 			if (!threads) {
@@ -187,7 +176,7 @@ export class BoardManager extends BaseManager {
 		logger.info(`Opening thread: ${threadUrl}`);
 
 		try {
-			await this.openWithURL(threadUrl);
+			await this.context.openWithURL(threadUrl);
 		} catch (error) {
 			logger.error("Failed to open thread:", error);
 			this.error = this.formatUserFriendlyError(error, "スレッド");
@@ -226,7 +215,7 @@ export class BoardManager extends BaseManager {
 		}
 
 		// Create and show Obsidian Menu
-		const menu = this.createMenu();
+		const menu = this.context.createMenu();
 		this.menuBuilder.buildThreadMenu(menu, info);
 		menu.showAtMouseEvent(event);
 	}
@@ -240,6 +229,6 @@ export class BoardManager extends BaseManager {
 	 */
 	setThreadTooltip(element: HTMLElement, thread: SubjectItem): void {
 		// Use Obsidian's setTooltip API
-		this.setTooltipFn(element, thread.title);
+		this.context.setTooltip(element, thread.title);
 	}
 }
