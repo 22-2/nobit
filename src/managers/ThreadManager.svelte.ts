@@ -1,6 +1,6 @@
 // E:\Desktop\coding\my-projects-02\nobit\src\managers\ThreadManager.svelte.ts
 import log from "loglevel";
-import { Menu, setTooltip } from "obsidian";
+import type { Menu } from "obsidian";
 import type { BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "../lib/libch/url";
 import type { Post, Thread, ThreadFilters } from "../lib/types";
@@ -46,6 +46,10 @@ export class ThreadManager extends BaseManager {
 	// Menu builders for context menus
 	public threadMenuBuilder: ThreadMenuBuilder;
 	public postMenuBuilder: PostMenuBuilder;
+
+	// Obsidian API functions
+	private createMenu: () => Menu;
+	private setTooltipFn: (element: HTMLElement, tooltip: string) => void;
 
 	/**
 	 * Get filtered posts based on current filter state.
@@ -151,6 +155,8 @@ export class ThreadManager extends BaseManager {
 		this.provider = context.provider;
 		this.showNotice = context.showNotice;
 		this.openWithURL = context.openWithURL;
+		this.createMenu = context.createMenu;
+		this.setTooltipFn = context.setTooltip;
 
 		// Initialize menu builders with callbacks
 		this.threadMenuBuilder = new ThreadMenuBuilder(
@@ -281,7 +287,7 @@ export class ThreadManager extends BaseManager {
 		}
 
 		// Create and show Obsidian Menu with full thread data for "copy full thread" feature
-		const menu = new Menu();
+		const menu = this.createMenu();
 		this.threadMenuBuilder.buildThreadMenu(menu, info, this.thread);
 		menu.showAtMouseEvent(event);
 	}
@@ -316,7 +322,7 @@ export class ThreadManager extends BaseManager {
 		};
 
 		// Create and show Obsidian Menu
-		const menu = new Menu();
+		const menu = this.createMenu();
 		this.postMenuBuilder.buildPostMenu(menu, info);
 		menu.showAtMouseEvent(event);
 	}
@@ -330,6 +336,6 @@ export class ThreadManager extends BaseManager {
 	 */
 	setTooltip(element: HTMLElement, text: string): void {
 		// Use Obsidian's setTooltip API
-		setTooltip(element, text);
+		this.setTooltipFn(element, text);
 	}
 }

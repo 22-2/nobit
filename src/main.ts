@@ -1,5 +1,5 @@
 import log from "loglevel";
-import { Notice, Plugin } from "obsidian";
+import { Menu, Notice, Plugin, setTooltip } from "obsidian";
 import { DefaultBBSProvider } from "./lib/DefaultBBSProvider";
 import { ObsidianFetcher } from "./lib/ObsidianFetcher";
 import type { HttpFetcher } from "./lib/libch/fetcher";
@@ -76,6 +76,9 @@ export default class NobitPlugin extends Plugin {
 				provider: this.provider,
 				showNotice: (message: string) => new Notice(message),
 				openWithURL: async (url: string) => await this.openWithURL(url),
+				createMenu: () => new Menu(),
+				setTooltip: (element: HTMLElement, tooltip: string) =>
+					setTooltip(element, tooltip),
 			};
 			const threadManager = new ThreadManager(threadManagerContext);
 			return new ThreadView(leaf, this, threadManager);
@@ -86,6 +89,9 @@ export default class NobitPlugin extends Plugin {
 				provider: this.provider,
 				showNotice: (message: string) => this.showNotice(message),
 				openWithURL: async (url: string) => await this.openWithURL(url),
+				createMenu: () => new Menu(),
+				setTooltip: (element: HTMLElement, tooltip: string) =>
+					setTooltip(element, tooltip),
 			};
 			const boardManager = new BoardManager(boardManagerContext);
 			return new BoardView(leaf, this, boardManager);

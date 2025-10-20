@@ -1,5 +1,5 @@
 import log from "loglevel";
-import { Menu, setTooltip } from "obsidian";
+import type { Menu } from "obsidian";
 import type { BBSProvider } from "src/lib/libch/provider";
 import { parseBbsUrl } from "src/lib/libch/url";
 import type { BoardFilters, SubjectItem } from "../lib/types";
@@ -42,6 +42,10 @@ export class BoardManager extends BaseManager {
 	private showNotice: (message: string) => void;
 	private openWithURL: (url: string) => Promise<void>;
 
+	// Obsidian API functions
+	private createMenu: () => Menu;
+	private setTooltipFn: (element: HTMLElement, tooltip: string) => void;
+
 	/**
 	 * Get filtered threads based on current filter state.
 	 * Returns all threads if no filters are active.
@@ -81,6 +85,8 @@ export class BoardManager extends BaseManager {
 		this.provider = context.provider;
 		this.showNotice = context.showNotice;
 		this.openWithURL = context.openWithURL;
+		this.createMenu = context.createMenu;
+		this.setTooltipFn = context.setTooltip;
 
 		// Initialize menu builder with callbacks
 		this.menuBuilder = new ThreadMenuBuilder(
@@ -220,7 +226,7 @@ export class BoardManager extends BaseManager {
 		}
 
 		// Create and show Obsidian Menu
-		const menu = new Menu();
+		const menu = this.createMenu();
 		this.menuBuilder.buildThreadMenu(menu, info);
 		menu.showAtMouseEvent(event);
 	}
@@ -234,6 +240,6 @@ export class BoardManager extends BaseManager {
 	 */
 	setThreadTooltip(element: HTMLElement, thread: SubjectItem): void {
 		// Use Obsidian's setTooltip API
-		setTooltip(element, thread.title);
+		this.setTooltipFn(element, thread.title);
 	}
 }

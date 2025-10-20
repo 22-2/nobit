@@ -1,4 +1,4 @@
-import type { App } from "obsidian";
+import type { App, Menu } from "obsidian";
 import type { BBSProvider } from "src/lib/libch/provider";
 
 /**
@@ -14,6 +14,14 @@ export interface BaseManagerContext {
 	 * BBS provider for fetching thread data from 5ch-compatible boards.
 	 */
 	provider: BBSProvider;
+	/**
+	 * Factory function to create Obsidian Menu instances.
+	 */
+	createMenu: () => Menu;
+	/**
+	 * Function to set tooltip on an HTML element.
+	 */
+	setTooltip: (element: HTMLElement, tooltip: string) => void;
 }
 
 /**

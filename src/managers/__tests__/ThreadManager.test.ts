@@ -87,6 +87,8 @@ describe("ThreadManager", () => {
 			provider: mockProvider,
 			showNotice: vi.fn(),
 			openWithURL: vi.fn(),
+			createMenu: vi.fn(),
+			setTooltip: vi.fn(),
 		};
 		threadManager = new ThreadManager(context);
 	});
